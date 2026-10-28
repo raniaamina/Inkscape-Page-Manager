@@ -3,5 +3,76 @@
     "default_preset": "A4",
     "default_gap": 20,
     "default_layout": "grid",
-    "custom_presets": {}
+    "custom_presets": {},
+    "last_settings": {
+        "margins": {
+            "enabled": false,
+            "top": "10",
+            "right": "10",
+            "bottom": "10",
+            "left": "10",
+            "bleed": "3",
+            "guides": false
+        },
+        "page_numbers": {
+            "enabled": false,
+            "style": "arabic",
+            "format": "{n}",
+            "custom_text": "",
+            "position": "bottom-center",
+            "font_family": "custom",
+            "font_custom": "",
+            "font_size": "10",
+            "color": "#333333",
+            "offset": "10",
+            "skip_first": false
+        },
+        "header_footer": {
+            "enabled": false,
+            "h_left": "",
+            "h_center": "",
+            "h_right": "",
+            "f_left": "",
+            "f_center": "",
+            "f_right": "",
+            "offset_top": "12",
+            "offset_bottom": "12",
+            "margin_x": "10",
+            "font_family": "sans-serif",
+            "font_custom": "",
+            "font_size": "9",
+            "color": "#555555",
+            "divider": false,
+            "divider_thickness": "0.5",
+            "divider_color": "#cccccc",
+            "skip_first": false,
+            "image_data": "",
+            "image_pos": "footer-left",
+            "image_width": "25",
+            "image_height": "10"
+        },
+        "watermark": {
+            "enabled": false,
+            "mode": "image",
+            "text": "DRAFT",
+            "font_family": "sans-serif",
+            "font_custom": "",
+            "font_size": "48",
+            "color": "#888888",
+            "rotation": "-45",
+            "opacity": "0.15",
+            "image_data": "",
+            "image_width": "80"
+        },
+        "layout": {
+            "mode": "grid",
+            "cols": "3",
+            "gap": "20"
+        },
+        "app_prefs": {
+            "language": "id",
+            "theme": "system",
+            "ui_backend": "gtk"
+        }
+    }
 }

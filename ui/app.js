@@ -119,16 +119,67 @@ document.addEventListener('DOMContentLoaded', () => {
     const fLeft = document.getElementById('f-left');
     const fCenter = document.getElementById('f-center');
     const fRight = document.getElementById('f-right');
+    const hfOffsetTop = document.getElementById('hf-offset-top');
+    const hfOffsetBottom = document.getElementById('hf-offset-bottom');
+    const hfMarginX = document.getElementById('hf-margin-x');
+    const hfFontFamily = document.getElementById('hf-font-family');
+    const hfFontCustom = document.getElementById('hf-font-custom');
+    const hfFontSize = document.getElementById('hf-font-size');
+    const hfColor = document.getElementById('hf-color');
     const hfDivider = document.getElementById('hf-divider');
+    const hfDividerThick = document.getElementById('hf-divider-thickness');
+    const hfDividerColor = document.getElementById('hf-divider-color');
     const hfSkipFirst = document.getElementById('hf-skip-first');
+    const btnModalHeader = document.getElementById('btn-modal-header');
+    const btnModalFooter = document.getElementById('btn-modal-footer');
+    const btnPickHfImage = document.getElementById('btn-pick-hf-image');
+    const hfImageFile = document.getElementById('hf-image-file');
+    const btnClearHfImage = document.getElementById('btn-clear-hf-image');
+    const hfImageBtnLabel = document.getElementById('hf-image-btn-label');
+    const hfImagePos = document.getElementById('hf-image-pos');
+    const hfImageW = document.getElementById('hf-image-w');
+    const hfImageH = document.getElementById('hf-image-h');
+    let hfImageData = '';
 
     // Watermark
     const wmEnabled = document.getElementById('wm-enabled');
+    const wmMode = document.getElementById('wm-mode');
+    const groupWmText = document.getElementById('group-wm-text');
+    const groupWmImage = document.getElementById('group-wm-image');
     const wmText = document.getElementById('wm-text');
-    const wmRotation = document.getElementById('wm-rotation');
+    const wmFontFamily = document.getElementById('wm-font-family');
+    const wmFontCustom = document.getElementById('wm-font-custom');
+    const wmFontSize = document.getElementById('wm-font-size');
     const wmColor = document.getElementById('wm-color');
+    const wmRotation = document.getElementById('wm-rotation');
     const wmOpacity = document.getElementById('wm-opacity');
     const wmOpacityVal = document.getElementById('wm-opacity-val');
+    const btnPickWmImage = document.getElementById('btn-pick-wm-image');
+    const wmImageFile = document.getElementById('wm-image-file');
+    const btnClearWmImage = document.getElementById('btn-clear-wm-image');
+    const wmImageBtnLabel = document.getElementById('wm-image-btn-label');
+    const wmImageWidth = document.getElementById('wm-image-width');
+    let wmImageData = '';
+
+    // Settings & About
+    const prefLanguage = document.getElementById('pref-language');
+    const prefTheme = document.getElementById('pref-theme');
+    const prefBackend = document.getElementById('pref-backend');
+    const btnShowAbout = document.getElementById('btn-show-about');
+    const modalAbout = document.getElementById('modal-about');
+    const btnCloseAboutModal = document.getElementById('btn-close-about-modal');
+    const btnDismissAbout = document.getElementById('btn-dismiss-about');
+
+    // Multiline Modal
+    const modalMultiline = document.getElementById('modal-multiline');
+    const modalMlTitle = document.getElementById('modal-ml-title');
+    const btnCloseMlModal = document.getElementById('btn-close-ml-modal');
+    const btnCancelMl = document.getElementById('btn-cancel-ml');
+    const btnSaveMl = document.getElementById('btn-save-ml');
+    const mlLeft = document.getElementById('ml-left');
+    const mlCenter = document.getElementById('ml-center');
+    const mlRight = document.getElementById('ml-right');
+    let activeMlTarget = 'header';
 
     // Zoom Controls
     const btnZoomIn = document.getElementById('btn-zoom-in');
@@ -208,6 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await res.json();
             userCustomPresets = data.custom_presets || {};
             renderCustomPresetsOptions();
+            restoreSettingsFromConfig(data);
         } catch (e) {
             console.error('Failed to load config:', e);
         }
@@ -229,6 +281,518 @@ document.addEventListener('DOMContentLoaded', () => {
                 optgroupCustomPresets.appendChild(opt);
             });
         }
+    }
+
+    // =========================================================================
+    // PERSISTENCE (AUTO-SAVE & RESTORE STATE TO CONFIG.JSON)
+    // =========================================================================
+    let saveTimeout = null;
+    function saveSettingsDebounced() {
+        if (saveTimeout) clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(saveSettingsToConfig, 400);
+    }
+
+    async function saveSettingsToConfig() {
+        try {
+            const state = {
+                margins: {
+                    enabled: marginEnabled ? marginEnabled.checked : false,
+                    top: mTopInput ? mTopInput.value : 10,
+                    right: mRightInput ? mRightInput.value : 10,
+                    bottom: mBottomInput ? mBottomInput.value : 10,
+                    left: mLeftInput ? mLeftInput.value : 10,
+                    bleed: mBleedInput ? mBleedInput.value : 0,
+                    guides: chkGuidesEnabled ? chkGuidesEnabled.checked : false
+                },
+                page_numbers: {
+                    enabled: pnEnabled ? pnEnabled.checked : false,
+                    style: pnStyle ? pnStyle.value : 'arabic',
+                    format: pnFormat ? pnFormat.value : '{n}',
+                    custom_text: pnCustomText ? pnCustomText.value : '',
+                    position: pnPosition ? pnPosition.value : 'bottom-center',
+                    font_family: pnFontFamily ? pnFontFamily.value : 'sans-serif',
+                    font_custom: pnFontCustom ? pnFontCustom.value : '',
+                    font_size: pnFontSize ? pnFontSize.value : 10,
+                    color: pnColor ? pnColor.value : '#333333',
+                    offset: pnOffset ? pnOffset.value : 10,
+                    skip_first: pnSkipFirst ? pnSkipFirst.checked : false
+                },
+                header_footer: {
+                    enabled: hfEnabled ? hfEnabled.checked : false,
+                    h_left: hLeft ? hLeft.value : '',
+                    h_center: hCenter ? hCenter.value : '',
+                    h_right: hRight ? hRight.value : '',
+                    f_left: fLeft ? fLeft.value : '',
+                    f_center: fCenter ? fCenter.value : '',
+                    f_right: fRight ? fRight.value : '',
+                    offset_top: hfOffsetTop ? hfOffsetTop.value : 12,
+                    offset_bottom: hfOffsetBottom ? hfOffsetBottom.value : 12,
+                    margin_x: hfMarginX ? hfMarginX.value : 10,
+                    font_family: hfFontFamily ? hfFontFamily.value : 'sans-serif',
+                    font_custom: hfFontCustom ? hfFontCustom.value : '',
+                    font_size: hfFontSize ? hfFontSize.value : 9,
+                    color: hfColor ? hfColor.value : '#555555',
+                    divider: hfDivider ? hfDivider.checked : false,
+                    divider_thickness: hfDividerThick ? hfDividerThick.value : 0.5,
+                    divider_color: hfDividerColor ? hfDividerColor.value : '#cccccc',
+                    skip_first: hfSkipFirst ? hfSkipFirst.checked : false,
+                    image_data: hfImageData || '',
+                    image_pos: hfImagePos ? hfImagePos.value : 'footer-left',
+                    image_width: hfImageW ? hfImageW.value : 25,
+                    image_height: hfImageH ? hfImageH.value : 10
+                },
+                watermark: {
+                    enabled: wmEnabled ? wmEnabled.checked : false,
+                    mode: wmMode ? wmMode.value : 'text',
+                    text: wmText ? wmText.value : 'DRAFT',
+                    font_family: wmFontFamily ? wmFontFamily.value : 'sans-serif',
+                    font_custom: wmFontCustom ? wmFontCustom.value : '',
+                    font_size: wmFontSize ? wmFontSize.value : 48,
+                    color: wmColor ? wmColor.value : '#888888',
+                    rotation: wmRotation ? wmRotation.value : -45,
+                    opacity: wmOpacity ? wmOpacity.value : 0.15,
+                    image_data: wmImageData || '',
+                    image_width: wmImageWidth ? wmImageWidth.value : 80
+                },
+                layout: {
+                    mode: currentLayoutMode,
+                    cols: layoutColsInput ? layoutColsInput.value : 3,
+                    gap: layoutGapInput ? layoutGapInput.value : 20
+                },
+                app_prefs: {
+                    language: prefLanguage ? prefLanguage.value : 'id',
+                    theme: prefTheme ? prefTheme.value : 'dark',
+                    ui_backend: prefBackend ? prefBackend.value : 'gtk'
+                }
+            };
+
+            await fetch('/api/config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    last_settings: state,
+                    ui_backend: state.app_prefs.ui_backend
+                })
+            });
+        } catch (e) {
+            console.error('Failed to save settings to config:', e);
+        }
+    }
+
+    function restoreSettingsFromConfig(cfg) {
+        if (!cfg) return;
+        const s = cfg.last_settings;
+        if (!s) return;
+
+        // Margins
+        if (s.margins) {
+            if (marginEnabled && s.margins.enabled !== undefined) marginEnabled.checked = s.margins.enabled;
+            if (mTopInput && s.margins.top) mTopInput.value = s.margins.top;
+            if (mRightInput && s.margins.right) mRightInput.value = s.margins.right;
+            if (mBottomInput && s.margins.bottom) mBottomInput.value = s.margins.bottom;
+            if (mLeftInput && s.margins.left) mLeftInput.value = s.margins.left;
+            if (mBleedInput && s.margins.bleed) mBleedInput.value = s.margins.bleed;
+            if (chkGuidesEnabled && s.margins.guides !== undefined) chkGuidesEnabled.checked = s.margins.guides;
+        }
+
+        // Page Numbers
+        if (s.page_numbers) {
+            if (pnEnabled && s.page_numbers.enabled !== undefined) pnEnabled.checked = s.page_numbers.enabled;
+            if (pnStyle && s.page_numbers.style) pnStyle.value = s.page_numbers.style;
+            if (pnFormat && s.page_numbers.format) pnFormat.value = s.page_numbers.format;
+            if (pnCustomText && s.page_numbers.custom_text !== undefined) pnCustomText.value = s.page_numbers.custom_text;
+            if (pnPosition && s.page_numbers.position) pnPosition.value = s.page_numbers.position;
+            if (pnFontFamily && s.page_numbers.font_family) {
+                pnFontFamily.value = s.page_numbers.font_family;
+                if (pnFontCustom) {
+                    pnFontCustom.value = s.page_numbers.font_custom || '';
+                    pnFontCustom.style.display = pnFontFamily.value === 'custom' ? 'inline-block' : 'none';
+                }
+            }
+            if (pnFontSize && s.page_numbers.font_size) pnFontSize.value = s.page_numbers.font_size;
+            if (pnColor && s.page_numbers.color) pnColor.value = s.page_numbers.color;
+            if (pnOffset && s.page_numbers.offset) pnOffset.value = s.page_numbers.offset;
+            if (pnSkipFirst && s.page_numbers.skip_first !== undefined) pnSkipFirst.checked = s.page_numbers.skip_first;
+        }
+
+        // Header & Footer
+        if (s.header_footer) {
+            if (hfEnabled && s.header_footer.enabled !== undefined) hfEnabled.checked = s.header_footer.enabled;
+            if (hLeft && s.header_footer.h_left !== undefined) hLeft.value = s.header_footer.h_left;
+            if (hCenter && s.header_footer.h_center !== undefined) hCenter.value = s.header_footer.h_center;
+            if (hRight && s.header_footer.h_right !== undefined) hRight.value = s.header_footer.h_right;
+            if (fLeft && s.header_footer.f_left !== undefined) fLeft.value = s.header_footer.f_left;
+            if (fCenter && s.header_footer.f_center !== undefined) fCenter.value = s.header_footer.f_center;
+            if (fRight && s.header_footer.f_right !== undefined) fRight.value = s.header_footer.f_right;
+            if (hfOffsetTop && s.header_footer.offset_top) hfOffsetTop.value = s.header_footer.offset_top;
+            if (hfOffsetBottom && s.header_footer.offset_bottom) hfOffsetBottom.value = s.header_footer.offset_bottom;
+            if (hfMarginX && s.header_footer.margin_x) hfMarginX.value = s.header_footer.margin_x;
+            if (hfFontFamily && s.header_footer.font_family) {
+                hfFontFamily.value = s.header_footer.font_family;
+                if (hfFontCustom) {
+                    hfFontCustom.value = s.header_footer.font_custom || '';
+                    hfFontCustom.style.display = hfFontFamily.value === 'custom' ? 'inline-block' : 'none';
+                }
+            }
+            if (hfFontSize && s.header_footer.font_size) hfFontSize.value = s.header_footer.font_size;
+            if (hfColor && s.header_footer.color) hfColor.value = s.header_footer.color;
+            if (hfDivider && s.header_footer.divider !== undefined) hfDivider.checked = s.header_footer.divider;
+            if (hfDividerThick && s.header_footer.divider_thickness) hfDividerThick.value = s.header_footer.divider_thickness;
+            if (hfDividerColor && s.header_footer.divider_color) hfDividerColor.value = s.header_footer.divider_color;
+            if (hfSkipFirst && s.header_footer.skip_first !== undefined) hfSkipFirst.checked = s.header_footer.skip_first;
+
+            if (s.header_footer.image_data) {
+                hfImageData = s.header_footer.image_data;
+                if (hfImageBtnLabel) hfImageBtnLabel.textContent = 'Logo Terpasang';
+                if (btnClearHfImage) btnClearHfImage.style.display = 'inline-flex';
+            }
+            if (hfImagePos && s.header_footer.image_pos) hfImagePos.value = s.header_footer.image_pos;
+            if (hfImageW && s.header_footer.image_width) hfImageW.value = s.header_footer.image_width;
+            if (hfImageH && s.header_footer.image_height) hfImageH.value = s.header_footer.image_height;
+        }
+
+        // Watermark
+        if (s.watermark) {
+            if (wmEnabled && s.watermark.enabled !== undefined) wmEnabled.checked = s.watermark.enabled;
+            if (wmMode && s.watermark.mode) {
+                wmMode.value = s.watermark.mode;
+                wmMode.dispatchEvent(new Event('change'));
+            }
+            if (wmText && s.watermark.text) wmText.value = s.watermark.text;
+            if (wmFontFamily && s.watermark.font_family) {
+                wmFontFamily.value = s.watermark.font_family;
+                if (wmFontCustom) {
+                    wmFontCustom.value = s.watermark.font_custom || '';
+                    wmFontCustom.style.display = wmFontFamily.value === 'custom' ? 'inline-block' : 'none';
+                }
+            }
+            if (wmFontSize && s.watermark.font_size) wmFontSize.value = s.watermark.font_size;
+            if (wmColor && s.watermark.color) wmColor.value = s.watermark.color;
+            if (wmRotation && s.watermark.rotation) wmRotation.value = s.watermark.rotation;
+            if (wmOpacity && s.watermark.opacity) {
+                wmOpacity.value = s.watermark.opacity;
+                if (wmOpacityVal) wmOpacityVal.textContent = `${Math.round(parseFloat(wmOpacity.value) * 100)}%`;
+            }
+            if (s.watermark.image_data) {
+                wmImageData = s.watermark.image_data;
+                if (wmImageBtnLabel) wmImageBtnLabel.textContent = 'Gambar Terpasang';
+                if (btnClearWmImage) btnClearWmImage.style.display = 'inline-flex';
+            }
+            if (wmImageWidth && s.watermark.image_width) wmImageWidth.value = s.watermark.image_width;
+        }
+
+        // Preferences
+        if (s.app_prefs) {
+            if (prefLanguage && s.app_prefs.language) {
+                prefLanguage.value = s.app_prefs.language;
+                setLanguage(prefLanguage.value);
+            }
+            if (prefTheme && s.app_prefs.theme) {
+                prefTheme.value = s.app_prefs.theme;
+                setTheme(prefTheme.value);
+            }
+            if (prefBackend && s.app_prefs.ui_backend) {
+                prefBackend.value = s.app_prefs.ui_backend;
+            }
+        }
+
+        syncPageNumberSlotLock();
+        renderCanvas();
+    }
+
+    // =========================================================================
+    // PAGE NUMBER SLOT LOCKING (PROTECT HEADER/FOOTER COLLISION)
+    // =========================================================================
+    function syncPageNumberSlotLock() {
+        const isPn = pnEnabled && pnEnabled.checked;
+        const pos = pnPosition ? pnPosition.value : 'bottom-center';
+
+        const slots = [
+            { el: hLeft, key: 'top-left', defPlaceholder: 'Header kiri' },
+            { el: hCenter, key: 'top-center', defPlaceholder: 'Header tengah' },
+            { el: hRight, key: 'top-right', defPlaceholder: 'Header kanan' },
+            { el: fLeft, key: 'bottom-left', defPlaceholder: 'Footer kiri' },
+            { el: fCenter, key: 'bottom-center', defPlaceholder: '{page}' },
+            { el: fRight, key: 'bottom-right', defPlaceholder: 'Footer kanan' }
+        ];
+
+        slots.forEach(s => {
+            if (!s.el) return;
+            if (isPn && pos === s.key) {
+                s.el.disabled = true;
+                s.el.classList.add('slot-locked');
+                s.el.placeholder = '[Digunakan No. Hal]';
+                s.el.title = 'Slot ini dinonaktifkan karena posisinya digunakan oleh Nomor Halaman';
+            } else {
+                s.el.disabled = false;
+                s.el.classList.remove('slot-locked');
+                s.el.placeholder = s.defPlaceholder;
+                s.el.title = '';
+            }
+        });
+    }
+
+    if (pnEnabled) pnEnabled.addEventListener('change', syncPageNumberSlotLock);
+    if (pnPosition) pnPosition.addEventListener('change', syncPageNumberSlotLock);
+
+    // =========================================================================
+    // THEME & LANGUAGE PREFERENCES
+    // =========================================================================
+    function setTheme(theme) {
+        if (theme === 'light') {
+            document.body.classList.add('theme-light');
+        } else if (theme === 'dark') {
+            document.body.classList.remove('theme-light');
+        } else if (theme === 'system') {
+            const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (isDark) document.body.classList.remove('theme-light');
+            else document.body.classList.add('theme-light');
+        }
+    }
+
+    if (prefTheme) {
+        prefTheme.addEventListener('change', () => {
+            setTheme(prefTheme.value);
+            saveSettingsDebounced();
+        });
+    }
+
+    const I18N = {
+        id: {
+            tab_pages: "Halaman",
+            tab_layout: "Tata Letak",
+            tab_margins: "Margin & Panduan",
+            tab_numbers: "Nomor Halaman",
+            tab_headerfooter: "Header & Footer",
+            tab_watermark: "Watermark",
+            tab_settings: "Pengaturan & Info",
+            btn_apply: "✓ Terapkan & Tutup",
+            btn_close: "Tutup"
+        },
+        en: {
+            tab_pages: "Pages",
+            tab_layout: "Layout",
+            tab_margins: "Margins & Guides",
+            tab_numbers: "Page Numbers",
+            tab_headerfooter: "Header & Footer",
+            tab_watermark: "Watermark",
+            tab_settings: "Settings & About",
+            btn_apply: "✓ Apply & Close",
+            btn_close: "Close"
+        }
+    };
+
+    function setLanguage(lang) {
+        const dict = I18N[lang] || I18N.id;
+        document.querySelectorAll('[data-tab]').forEach(tab => {
+            if (tab.dataset.tab === 'tab-pages') tab.textContent = dict.tab_pages;
+            if (tab.dataset.tab === 'tab-layout') tab.textContent = dict.tab_layout;
+            if (tab.dataset.tab === 'tab-margins') tab.textContent = dict.tab_margins;
+            if (tab.dataset.tab === 'tab-numbers') tab.textContent = dict.tab_numbers;
+            if (tab.dataset.tab === 'tab-headerfooter') tab.textContent = dict.tab_headerfooter;
+            if (tab.dataset.tab === 'tab-watermark') tab.textContent = dict.tab_watermark;
+            if (tab.dataset.tab === 'tab-settings') tab.textContent = dict.tab_settings;
+        });
+        if (btnApply) btnApply.innerHTML = `<span class="btn-icon">✓</span> ${dict.btn_apply}`;
+        if (btnClose) btnClose.textContent = dict.btn_close;
+    }
+
+    if (prefLanguage) {
+        prefLanguage.addEventListener('change', () => {
+            setLanguage(prefLanguage.value);
+            saveSettingsDebounced();
+        });
+    }
+
+    if (prefBackend) {
+        prefBackend.addEventListener('change', () => {
+            saveSettingsDebounced();
+        });
+    }
+
+    // =========================================================================
+    // MULTILINE HEADER / FOOTER MODAL
+    // =========================================================================
+    if (btnModalHeader) {
+        btnModalHeader.addEventListener('click', () => {
+            activeMlTarget = 'header';
+            modalMlTitle.textContent = 'Sunting Teks Header (Multiline)';
+            mlLeft.value = hLeft.value;
+            mlCenter.value = hCenter.value;
+            mlRight.value = hRight.value;
+            modalMultiline.style.display = 'flex';
+            mlCenter.focus();
+        });
+    }
+
+    if (btnModalFooter) {
+        btnModalFooter.addEventListener('click', () => {
+            activeMlTarget = 'footer';
+            modalMlTitle.textContent = 'Sunting Teks Footer (Multiline)';
+            mlLeft.value = fLeft.value;
+            mlCenter.value = fCenter.value;
+            mlRight.value = fRight.value;
+            modalMultiline.style.display = 'flex';
+            mlCenter.focus();
+        });
+    }
+
+    const closeMlModal = () => { if (modalMultiline) modalMultiline.style.display = 'none'; };
+    if (btnCloseMlModal) btnCloseMlModal.addEventListener('click', closeMlModal);
+    if (btnCancelMl) btnCancelMl.addEventListener('click', closeMlModal);
+
+    if (btnSaveMl) {
+        btnSaveMl.addEventListener('click', () => {
+            if (activeMlTarget === 'header') {
+                hLeft.value = mlLeft.value;
+                hCenter.value = mlCenter.value;
+                hRight.value = mlRight.value;
+            } else {
+                fLeft.value = mlLeft.value;
+                fCenter.value = mlCenter.value;
+                fRight.value = mlRight.value;
+            }
+            closeMlModal();
+            renderCanvas();
+            saveSettingsDebounced();
+        });
+    }
+
+    document.querySelectorAll('.btn-tag').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tag = btn.dataset.tag;
+            const activeElem = document.activeElement;
+            const targetTa = (activeElem && activeElem.classList.contains('form-textarea')) ? activeElem : mlCenter;
+            const start = targetTa.selectionStart || targetTa.value.length;
+            const end = targetTa.selectionEnd || targetTa.value.length;
+            targetTa.value = targetTa.value.substring(0, start) + tag + targetTa.value.substring(end);
+            targetTa.selectionStart = targetTa.selectionEnd = start + tag.length;
+            targetTa.focus();
+        });
+    });
+
+    // =========================================================================
+    // ABOUT MODAL
+    // =========================================================================
+    if (btnShowAbout) {
+        btnShowAbout.addEventListener('click', () => {
+            if (modalAbout) modalAbout.style.display = 'flex';
+        });
+    }
+    const closeAboutModal = () => { if (modalAbout) modalAbout.style.display = 'none'; };
+    if (btnCloseAboutModal) btnCloseAboutModal.addEventListener('click', closeAboutModal);
+    if (btnDismissAbout) btnDismissAbout.addEventListener('click', closeAboutModal);
+
+    // =========================================================================
+    // IMAGE PICKERS (HEADER/FOOTER LOGO & WATERMARK IMAGE)
+    // =========================================================================
+    if (btnPickHfImage && hfImageFile) {
+        btnPickHfImage.addEventListener('click', () => hfImageFile.click());
+        hfImageFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                hfImageData = evt.target.result;
+                if (hfImageBtnLabel) hfImageBtnLabel.textContent = file.name.length > 14 ? file.name.substring(0, 12) + '...' : file.name;
+                if (btnClearHfImage) btnClearHfImage.style.display = 'inline-flex';
+                renderCanvas();
+                saveSettingsDebounced();
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    if (btnClearHfImage) {
+        btnClearHfImage.addEventListener('click', () => {
+            hfImageData = '';
+            if (hfImageFile) hfImageFile.value = '';
+            if (hfImageBtnLabel) hfImageBtnLabel.textContent = 'Pilih Logo...';
+            btnClearHfImage.style.display = 'none';
+            renderCanvas();
+            saveSettingsDebounced();
+        });
+    }
+
+    if (wmMode) {
+        wmMode.addEventListener('change', () => {
+            const isImg = wmMode.value === 'image';
+            if (groupWmText) groupWmText.style.display = isImg ? 'none' : '';
+            if (groupWmImage) groupWmImage.style.display = isImg ? '' : 'none';
+            const lblColor = document.getElementById('lbl-wm-color');
+            const lblSize = document.getElementById('lbl-wm-size');
+            const unitSize = document.getElementById('unit-wm-size');
+            if (lblColor) lblColor.style.display = isImg ? 'none' : '';
+            if (wmColor) wmColor.style.display = isImg ? 'none' : '';
+            if (lblSize) lblSize.style.display = isImg ? 'none' : '';
+            if (wmFontSize) wmFontSize.style.display = isImg ? 'none' : '';
+            if (unitSize) unitSize.style.display = isImg ? 'none' : '';
+            renderCanvas();
+            saveSettingsDebounced();
+        });
+    }
+
+    if (btnPickWmImage && wmImageFile) {
+        btnPickWmImage.addEventListener('click', () => wmImageFile.click());
+        wmImageFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                wmImageData = evt.target.result;
+                if (wmImageBtnLabel) wmImageBtnLabel.textContent = file.name.length > 14 ? file.name.substring(0, 12) + '...' : file.name;
+                if (btnClearWmImage) btnClearWmImage.style.display = 'inline-flex';
+                renderCanvas();
+                saveSettingsDebounced();
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    if (btnClearWmImage) {
+        btnClearWmImage.addEventListener('click', () => {
+            wmImageData = '';
+            if (wmImageFile) wmImageFile.value = '';
+            if (wmImageBtnLabel) wmImageBtnLabel.textContent = 'Pilih Gambar...';
+            btnClearWmImage.style.display = 'none';
+            renderCanvas();
+            saveSettingsDebounced();
+        });
+    }
+
+    // Font Helpers
+    function getHfFontFamily() {
+        if (!hfFontFamily) return 'sans-serif';
+        if (hfFontFamily.value === 'custom') {
+            return (hfFontCustom && hfFontCustom.value.trim()) ? hfFontCustom.value.trim() : 'sans-serif';
+        }
+        return hfFontFamily.value || 'sans-serif';
+    }
+
+    if (hfFontFamily) {
+        hfFontFamily.addEventListener('change', () => {
+            if (hfFontCustom) {
+                hfFontCustom.style.display = hfFontFamily.value === 'custom' ? 'inline-block' : 'none';
+            }
+            renderCanvas();
+        });
+    }
+
+    function getWmFontFamily() {
+        if (!wmFontFamily) return 'sans-serif';
+        if (wmFontFamily.value === 'custom') {
+            return (wmFontCustom && wmFontCustom.value.trim()) ? wmFontCustom.value.trim() : 'sans-serif';
+        }
+        return wmFontFamily.value || 'sans-serif';
+    }
+
+    if (wmFontFamily) {
+        wmFontFamily.addEventListener('change', () => {
+            if (wmFontCustom) {
+                wmFontCustom.style.display = wmFontFamily.value === 'custom' ? 'inline-block' : 'none';
+            }
+            renderCanvas();
+        });
     }
 
     // Toggle Custom Size row vs Standard Preset row
@@ -454,6 +1018,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const fl = fLeft.value.trim();
         const fc = fCenter.value.trim();
         const fr = fRight.value.trim();
+        const hfOffTop = parseFloat(hfOffsetTop.value) || 12;
+        const hfOffBot = parseFloat(hfOffsetBottom.value) || 12;
+        const hfPadX = parseFloat(hfMarginX.value) || 10;
+        const hfFontFam = getHfFontFamily();
+        const hfSize = parseFloat(hfFontSize.value) || 9;
+        const hfClr = hfColor.value || '#555555';
+        const hfLineThick = parseFloat(hfDividerThick.value) || 0.5;
+        const hfLineClr = hfDividerColor.value || '#d1d5db';
+        const hfImgPos = hfImagePos.value || 'footer-left';
+        const hfImgW = parseFloat(hfImageW.value) || 25;
+        const hfImgH = parseFloat(hfImageH.value) || 10;
 
         const isWm = wmEnabled.checked;
         const wmTxt = wmText.value.trim();
@@ -528,61 +1103,111 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // 5. Live Watermark Preview
-            if (isWm && wmTxt) {
+            if (isWm) {
                 const cx = p.x + (p.width / 2);
                 const cy = p.y + (p.height / 2);
-                const wmElem = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                wmElem.setAttribute('x', cx);
-                wmElem.setAttribute('y', cy);
-                wmElem.setAttribute('transform', `rotate(${wmRot}, ${cx}, ${cy})`);
-                wmElem.setAttribute('fill', wmClr);
-                wmElem.setAttribute('opacity', wmOp);
-                wmElem.setAttribute('font-size', '44px');
-                wmElem.setAttribute('font-weight', '700');
-                wmElem.setAttribute('font-family', 'sans-serif');
-                wmElem.setAttribute('text-anchor', 'middle');
-                wmElem.setAttribute('dominant-baseline', 'middle');
-                wmElem.setAttribute('pointer-events', 'none');
-                wmElem.textContent = wmTxt;
-                pageG.appendChild(wmElem);
+                const wmModeVal = wmMode ? wmMode.value : 'text';
+
+                if (wmModeVal === 'image' && wmImageData) {
+                    const wmImgW = parseFloat(wmImageWidth ? wmImageWidth.value : 80) || 80;
+                    const imgElem = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+                    imgElem.setAttributeNS('http://www.w3.org/1999/xlink', 'href', wmImageData);
+                    imgElem.setAttribute('href', wmImageData);
+                    imgElem.setAttribute('x', cx - (wmImgW / 2));
+                    imgElem.setAttribute('y', cy - (wmImgW / 2));
+                    imgElem.setAttribute('width', wmImgW);
+                    imgElem.setAttribute('height', wmImgW);
+                    imgElem.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+                    imgElem.setAttribute('transform', `rotate(${wmRot}, ${cx}, ${cy})`);
+                    imgElem.setAttribute('opacity', wmOp);
+                    imgElem.setAttribute('pointer-events', 'none');
+                    pageG.appendChild(imgElem);
+                } else if (wmTxt) {
+                    const wmFontFam = getWmFontFamily();
+                    const wmSizeVal = parseFloat(wmFontSize ? wmFontSize.value : 44) || 44;
+                    const wmElem = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    wmElem.setAttribute('x', cx);
+                    wmElem.setAttribute('y', cy);
+                    wmElem.setAttribute('transform', `rotate(${wmRot}, ${cx}, ${cy})`);
+                    wmElem.setAttribute('fill', wmClr);
+                    wmElem.setAttribute('opacity', wmOp);
+                    wmElem.setAttribute('font-size', `${wmSizeVal}px`);
+                    wmElem.setAttribute('font-weight', '700');
+                    wmElem.setAttribute('font-family', wmFontFam);
+                    wmElem.setAttribute('text-anchor', 'middle');
+                    wmElem.setAttribute('dominant-baseline', 'middle');
+                    wmElem.setAttribute('pointer-events', 'none');
+                    wmElem.textContent = wmTxt;
+                    pageG.appendChild(wmElem);
+                }
             }
 
             // 6. Live Header Preview
             if (isHf && (!hfSkip || !isCover)) {
                 const replaceHfVars = (tmpl) => {
-                    return tmpl.replace('{page}', idx + 1)
-                               .replace('{total}', pages.length)
-                               .replace('{date}', todayStr);
+                    return (tmpl || '')
+                        .replace(/\{page\}/gi, idx + 1)
+                        .replace(/\{total\}/gi, pages.length)
+                        .replace(/\{date\}/gi, todayStr);
                 };
 
-                const hTopY = p.y + 12;
-                if (hl) createSvgText(pageG, replaceHfVars(hl), p.x + 10, hTopY, 'start', '#555', 8.5);
-                if (hc) createSvgText(pageG, replaceHfVars(hc), p.x + (p.width / 2), hTopY, 'middle', '#555', 8.5);
-                if (hr) createSvgText(pageG, replaceHfVars(hr), p.x + p.width - 10, hTopY, 'end', '#555', 8.5);
+                const hTopY = p.y + hfOffTop;
+                if (hl) createSvgText(pageG, replaceHfVars(hl), p.x + hfPadX, hTopY, 'start', hfClr, hfSize, hfFontFam);
+                if (hc) createSvgText(pageG, replaceHfVars(hc), p.x + (p.width / 2), hTopY, 'middle', hfClr, hfSize, hfFontFam);
+                if (hr) createSvgText(pageG, replaceHfVars(hr), p.x + p.width - hfPadX, hTopY, 'end', hfClr, hfSize, hfFontFam);
 
-                const fBotY = p.y + p.height - 10;
-                if (fl) createSvgText(pageG, replaceHfVars(fl), p.x + 10, fBotY, 'start', '#555', 8.5);
-                if (fc) createSvgText(pageG, replaceHfVars(fc), p.x + (p.width / 2), fBotY, 'middle', '#555', 8.5);
-                if (fr) createSvgText(pageG, replaceHfVars(fr), p.x + p.width - 10, fBotY, 'end', '#555', 8.5);
+                const fBotY = p.y + p.height - hfOffBot;
+                if (fl) createSvgText(pageG, replaceHfVars(fl), p.x + hfPadX, fBotY, 'start', hfClr, hfSize, hfFontFam);
+                if (fc) createSvgText(pageG, replaceHfVars(fc), p.x + (p.width / 2), fBotY, 'middle', hfClr, hfSize, hfFontFam);
+                if (fr) createSvgText(pageG, replaceHfVars(fr), p.x + p.width - hfPadX, fBotY, 'end', hfClr, hfSize, hfFontFam);
+
+                // Logo / Image
+                if (hfImageData) {
+                    let imgX = p.x + hfPadX;
+                    let imgY = p.y + p.height - hfOffBot - hfImgH;
+                    if (hfImgPos.includes('header')) {
+                        imgY = p.y + hfOffTop - hfImgH;
+                    }
+                    if (hfImgPos.includes('center')) {
+                        imgX = p.x + (p.width - hfImgW) / 2;
+                    } else if (hfImgPos.includes('right')) {
+                        imgX = p.x + p.width - hfPadX - hfImgW;
+                    }
+
+                    const imgElem = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+                    imgElem.setAttributeNS('http://www.w3.org/1999/xlink', 'href', hfImageData);
+                    imgElem.setAttribute('href', hfImageData);
+                    imgElem.setAttribute('x', imgX);
+                    imgElem.setAttribute('y', imgY);
+                    imgElem.setAttribute('width', hfImgW);
+                    imgElem.setAttribute('height', hfImgH);
+                    imgElem.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+                    imgElem.setAttribute('pointer-events', 'none');
+                    pageG.appendChild(imgElem);
+                }
 
                 if (hfLine) {
-                    const lineH = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                    lineH.setAttribute('x1', p.x + 10);
-                    lineH.setAttribute('y1', hTopY + 3);
-                    lineH.setAttribute('x2', p.x + p.width - 10);
-                    lineH.setAttribute('y2', hTopY + 3);
-                    lineH.setAttribute('stroke', '#d1d5db');
-                    lineH.setAttribute('stroke-width', '0.5');
-                    pageG.appendChild(lineH);
+                    if (hl || hc || hr) {
+                        const lineH = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        lineH.setAttribute('x1', p.x + hfPadX);
+                        lineH.setAttribute('y1', hTopY + 3);
+                        lineH.setAttribute('x2', p.x + p.width - hfPadX);
+                        lineH.setAttribute('y2', hTopY + 3);
+                        lineH.setAttribute('stroke', hfLineClr);
+                        lineH.setAttribute('stroke-width', hfLineThick);
+                        pageG.appendChild(lineH);
+                    }
 
-                    const lineF = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                    lineF.setAttribute('x1', p.x + 10);
-                    lineF.setAttribute('y1', fBotY - 10);
-                    lineF.setAttribute('x2', p.x + p.width - 10);
-                    lineF.setAttribute('y2', fBotY - 10);
-                    lineF.setAttribute('stroke', '#d1d5db');
-                    lineF.setAttribute('stroke-width', '0.5');
-                    pageG.appendChild(lineF);
+                    if (fl || fc || fr) {
+                        const lineF = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        lineF.setAttribute('x1', p.x + hfPadX);
+                        lineF.setAttribute('y1', fBotY - hfSize - 2);
+                        lineF.setAttribute('x2', p.x + p.width - hfPadX);
+                        lineF.setAttribute('y2', fBotY - hfSize - 2);
+                        lineF.setAttribute('stroke', hfLineClr);
+                        lineF.setAttribute('stroke-width', hfLineThick);
+                        pageG.appendChild(lineF);
+                    }
                 }
             }
 
@@ -655,14 +1280,12 @@ document.addEventListener('DOMContentLoaded', () => {
             totStr = toAlpha(totalPages, false);
         }
 
-        let baseTxt = nStr;
-        if (fmt === '{n}/{total}' || fmt === '1/N') {
-            baseTxt = `${nStr} / ${totStr}`;
-        } else if (fmt === 'Page {n} of {total}' || fmt === 'Page 1 of N') {
-            baseTxt = `Page ${nStr} of ${totStr}`;
-        } else if (fmt === '- {n} -' || fmt === '- 1 -') {
-            baseTxt = `- ${nStr} -`;
-        }
+        let baseTxt = (fmt || '{n}')
+            .replace(/\{n\}/g, nStr)
+            .replace(/\{total\}/g, totStr)
+            .replace(/1\/N/g, `${nStr} / ${totStr}`)
+            .replace(/Page 1 of N/g, `Page ${nStr} of ${totStr}`)
+            .replace(/- 1 -/g, `- ${nStr} -`);
 
         if (customSuffix) {
             baseTxt = `${baseTxt}${customSuffix}`;
@@ -696,7 +1319,21 @@ document.addEventListener('DOMContentLoaded', () => {
         t.setAttribute('font-size', `${size}px`);
         t.setAttribute('font-family', fontFamily);
         t.setAttribute('pointer-events', 'none');
-        t.textContent = text;
+
+        const lines = (text || '').split('\n');
+        if (lines.length === 1) {
+            t.textContent = lines[0];
+        } else {
+            lines.forEach((line, lIdx) => {
+                const tsp = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+                tsp.setAttribute('x', x);
+                if (lIdx > 0) {
+                    tsp.setAttribute('dy', `${size * 1.25}px`);
+                }
+                tsp.textContent = line;
+                t.appendChild(tsp);
+            });
+        }
         parent.appendChild(t);
         return t;
     }
@@ -1040,14 +1677,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // =========================================================================
     [marginEnabled, chkGuidesEnabled, mTopInput, mRightInput, mBottomInput, mLeftInput, mBleedInput,
      pnEnabled, pnStyle, pnFormat, pnCustomText, pnPosition, pnFontFamily, pnFontCustom, pnFontSize, pnColor, pnOffset, pnSkipFirst,
-     hfEnabled, hLeft, hCenter, hRight, fLeft, fCenter, fRight, hfDivider, hfSkipFirst,
-     wmEnabled, wmText, wmRotation, wmColor, wmOpacity].forEach(input => {
+     hfEnabled, hLeft, hCenter, hRight, fLeft, fCenter, fRight, hfOffsetTop, hfOffsetBottom, hfMarginX,
+     hfFontFamily, hfFontCustom, hfFontSize, hfColor, hfDivider, hfDividerThick, hfDividerColor, hfSkipFirst,
+     hfImagePos, hfImageW, hfImageH,
+     wmEnabled, wmMode, wmText, wmFontFamily, wmFontCustom, wmFontSize, wmImageWidth, wmRotation, wmColor, wmOpacity].forEach(input => {
         if (!input) return;
         const trigger = () => {
             if (input === wmOpacity && wmOpacityVal) {
                 wmOpacityVal.textContent = `${Math.round(parseFloat(wmOpacity.value) * 100)}%`;
             }
             renderCanvas();
+            saveSettingsDebounced();
         };
         input.addEventListener('input', trigger);
         input.addEventListener('change', trigger);
@@ -1165,6 +1805,9 @@ document.addEventListener('DOMContentLoaded', () => {
             statusIndicator.className = 'status-indicator busy';
             statusMsg.textContent = 'Menerapkan perubahan ke Inkscape...';
 
+            // Auto-persist latest configuration before applying
+            await saveSettingsToConfig();
+
             const payload = {
                 pages: pages,
                 options: {
@@ -1196,21 +1839,33 @@ document.addEventListener('DOMContentLoaded', () => {
                         footer_left: fLeft.value,
                         footer_center: fCenter.value,
                         footer_right: fRight.value,
+                        offset_top: parseFloat(hfOffsetTop.value) || 12,
+                        offset_bottom: parseFloat(hfOffsetBottom.value) || 12,
+                        margin_x: parseFloat(hfMarginX.value) || 10,
+                        font_family: getHfFontFamily(),
+                        font_size: parseFloat(hfFontSize.value) || 9,
+                        color: hfColor.value || '#555555',
                         show_divider: hfDivider.checked,
+                        divider_thickness: parseFloat(hfDividerThick.value) || 0.5,
+                        divider_color: hfDividerColor.value || '#cccccc',
+                        divider_offset: 3.0,
                         skip_first: hfSkipFirst.checked,
-                        font_size: 9,
-                        color: '#555555',
-                        top_margin: 12,
-                        bottom_margin: 12
+                        image_data: hfImageData || '',
+                        image_pos: hfImagePos.value || 'footer-left',
+                        image_width: parseFloat(hfImageW.value) || 25,
+                        image_height: parseFloat(hfImageH.value) || 10
                     },
                     watermark: {
                         enabled: wmEnabled.checked,
+                        mode: wmMode ? wmMode.value : 'text',
                         text: wmText.value,
+                        font_family: getWmFontFamily(),
+                        font_size: parseFloat(wmFontSize ? wmFontSize.value : 48) || 48,
+                        color: wmColor.value,
                         rotation: parseFloat(wmRotation.value) || -45,
                         opacity: parseFloat(wmOpacity.value) || 0.15,
-                        color: wmColor.value,
-                        font_size: 48,
-                        font_family: 'sans-serif'
+                        image_data: wmImageData || '',
+                        image_width: parseFloat(wmImageWidth ? wmImageWidth.value : 80) || 80
                     }
                 }
             };

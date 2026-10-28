@@ -28,6 +28,28 @@
     --font-mono: "JetBrains Mono", "SF Mono", Consolas, monospace;
 }
 
+/* Light Theme Variables */
+body.theme-light {
+    --bg-root: #eef1f5;
+    --bg-ribbon: #ffffff;
+    --bg-panel: #f7f9fb;
+    --bg-card: #ffffff;
+    --bg-card-hover: #e8ecf2;
+    --bg-input: #ffffff;
+    --bg-canvas: #dfe3e8;
+
+    --border-subtle: #d0d7de;
+    --border-strong: #bbc4ce;
+    --border-focus: #0969da;
+
+    --text-primary: #1f2328;
+    --text-secondary: #57606a;
+    --text-muted: #8c959f;
+
+    --accent-blue: #0969da;
+    --accent-blue-hover: #085cc0;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -883,4 +905,166 @@ select.form-select optgroup {
     stroke-width: 0.7px;
     stroke-dasharray: 3, 3;
     opacity: 0.6;
+}
+
+/* ==========================================================================
+   LOCKED INPUTS & ACTION BUTTONS
+   ========================================================================== */
+.form-input.slot-locked,
+.form-input:disabled {
+    background-color: rgba(120, 120, 120, 0.12) !important;
+    color: var(--text-muted) !important;
+    border-style: dashed !important;
+    cursor: not-allowed !important;
+    opacity: 0.7;
+}
+
+.btn-sm-action {
+    height: 22px;
+    padding: 0 8px;
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border-strong);
+    border-radius: 3px;
+    color: var(--text-primary);
+    font-size: 11px;
+    font-family: inherit;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    transition: background 0.15s, border-color 0.15s;
+    user-select: none;
+}
+
+.btn-sm-action:hover {
+    background-color: var(--bg-card-hover);
+    border-color: var(--border-focus);
+}
+
+.form-textarea {
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-strong);
+    border-radius: 3px;
+    color: var(--text-primary);
+    font-size: 11px;
+    font-family: inherit;
+    padding: 4px 6px;
+    resize: vertical;
+    outline: none;
+    line-height: 1.4;
+    box-sizing: border-box;
+}
+
+.form-textarea:focus {
+    border-color: var(--border-focus);
+}
+
+/* ==========================================================================
+   MODAL DIALOGS (MULTILINE EDIT & ABOUT)
+   ========================================================================== */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.65);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-dialog {
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    width: 480px;
+    max-width: 90vw;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.modal-about-dialog {
+    width: 580px;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border-subtle);
+    background-color: var(--bg-card);
+}
+
+.modal-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.btn-close-modal {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 14px;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.btn-close-modal:hover {
+    color: var(--text-primary);
+}
+
+.modal-body {
+    padding: 14px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 10px 14px;
+    border-top: 1px solid var(--border-subtle);
+    background-color: var(--bg-card);
+}
+
+.modal-vars-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-tag {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    border-radius: 3px;
+    color: var(--text-secondary);
+    font-size: 10.5px;
+    font-family: var(--font-mono);
+    padding: 2px 6px;
+    cursor: pointer;
+}
+
+.btn-tag:hover {
+    border-color: var(--accent-blue);
+    color: var(--text-primary);
+}
+
+kbd {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    border-radius: 3px;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.2);
+    color: var(--text-primary);
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 1px 4px;
 }

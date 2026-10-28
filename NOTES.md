@@ -125,3 +125,28 @@
   - Pengujian & Verifikasi:
     - Skrip uji integrasi end-to-end (`test_custom_and_pn.py`) mengonfirmasi bahwa eksekusi `apply_changes` berhasil menghasilkan elemen SVG dengan teks `Page II of III | Laporan 2026` ber-font `Ubuntu` pada halaman berdimensi custom 500×500 mm.
     - Pembuatan paket rilis via `./package.sh` berhasil menghasilkan `ink-pageman.zip` dan `ink-pageman.zip.md5` yang valid (`md5sum -c` OK).
+- **2026-10-28 [HEADER/FOOTER ENHANCEMENT, WATERMARK IMAGE, PERSISTENCE & SETTINGS/ABOUT TAB]**:
+  - **Pencegahan Tabrakan Nomor Halaman & Header/Footer (Collision Slot Lock)**:
+    - Fungsi `syncPageNumberSlotLock()` memeriksa posisi nomor halaman yang aktif (misal `bottom-center`).
+    - Input footer tengah (`f-center`) otomatis dinonaktifkan (`disabled = true`), diberi garis tepi putus-putus (`.slot-locked`), dan placeholder `[Digunakan No. Hal]` sehingga pengguna tidak akan menimpa slot tersebut secara tidak sengaja.
+  - **Posisi Bebas & Teks Multiline Header/Footer**:
+    - Menambahkan input jarak vertikal atas (`hf-offset-top`), jarak vertikal bawah (`hf-offset-bottom`), dan margin horizontal kiri-kanan (`hf-margin-x`).
+    - Tombol modal sunting (`✎`) membuka dialog teks multiline (`#modal-multiline`) untuk input teks panjang dengan baris baru, serta tombol sisip instan tag variabel (`{page}`, `{total}`, `{date}`).
+    - Di backend (`ink-pageman.py`) dan frontend kanvas (`createSvgText`), teks yang mengandung newline `\n` dipecah menjadi `<tspan x="..." dy="...">` standar SVG.
+  - **Dukungan Gambar/Logo pada Footer & Watermark**:
+    - Header & Footer: Menambahkan pemilih gambar logo via HTML5 `FileReader` (Base64 data URL), opsi posisi logo (`footer-left`, `footer-center`, `footer-right`, `header-left`, dll), serta dimensi W × H mm. Disematkan sebagai elemen `<image>` non-destruktif ke SVG.
+    - Watermark: Menambahkan mode toggle antara **Teks** dan **Gambar** (`#wm-mode`). Pada mode gambar, pengguna dapat mengunggah gambar stamp/logo, mengatur skala lebar, rotasi, dan opasitas.
+  - **Tipografi & Garis Pembatas (Divider)**:
+    - Pengaturan font family, ukuran font, dan warna untuk Header & Footer dan Watermark.
+    - Garis pembatas header dan footer dapat diatur ketebalan strokenya (`divider_thickness`) dan warnanya (`divider_color`).
+  - **Persistensi Konfigurasi Otomatis (`config.json`)**:
+    - Semua setelan terbaru (margin, nomor halaman, header/footer, watermark, preferensi tampilan, backend jendela) otomatis disimpan secara asinkron (debounced) ke `config.json` di bawah objek `"last_settings"`.
+    - Saat ekstensi dibuka kembali, `restoreSettingsFromConfig()` memulihkan seluruh status antarmuka pengguna secara otomatis.
+  - **Tab ke-7: Pengaturan & Info (`tab-settings`)**:
+    - Preferensi Bahasa: Indonesia (`id`) / English (`en`).
+    - Tema UI: Gelap (`dark`), Terang (`light`), Ikut OS (`system`).
+    - Pilihan Backend Jendela: GTK+ 3 Native (`gtk`), Browser Standar (`browser`), PyWebView (`pywebview`), Otomatis (`auto`).
+    - Tombol dialog "Tentang Ekstensi" (`#modal-about`) menampilkan informasi versi v1.2.0, daftar fitur, pintasan keyboard, pengembang, dan lisensi.
+  - **Pengujian & Verifikasi**:
+    - Pengujian integrasi end-to-end (`test_advanced_features.py`) memverifikasi 5 fitur: nomor halaman kustom, header multiline tspan, logo gambar HF, garis divider terformat, dan gambar watermark dengan rotasi.
+    - Pembuatan paket rilis via `./package.sh` berhasil menghasilkan berkas rilis `ink-pageman.zip` dan `ink-pageman.zip.md5` yang valid.

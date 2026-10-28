@@ -23,6 +23,7 @@
                     <button type="button" class="ribbon-tab" data-tab="tab-numbers">Nomor Halaman</button>
                     <button type="button" class="ribbon-tab" data-tab="tab-headerfooter">Header & Footer</button>
                     <button type="button" class="ribbon-tab" data-tab="tab-watermark">Watermark</button>
+                    <button type="button" class="ribbon-tab" data-tab="tab-settings">Pengaturan & Info</button>
                 </nav>
             </div>
 
@@ -390,49 +391,140 @@
                         <div class="group-label">Status</div>
                     </div>
 
-                    <!-- Blok: Header -->
+                    <!-- Blok: Header (Kiri / Tengah / Kanan) -->
                     <div class="ribbon-group">
                         <div class="group-body">
-                            <div class="group-form-col" style="width: 270px;">
+                            <div class="group-form-col" style="width: 275px;">
                                 <div class="form-row">
                                     <input type="text" id="h-left" class="form-input flex-1" placeholder="Header kiri">
                                     <input type="text" id="h-center" class="form-input flex-1" placeholder="Header tengah">
                                     <input type="text" id="h-right" class="form-input flex-1" placeholder="Header kanan">
                                 </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="hf-offset-top">Offset Y:</label>
+                                    <input type="number" id="hf-offset-top" class="form-input number-input" value="12" min="1" max="100" style="width: 44px;" title="Jarak dari batas atas halaman">
+                                    <span class="unit-label">mm</span>
+                                    <button type="button" class="ribbon-icon-btn btn-sm" id="btn-modal-header" data-tooltip="Sunting teks header multiline / sisipkan tag variabel" style="margin-left: auto;">
+                                        <span class="btn-icon">✎</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                        <div class="group-label">Header (Kiri / Tengah / Kanan)</div>
+                        <div class="group-label">Header & Jarak Atas</div>
                     </div>
 
-                    <!-- Blok: Footer -->
+                    <!-- Blok: Footer (Kiri / Tengah / Kanan) -->
                     <div class="ribbon-group">
                         <div class="group-body">
-                            <div class="group-form-col" style="width: 270px;">
+                            <div class="group-form-col" style="width: 275px;">
                                 <div class="form-row">
                                     <input type="text" id="f-left" class="form-input flex-1" placeholder="Footer kiri">
                                     <input type="text" id="f-center" class="form-input flex-1" placeholder="{page}">
                                     <input type="text" id="f-right" class="form-input flex-1" placeholder="Footer kanan">
                                 </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="hf-offset-bottom">Offset Y:</label>
+                                    <input type="number" id="hf-offset-bottom" class="form-input number-input" value="12" min="1" max="100" style="width: 44px;" title="Jarak dari batas bawah halaman">
+                                    <span class="unit-label">mm</span>
+                                    <button type="button" class="ribbon-icon-btn btn-sm" id="btn-modal-footer" data-tooltip="Sunting teks footer multiline / sisipkan tag variabel" style="margin-left: auto;">
+                                        <span class="btn-icon">✎</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                        <div class="group-label">Footer - Tag: {page}, {total}, {date}</div>
+                        <div class="group-label">Footer & Jarak Bawah</div>
                     </div>
 
-                    <!-- Blok: Opsi -->
+                    <!-- Blok: Logo / Gambar Header & Footer -->
                     <div class="ribbon-group">
                         <div class="group-body">
-                            <div class="group-form-col">
-                                <label class="checkbox-inline">
-                                    <input type="checkbox" id="hf-divider">
-                                    Garis Pembatas
-                                </label>
-                                <label class="checkbox-inline">
-                                    <input type="checkbox" id="hf-skip-first">
-                                    Lewati Halaman 1
-                                </label>
+                            <div class="group-form-col" style="width: 225px;">
+                                <div class="form-row">
+                                    <button type="button" class="btn-sm-action flex-1" id="btn-pick-hf-image" title="Pilih logo atau berkas gambar PNG/SVG/JPG untuk header atau footer">
+                                        <span class="btn-icon">🖼</span> <span id="hf-image-btn-label">Pilih Logo...</span>
+                                    </button>
+                                    <input type="file" id="hf-image-file" accept="image/*" style="display: none;">
+                                    <button type="button" class="ribbon-icon-btn btn-sm" id="btn-clear-hf-image" data-tooltip="Hapus logo terpilih" style="display: none;">
+                                        <span class="btn-icon">✕</span>
+                                    </button>
+                                </div>
+                                <div class="form-row">
+                                    <select id="hf-image-pos" class="form-select flex-1">
+                                        <option value="footer-left" selected>Footer Kiri</option>
+                                        <option value="footer-center">Footer Tengah</option>
+                                        <option value="footer-right">Footer Kanan</option>
+                                        <option value="header-left">Header Kiri</option>
+                                        <option value="header-center">Header Tengah</option>
+                                        <option value="header-right">Header Kanan</option>
+                                    </select>
+                                    <label class="form-label-compact" for="hf-image-w">W:</label>
+                                    <input type="number" id="hf-image-w" class="form-input number-input" value="25" min="5" max="200" style="width: 38px;" title="Lebar Logo (mm)">
+                                    <label class="form-label-compact" for="hf-image-h">H:</label>
+                                    <input type="number" id="hf-image-h" class="form-input number-input" value="10" min="2" max="100" style="width: 38px;" title="Tinggi Logo (mm)">
+                                </div>
                             </div>
                         </div>
-                        <div class="group-label">Opsi</div>
+                        <div class="group-label">Logo & Gambar</div>
+                    </div>
+
+                    <!-- Blok: Tipografi & Warna Header & Footer -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <div class="group-form-col" style="width: 215px;">
+                                <div class="form-row">
+                                    <label class="form-label" for="hf-font-family">Font:</label>
+                                    <select id="hf-font-family" class="form-select flex-1">
+                                        <option value="sans-serif" selected>Sans-serif (Modern)</option>
+                                        <option value="serif">Serif (Formal)</option>
+                                        <option value="monospace">Monospace (Code)</option>
+                                        <option value="Arial">Arial</option>
+                                        <option value="Helvetica">Helvetica</option>
+                                        <option value="Roboto">Roboto</option>
+                                        <option value="Ubuntu">Ubuntu</option>
+                                        <option value="Times New Roman">Times New Roman</option>
+                                        <option value="Georgia">Georgia</option>
+                                        <option value="Courier New">Courier New</option>
+                                        <option value="custom">Font Kustom...</option>
+                                    </select>
+                                    <input type="text" id="hf-font-custom" class="form-input" placeholder="Nama font..." style="display: none; width: 85px;">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="hf-color">Warna:</label>
+                                    <input type="color" id="hf-color" class="form-color" value="#555555" title="Warna font header & footer">
+                                    <label class="form-label-compact" for="hf-font-size" style="margin-left: 6px;">Ukuran:</label>
+                                    <input type="number" id="hf-font-size" class="form-input number-input" value="9" min="6" max="36" style="width: 42px;">
+                                    <span class="unit-label">pt</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="group-label">Tipografi & Warna</div>
+                    </div>
+
+                    <!-- Blok: Pembatas & Pengecualian -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <div class="group-form-col" style="width: 250px;">
+                                <div class="form-row">
+                                    <label class="checkbox-inline">
+                                        <input type="checkbox" id="hf-divider"> Garis
+                                    </label>
+                                    <label class="form-label-compact" for="hf-divider-thickness" style="margin-left: 4px;">Tebal:</label>
+                                    <input type="number" id="hf-divider-thickness" class="form-input number-input" value="0.5" step="0.25" min="0.25" max="5" style="width: 44px;">
+                                    <span class="unit-label">pt</span>
+                                    <label class="form-label-compact" for="hf-divider-color" style="margin-left: 4px;">Warna:</label>
+                                    <input type="color" id="hf-divider-color" class="form-color" value="#cccccc" title="Warna garis pembatas">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="hf-margin-x">Margin X:</label>
+                                    <input type="number" id="hf-margin-x" class="form-input number-input" value="10" min="0" max="100" style="width: 40px;">
+                                    <span class="unit-label">mm</span>
+                                    <label class="checkbox-inline" style="margin-left: 6px;">
+                                        <input type="checkbox" id="hf-skip-first"> Lewati Hal. 1
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="group-label">Pembatas & Margin</div>
                     </div>
                 </div>
 
@@ -450,16 +542,83 @@
                         <div class="group-label">Status</div>
                     </div>
 
-                    <!-- Blok: Teks & Rotasi -->
+                    <!-- Blok: Mode Watermark -->
                     <div class="ribbon-group">
                         <div class="group-body">
-                            <div class="group-form-col" style="width: 210px;">
+                            <div class="group-form-col" style="width: 125px;">
+                                <div class="form-row">
+                                    <label class="form-label" for="wm-mode">Mode:</label>
+                                    <select id="wm-mode" class="form-select flex-1">
+                                        <option value="text" selected>Teks</option>
+                                        <option value="image">Gambar/Cap</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="group-label">Tipe Watermark</div>
+                    </div>
+
+                    <!-- Blok: Konten Teks (Mode Teks) -->
+                    <div class="ribbon-group" id="group-wm-text">
+                        <div class="group-body">
+                            <div class="group-form-col" style="width: 240px;">
                                 <div class="form-row">
                                     <label class="form-label" for="wm-text">Teks:</label>
                                     <input type="text" id="wm-text" class="form-input flex-1" value="DRAFT">
                                 </div>
                                 <div class="form-row">
-                                    <label class="form-label" for="wm-rotation">Rotasi:</label>
+                                    <label class="form-label" for="wm-font-family">Font:</label>
+                                    <select id="wm-font-family" class="form-select flex-1">
+                                        <option value="sans-serif" selected>Sans-serif (Modern)</option>
+                                        <option value="serif">Serif (Formal)</option>
+                                        <option value="monospace">Monospace (Code)</option>
+                                        <option value="Arial">Arial</option>
+                                        <option value="Helvetica">Helvetica</option>
+                                        <option value="Roboto">Roboto</option>
+                                        <option value="Ubuntu">Ubuntu</option>
+                                        <option value="Times New Roman">Times New Roman</option>
+                                        <option value="Georgia">Georgia</option>
+                                        <option value="Courier New">Courier New</option>
+                                        <option value="custom">Font Kustom...</option>
+                                    </select>
+                                    <input type="text" id="wm-font-custom" class="form-input" placeholder="Nama font..." style="display: none; width: 85px;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="group-label">Teks & Tipografi</div>
+                    </div>
+
+                    <!-- Blok: Konten Gambar (Mode Gambar) -->
+                    <div class="ribbon-group" id="group-wm-image" style="display: none;">
+                        <div class="group-body">
+                            <div class="group-form-col" style="width: 220px;">
+                                <div class="form-row">
+                                    <button type="button" class="btn-sm-action flex-1" id="btn-pick-wm-image" title="Pilih berkas gambar cap/stempel/logo untuk watermark">
+                                        <span class="btn-icon">🖼</span> <span id="wm-image-btn-label">Pilih Gambar...</span>
+                                    </button>
+                                    <input type="file" id="wm-image-file" accept="image/*" style="display: none;">
+                                    <button type="button" class="ribbon-icon-btn btn-sm" id="btn-clear-wm-image" data-tooltip="Hapus gambar watermark" style="display: none;">
+                                        <span class="btn-icon">✕</span>
+                                    </button>
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="wm-image-width">Lebar:</label>
+                                    <input type="number" id="wm-image-width" class="form-input number-input" value="80" min="10" max="500" style="width: 52px;">
+                                    <span class="unit-label">mm</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="group-label">Berkas Gambar</div>
+                    </div>
+
+                    <!-- Blok: Tampilan & Transformasi -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <div class="group-form-col" style="width: 260px;">
+                                <div class="form-row">
+                                    <label class="form-label" for="wm-color" id="lbl-wm-color">Warna:</label>
+                                    <input type="color" id="wm-color" class="form-color" value="#888888">
+                                    <label class="form-label-compact" for="wm-rotation" style="margin-left: 6px;">Rotasi:</label>
                                     <select id="wm-rotation" class="form-select flex-1">
                                         <option value="-45" selected>-45° (Diagonal)</option>
                                         <option value="0">0° (Mendatar)</option>
@@ -467,27 +626,84 @@
                                         <option value="-90">-90° (Tegak)</option>
                                     </select>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="group-label">Konten & Arah</div>
-                    </div>
-
-                    <!-- Blok: Gaya & Opasitas -->
-                    <div class="ribbon-group">
-                        <div class="group-body">
-                            <div class="group-form-col" style="width: 210px;">
-                                <div class="form-row">
-                                    <label class="form-label" for="wm-color">Warna:</label>
-                                    <input type="color" id="wm-color" class="form-color" value="#888888">
-                                </div>
                                 <div class="form-row">
                                     <label class="form-label" for="wm-opacity">Opasitas:</label>
                                     <input type="range" id="wm-opacity" min="0.05" max="0.8" step="0.05" value="0.15" class="form-range flex-1">
-                                    <span id="wm-opacity-val" class="unit-label" style="width: 28px; text-align: right;">15%</span>
+                                    <span id="wm-opacity-val" class="unit-label" style="width: 32px; text-align: right;">15%</span>
+                                    <label class="form-label-compact" for="wm-font-size" id="lbl-wm-size" style="margin-left: 6px;">Ukuran:</label>
+                                    <input type="number" id="wm-font-size" class="form-input number-input" value="48" min="12" max="144" style="width: 44px;">
+                                    <span class="unit-label" id="unit-wm-size">pt</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="group-label">Tampilan & Opasitas</div>
+                        <div class="group-label">Gaya, Arah & Opasitas</div>
+                    </div>
+                </div>
+
+                <!-- PANEL 7: PENGATURAN & INFO -->
+                <div class="ribbon-panel" id="tab-settings">
+                    <!-- Blok: Preferensi Antarmuka -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <div class="group-form-col" style="width: 215px;">
+                                <div class="form-row">
+                                    <label class="form-label" for="pref-language">Bahasa:</label>
+                                    <select id="pref-language" class="form-select flex-1">
+                                        <option value="id" selected>Bahasa Indonesia</option>
+                                        <option value="en">English (US)</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="pref-theme">Tema:</label>
+                                    <select id="pref-theme" class="form-select flex-1">
+                                        <option value="dark" selected>Gelap (Dark)</option>
+                                        <option value="light">Terang (Light)</option>
+                                        <option value="system">Ikut Sistem OS</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="group-label">Tampilan & Bahasa</div>
+                    </div>
+
+                    <!-- Blok: Jendela Dialog (Backend) -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <div class="group-form-col" style="width: 240px;">
+                                <div class="form-row">
+                                    <label class="form-label" for="pref-backend">Window:</label>
+                                    <select id="pref-backend" class="form-select flex-1">
+                                        <option value="gtk" selected>Native GTK (WebKit2Gtk)</option>
+                                        <option value="browser">Web Browser (App Mode)</option>
+                                        <option value="pywebview">Native PyWebView</option>
+                                        <option value="auto">Otomatis (Sistem)</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <span class="unit-label" style="font-size: 10px; margin-left: 48px;">Berlaku saat dialog dibuka berikutnya</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="group-label">Backend Jendela</div>
+                    </div>
+
+                    <!-- Blok: Tentang Ekstensi -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <div class="group-form-col" style="width: 230px;">
+                                <div class="form-row" style="align-items: center; justify-content: space-between;">
+                                    <span class="brand-badge" style="font-size: 10px; padding: 2px 6px;">v1.2.0</span>
+                                    <span style="font-size: 11px; font-weight: 600; color: var(--text-primary); margin-left: 6px;">Page Manager</span>
+                                    <span class="unit-label" style="font-size: 10px; margin-left: auto;">Inkscape 1.2+</span>
+                                </div>
+                                <div class="form-row">
+                                    <button type="button" class="btn-sm-action flex-1" id="btn-show-about">
+                                        <span class="btn-icon">ℹ</span> Info Lengkap & Bantuan
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="group-label">Tentang & Bantuan</div>
                     </div>
                 </div>
             </div>
@@ -540,6 +756,90 @@
                 </button>
             </div>
         </footer>
+    </div>
+
+    <!-- MODAL: EDIT MULTILINE HEADER / FOOTER -->
+    <div class="modal-backdrop" id="modal-multiline" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <span class="modal-title" id="modal-ml-title">Sunting Teks Multiline</span>
+                <button type="button" class="btn-close-modal" id="btn-close-ml-modal">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-vars-bar">
+                    <span class="unit-label" style="margin-right: 6px;">Sisipkan Tag:</span>
+                    <button type="button" class="btn-tag" data-tag="{page}">+ {page}</button>
+                    <button type="button" class="btn-tag" data-tag="{total}">+ {total}</button>
+                    <button type="button" class="btn-tag" data-tag="{date}">+ {date}</button>
+                </div>
+                <div class="form-row" style="margin-top: 8px;">
+                    <label class="form-label" style="text-align: left; min-width: 50px;">Kiri:</label>
+                    <textarea id="ml-left" class="form-textarea flex-1" rows="2" placeholder="Teks kiri..."></textarea>
+                </div>
+                <div class="form-row" style="margin-top: 6px;">
+                    <label class="form-label" style="text-align: left; min-width: 50px;">Tengah:</label>
+                    <textarea id="ml-center" class="form-textarea flex-1" rows="2" placeholder="Teks tengah..."></textarea>
+                </div>
+                <div class="form-row" style="margin-top: 6px;">
+                    <label class="form-label" style="text-align: left; min-width: 50px;">Kanan:</label>
+                    <textarea id="ml-right" class="form-textarea flex-1" rows="2" placeholder="Teks kanan..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-ghost" id="btn-cancel-ml">Batal</button>
+                <button type="button" class="btn-primary" id="btn-save-ml">Terapkan Teks</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ABOUT PAGE MANAGER -->
+    <div class="modal-backdrop" id="modal-about" style="display: none;">
+        <div class="modal-dialog modal-about-dialog">
+            <div class="modal-header">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="brand-badge">INK</span>
+                    <span class="modal-title">Page Manager for Inkscape</span>
+                </div>
+                <button type="button" class="btn-close-modal" id="btn-close-about-modal">✕</button>
+            </div>
+            <div class="modal-body about-body">
+                <div class="about-hero">
+                    <h3 style="margin: 0 0 6px 0; color: var(--text-primary); font-size: 14px;">Page Manager v1.2.0</h3>
+                    <p class="about-desc" style="margin: 0; color: var(--text-secondary); font-size: 12px; line-height: 1.5;">Ekstensi manajemen multi-halaman Inkscape profesional dengan antarmuka Ribbon interaktif, WYSIWYG real-time canvas, penomoran halaman cerdas, header & footer, watermark, margin guides, dan susunan otomatis.</p>
+                </div>
+                <div class="about-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px;">
+                    <div class="about-col">
+                        <h4 style="margin: 0 0 8px 0; font-size: 12px; color: var(--text-primary);">Fitur Utama</h4>
+                        <ul style="margin: 0; padding-left: 18px; font-size: 11px; color: var(--text-secondary); line-height: 1.6;">
+                            <li>Pengurutan & CRUD halaman visual realtime</li>
+                            <li>Susunan otomatis: Grid, Baris, Kolom, Spreads</li>
+                            <li>Nomor halaman (Arab, Romawi, Alfabet + Kustom)</li>
+                            <li>Header & Footer multiline, logo gambar & garis pembatas</li>
+                            <li>Watermark teks dan gambar cap dengan opasitas & rotasi</li>
+                            <li>Template ukuran kustom tersimpan permanen</li>
+                            <li>Dukungan tema Gelap, Terang, dan pilihan backend window</li>
+                        </ul>
+                    </div>
+                    <div class="about-col">
+                        <h4 style="margin: 0 0 8px 0; font-size: 12px; color: var(--text-primary);">Pintasan Keyboard</h4>
+                        <ul style="margin: 0; padding-left: 18px; font-size: 11px; color: var(--text-secondary); line-height: 1.6;">
+                            <li><kbd>Enter</kbd> : Tambah halaman baru</li>
+                            <li><kbd>Del</kbd> / <kbd>Backspace</kbd> : Hapus halaman</li>
+                            <li><kbd>Ctrl</kbd> + <kbd>Klik</kbd> : Pilih banyak halaman</li>
+                            <li><kbd>Scroll</kbd> : Zoom in / out kanvas</li>
+                            <li><kbd>Drag</kbd> : Geser / pan viewport kanvas</li>
+                        </ul>
+                        <div style="margin-top: 14px; font-size: 11px; color: var(--text-muted);">
+                            Pengembang: <strong>Rania Amina</strong> (<span style="color: var(--accent-blue);">me@raniaamina.id</span>)<br>
+                            Lisensi: Open Source (GPLv3 / MIT)
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-primary" id="btn-dismiss-about">Tutup</button>
+            </div>
+        </div>
     </div>
 
     <script src="app.js"></script>
