@@ -189,3 +189,12 @@
   - **Verifikasi**:
     - Skrip pengujian `test_advanced_features.py` lulus 6/6 uji integrasi termasuk uji atribut `sodipodi:insensitive="true"`.
     - Paket rilis `ink-pageman.zip` dan `ink-pageman.zip.md5` diperbarui via `./package.sh`.
+- **2026-10-28 [IGNORE CONFIG.JSON & AUTO-GENERATION IN PACKAGING]**:
+  - **Penjelasan & Konfirmasi**:
+    - Berkas `config.json` memang dibuat secara otomatis (*auto-created*) oleh backend `ink-pageman.py` saat menyimpan setelan (`POST /api/config`). Jika berkas tidak ada, antarmuka tetap berjalan normal dengan nilai-nilai bawaan (*fallback default*).
+    - Karena `config.json` menyimpan status lokal sesi pengguna (`last_settings`, template kustom, base64 data), menyimpannya di git menyebabkan working tree selalu kotor (*dirty*).
+  - **Tindakan**:
+    - Menambahkan `config.json` ke `.gitignore`.
+    - Melepas pelacakan git (`git rm --cached config.json`) tanpa menghapus berkas fisik lokal di disk.
+    - Memperbarui skrip `package.sh` agar secara otomatis membuat berkas template `config.json` default bersih jika dijalankan di lingkungan baru (misal klona baru repository) tanpa berkas `config.json`.
+    - Menguji pemaketan ulang via `./package.sh` dan memverifikasi integritas checksum MD5.

@@ -17,6 +17,18 @@ echo "=== Memulai Pemaketan ${PACKAGE_NAME} ==="
 # Bersihkan file zip dan md5 lama jika ada
 rm -f "${ZIP_FILE}" "${MD5_FILE}"
 
+# Buat config.json default jika belum ada di lingkungan lokal
+if [[ ! -f "config.json" ]]; then
+    cat << 'EOF' > config.json
+{
+    "default_preset": "A4",
+    "default_gap": 20,
+    "default_layout": "grid",
+    "custom_presets": {}
+}
+EOF
+fi
+
 # Pastikan file-file utama ada
 REQUIRED_FILES=(
     "ink-pageman.inx"

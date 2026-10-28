@@ -11,6 +11,9 @@ extension_debug.log
 tempfiles/
 results/
 
+# User Session & Local Configuration
+config.json
+
 # Backup Files
 *.bak
 *.bak/
