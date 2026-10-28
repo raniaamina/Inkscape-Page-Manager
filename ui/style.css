@@ -481,6 +481,8 @@ body, html {
 .number-input {
     font-family: var(--font-mono);
     text-align: right;
+    min-width: 46px;
+    padding: 3px 2px 3px 4px;
 }
 
 /* Fix WebKit Select Visibility on Linux */

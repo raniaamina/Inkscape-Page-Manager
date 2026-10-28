@@ -262,3 +262,22 @@
     - Validasi sintaks JS `node -c ui/app.js` dan Python `python3 -m py_compile ink-pageman.py` lolos tanpa error.
     - Validasi format JSON `ui/id.json` dan `ui/en.json` lolos 100%.
     - Menjalankan `./package.sh` dan memverifikasi `ink-pageman.zip.md5: OK`.
+- **2026-10-28 [PERBAIKAN INPUT KEMEPETAN & POSISI SATUAN MENYELURUH]**:
+  - **Identifikasi Masalah**:
+    - Pada screenshot pengguna di blok "Tipografi, Warna & Offset" (Tab Nomor Halaman) dan tab lainnya, input number berukuran `32px` - `36px` terlalu sempit (*kemepetan*).
+    - Pada browser/WebKit Linux, tombol stepper/spinner native `<input type="number">` memakan ruang sekitar 18-20px di sisi kanan. Ditambah padding bawaan, area teks angka tersisa hanya ~10px sehingga angka 2 digit (misal `10`, `16`, `72`) atau angka desimal terpotong atau mepet menabrak panah spinner.
+  - **Solusi & Perbaikan Menyeluruh**:
+    1. **Peningkatan Lebar Input Number**:
+       - Tab Nomor Halaman: `pn-font-size` & `pn-offset` ditingkatkan dari `36px` ke **48px**, dan lebar kontainer grup ditingkatkan dari `290px` ke `315px`.
+       - Tab Header & Footer: `hf-offset-top` & `hf-offset-bottom` (38px -> **48px**), `hf-image-w` & `hf-image-h` (32px -> **46px**), `hf-font-size` (34px -> **48px**), `hf-divider-thickness` (34px -> **46px**), `hf-margin-x` (36px -> **48px**). Lebar kontainer grup disesuaikan secara proporsional.
+       - Tab Watermark: `wm-font-size` (44px -> **48px**).
+       - Tab Halaman: `add-count` (44px -> **48px**), `custom-w` & `custom-h` (48px -> **52px**), `add-count-custom` (40px -> **48px**).
+    2. **Perapian Styling Global `.number-input` di CSS**:
+       - Menambahkan proteksi `min-width: 46px;` pada kelas `.number-input`.
+       - Menyesuaikan padding sisi kanan (`padding: 3px 2px 3px 4px;`) agar teks angka rata kanan tidak pernah terpotong atau menempel ketat pada panah spinner.
+    3. **Penyelarasan Satuan di Seluruh Label**:
+       - Memastikan seluruh satuan berada di dalam teks label (`Ukuran (pt):`, `Offset (mm):`, `W (mm):`, `H (mm):`, `Tbl (pt):`, `Margin X (mm):`, `Bleed (mm):`, `Ukuran (mm):`).
+  - **Verifikasi**:
+    - Validasi sintaks JS `node -c ui/app.js` dan Python `python3 -m py_compile ink-pageman.py` lolos tanpa error.
+    - Validasi format JSON `ui/id.json` dan `ui/en.json` lolos 100%.
+    - Menjalankan `./package.sh` dan memverifikasi `ink-pageman.zip.md5: OK`.
