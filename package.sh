@@ -56,3 +56,4 @@ echo "=== Selesai ==="
 echo "Berkas ZIP : ${ZIP_FILE} ($(du -h "${ZIP_FILE}" | cut -f1))"
 echo "Berkas MD5 : ${MD5_FILE}"
 echo "MD5 Hash   : $(cat "${MD5_FILE}")"
+

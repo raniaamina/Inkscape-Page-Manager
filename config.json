@@ -2,5 +2,6 @@
     "ui_backend": "gtk",
     "default_preset": "A4",
     "default_gap": 20,
-    "default_layout": "grid"
+    "default_layout": "grid",
+    "custom_presets": {}
 }
