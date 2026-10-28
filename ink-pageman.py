@@ -157,8 +157,13 @@ class PageManagerExtension(inkex.EffectExtension):
 
                 config_path = os.path.join(os.path.dirname(__file__), 'config.json')
                 try:
+                    cur_config = {}
+                    if os.path.exists(config_path):
+                        with open(config_path, 'r', encoding='utf-8') as f:
+                            cur_config = json.load(f)
+                    cur_config.update(data)
                     with open(config_path, 'w', encoding='utf-8') as f:
-                        json.dump(data, f, indent=4)
+                        json.dump(cur_config, f, indent=4)
                 except:
                     pass
 
@@ -351,26 +356,70 @@ class PageManagerExtension(inkex.EffectExtension):
             pn_layer = get_or_create_layer('layer_page_numbers', 'Page Numbers')
             total_pages = len(pages_data)
             skip_first = pn_opt.get('skip_first', False)
-            fmt = pn_opt.get('format', '1')  # '1', '1/N', 'Page 1 of N', '- 1 -'
+            pn_style = pn_opt.get('style', 'arabic')
+            fmt = pn_opt.get('format', '{n}')
+            custom_text = pn_opt.get('custom_text', '')
             pos = pn_opt.get('position', 'bottom-center')
             f_size = pn_opt.get('font_size', 10)
             f_color = pn_opt.get('color', '#333333')
             f_family = pn_opt.get('font_family', 'sans-serif')
             offset = float(pn_opt.get('offset', 10.0))
 
+            def to_roman(n, upper=True):
+                lookup = [
+                    (1000, 'M'), (900, 'CM'), (500, 'D'), (400, 'CD'),
+                    (100, 'C'), (90, 'XC'), (50, 'L'), (40, 'XL'),
+                    (10, 'X'), (9, 'IX'), (5, 'V'), (4, 'IV'), (1, 'I')
+                ]
+                res = ''
+                for val, s in lookup:
+                    while n >= val:
+                        res += s
+                        n -= val
+                return res if upper else res.lower()
+
+            def to_alpha(n, upper=True):
+                res = ''
+                while n > 0:
+                    rem = (n - 1) % 26
+                    res = chr(65 + rem) + res
+                    n = (n - 1) // 26
+                return res if upper else res.lower()
+
             for idx, pd in enumerate(pages_data):
                 if skip_first and idx == 0:
                     continue
 
                 page_num = idx + 1
-                if fmt == '1/N':
-                    txt_val = f"{page_num} / {total_pages}"
-                elif fmt == 'Page 1 of N':
-                    txt_val = f"Page {page_num} of {total_pages}"
-                elif fmt == '- 1 -':
-                    txt_val = f"- {page_num} -"
+                if pn_style == 'roman_upper':
+                    n_str = to_roman(page_num, True)
+                    tot_str = to_roman(total_pages, True)
+                elif pn_style == 'roman_lower':
+                    n_str = to_roman(page_num, False)
+                    tot_str = to_roman(total_pages, False)
+                elif pn_style == 'alpha_upper':
+                    n_str = to_alpha(page_num, True)
+                    tot_str = to_alpha(total_pages, True)
+                elif pn_style == 'alpha_lower':
+                    n_str = to_alpha(page_num, False)
+                    tot_str = to_alpha(total_pages, False)
                 else:
-                    txt_val = f"{page_num}"
+                    n_str = str(page_num)
+                    tot_str = str(total_pages)
+
+                if fmt in ('1/N', '{n}/{total}'):
+                    base_txt = f"{n_str} / {tot_str}"
+                elif fmt in ('Page 1 of N', 'Page {n} of {total}'):
+                    base_txt = f"Page {n_str} of {tot_str}"
+                elif fmt in ('- 1 -', '- {n} -'):
+                    base_txt = f"- {n_str} -"
+                else:
+                    base_txt = n_str
+
+                if custom_text:
+                    base_txt = f"{base_txt}{custom_text}"
+
+                txt_val = base_txt
 
                 px = float(pd.get('x', 0.0))
                 py = float(pd.get('y', 0.0))

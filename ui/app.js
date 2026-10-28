@@ -53,6 +53,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Page Actions
     const btnAddPage = document.getElementById('btn-add-page');
     const pagePresetSelect = document.getElementById('page-preset');
+    const optgroupCustomPresets = document.getElementById('optgroup-custom-presets');
+    const rowStandardPreset = document.getElementById('row-standard-preset');
+    const rowCustomPreset = document.getElementById('row-custom-preset');
+    const customWInput = document.getElementById('custom-w');
+    const customHInput = document.getElementById('custom-h');
+    const customUnitLabel = document.getElementById('custom-unit-label');
+    const addCountCustomInput = document.getElementById('add-count-custom');
+    const btnSaveTemplate = document.getElementById('btn-save-template');
+    const btnDelTemplate = document.getElementById('btn-del-template');
     const pageOrientationSelect = document.getElementById('page-orientation');
     const addCountInput = document.getElementById('add-count');
     const btnDuplicate = document.getElementById('btn-duplicate-page');
@@ -62,6 +71,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnSelectAll = document.getElementById('btn-select-all');
     const btnDeselectAll = document.getElementById('btn-deselect-all');
     const btnToggleOrient = document.getElementById('btn-toggle-orient');
+
+    // User Custom Presets State (from config.json)
+    let userCustomPresets = {};
 
     // Quick Edit Inputs
     const editLabelInput = document.getElementById('edit-label');
@@ -88,8 +100,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Page Numbers
     const pnEnabled = document.getElementById('pn-enabled');
+    const pnStyle = document.getElementById('pn-style');
     const pnFormat = document.getElementById('pn-format');
+    const pnCustomText = document.getElementById('pn-custom-text');
     const pnPosition = document.getElementById('pn-position');
+    const pnFontFamily = document.getElementById('pn-font-family');
+    const pnFontCustom = document.getElementById('pn-font-custom');
     const pnFontSize = document.getElementById('pn-font-size');
     const pnColor = document.getElementById('pn-color');
     const pnOffset = document.getElementById('pn-offset');
@@ -156,6 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
             pages = data.pages || [];
 
             if (layoutGapUnit) layoutGapUnit.textContent = docUnit;
+            if (customUnitLabel) customUnitLabel.textContent = docUnit;
 
             // Clean up any historical chained "(Copy) (Copy)" if present
             pages.forEach((p, idx) => {
@@ -182,6 +199,143 @@ document.addEventListener('DOMContentLoaded', () => {
             statusIndicator.className = 'status-indicator busy';
             statusMsg.textContent = `Error: ${err.message}`;
         }
+    }
+
+    async function loadConfig() {
+        try {
+            const res = await fetch('/api/config');
+            if (!res.ok) return;
+            const data = await res.json();
+            userCustomPresets = data.custom_presets || {};
+            renderCustomPresetsOptions();
+        } catch (e) {
+            console.error('Failed to load config:', e);
+        }
+    }
+
+    function renderCustomPresetsOptions() {
+        if (!optgroupCustomPresets) return;
+        optgroupCustomPresets.innerHTML = '';
+        const names = Object.keys(userCustomPresets);
+        if (names.length === 0) {
+            optgroupCustomPresets.style.display = 'none';
+        } else {
+            optgroupCustomPresets.style.display = '';
+            names.forEach(name => {
+                const item = userCustomPresets[name];
+                const opt = document.createElement('option');
+                opt.value = `user_${name}`;
+                opt.textContent = `${name} (${item.w} × ${item.h} ${item.unit || 'mm'})`;
+                optgroupCustomPresets.appendChild(opt);
+            });
+        }
+    }
+
+    // Toggle Custom Size row vs Standard Preset row
+    if (pagePresetSelect) {
+        pagePresetSelect.addEventListener('change', () => {
+            const val = pagePresetSelect.value;
+            if (val === 'custom') {
+                if (rowCustomPreset) rowCustomPreset.style.display = 'flex';
+                if (rowStandardPreset) rowStandardPreset.style.display = 'none';
+                if (btnDelTemplate) btnDelTemplate.style.display = 'none';
+                // Prefill custom inputs from active page if available
+                const activeP = pages.find(p => p.id === activePageId);
+                if (activeP && customWInput && customHInput) {
+                    customWInput.value = activeP.width.toFixed(1);
+                    customHInput.value = activeP.height.toFixed(1);
+                }
+            } else if (val.startsWith('user_')) {
+                if (rowCustomPreset) rowCustomPreset.style.display = 'none';
+                if (rowStandardPreset) rowStandardPreset.style.display = 'flex';
+                if (btnDelTemplate) btnDelTemplate.style.display = 'inline-flex';
+            } else {
+                if (rowCustomPreset) rowCustomPreset.style.display = 'none';
+                if (rowStandardPreset) rowStandardPreset.style.display = 'flex';
+                if (btnDelTemplate) btnDelTemplate.style.display = 'none';
+            }
+        });
+    }
+
+    // Save Template to config.json
+    if (btnSaveTemplate) {
+        btnSaveTemplate.addEventListener('click', async () => {
+            let defW = 210, defH = 297;
+            const val = pagePresetSelect.value;
+            if (val === 'custom') {
+                defW = parseFloat(customWInput.value) || 210;
+                defH = parseFloat(customHInput.value) || 297;
+            } else if (val.startsWith('user_')) {
+                const curName = val.replace('user_', '');
+                if (userCustomPresets[curName]) {
+                    defW = userCustomPresets[curName].w;
+                    defH = userCustomPresets[curName].h;
+                }
+            } else if (PRESETS[val]) {
+                defW = PRESETS[val].w;
+                defH = PRESETS[val].h;
+            } else {
+                const activeP = pages.find(p => p.id === activePageId);
+                if (activeP) { defW = activeP.width; defH = activeP.height; }
+            }
+
+            const name = prompt(`Simpan ukuran ${defW} × ${defH} ${docUnit} sebagai nama template baru:`, '');
+            if (!name || !name.trim()) return;
+            const cleanName = name.trim();
+
+            userCustomPresets[cleanName] = {
+                w: defW,
+                h: defH,
+                unit: docUnit
+            };
+
+            try {
+                const res = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ custom_presets: userCustomPresets })
+                });
+                if (res.ok) {
+                    renderCustomPresetsOptions();
+                    pagePresetSelect.value = `user_${cleanName}`;
+                    pagePresetSelect.dispatchEvent(new Event('change'));
+                    statusMsg.textContent = `Template "${cleanName}" tersimpan di config.json!`;
+                    setTimeout(() => { statusMsg.textContent = 'Siap'; }, 2500);
+                } else {
+                    alert('Gagal menyimpan template ke config.json');
+                }
+            } catch (err) {
+                alert(`Error saat menyimpan config: ${err.message}`);
+            }
+        });
+    }
+
+    // Delete custom template from config.json
+    if (btnDelTemplate) {
+        btnDelTemplate.addEventListener('click', async () => {
+            const val = pagePresetSelect.value;
+            if (!val.startsWith('user_')) return;
+            const name = val.replace('user_', '');
+            if (!confirm(`Hapus template "${name}" dari config.json?`)) return;
+
+            delete userCustomPresets[name];
+            try {
+                const res = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ custom_presets: userCustomPresets })
+                });
+                if (res.ok) {
+                    renderCustomPresetsOptions();
+                    pagePresetSelect.value = 'A4';
+                    pagePresetSelect.dispatchEvent(new Event('change'));
+                    statusMsg.textContent = `Template "${name}" telah dihapus`;
+                    setTimeout(() => { statusMsg.textContent = 'Siap'; }, 2000);
+                }
+            } catch (err) {
+                alert(`Error: ${err.message}`);
+            }
+        });
     }
 
     function updateStatusBarMeta() {
@@ -281,8 +435,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const bleed = parseFloat(mBleedInput.value) || 0;
 
         const isPn = pnEnabled.checked;
-        const pnFmt = pnFormat.value;
+        const pnStyleVal = pnStyle ? pnStyle.value : 'arabic';
+        const pnFmt = pnFormat ? pnFormat.value : '{n}';
+        const pnCustomVal = pnCustomText ? pnCustomText.value : '';
         const pnPos = pnPosition.value;
+        const pnFontFam = getPnFontFamily();
         const pnSize = parseFloat(pnFontSize.value) || 10;
         const pnClr = pnColor.value;
         const pnOff = parseFloat(pnOffset.value) || 10;
@@ -431,10 +588,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 7. Live Page Number Preview
             if (isPn && (!pnSkip || !isCover)) {
-                let pnVal = `${idx + 1}`;
-                if (pnFmt === '1/N') pnVal = `${idx + 1} / ${pages.length}`;
-                else if (pnFmt === 'Page 1 of N') pnVal = `Page ${idx + 1} of ${pages.length}`;
-                else if (pnFmt === '- 1 -') pnVal = `- ${idx + 1} -`;
+                const pnVal = formatPageNumber(idx, pages.length, pnStyleVal, pnFmt, pnCustomVal);
 
                 let anchor = 'middle';
                 let tx = p.x + (p.width / 2);
@@ -445,7 +599,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (pnPos.includes('top')) { ty = p.y + pnOff + (pnSize * 0.4); }
 
-                createSvgText(pageG, pnVal, tx, ty, anchor, pnClr, pnSize);
+                createSvgText(pageG, pnVal, tx, ty, anchor, pnClr, pnSize, pnFontFam);
             }
 
             gViewport.appendChild(pageG);
@@ -455,14 +609,92 @@ document.addEventListener('DOMContentLoaded', () => {
         zoomBadge.textContent = `${Math.round(zoom * 100)}%`;
     }
 
-    function createSvgText(parent, text, x, y, anchor, color, size) {
+    function toRoman(num, upper = true) {
+        if (num <= 0) return `${num}`;
+        const val = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
+        const syb = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"];
+        let res = "";
+        let n = num;
+        for (let i = 0; i < val.length; i++) {
+            while (n >= val[i]) {
+                res += syb[i];
+                n -= val[i];
+            }
+        }
+        return upper ? res : res.toLowerCase();
+    }
+
+    function toAlpha(num, upper = true) {
+        if (num <= 0) return `${num}`;
+        let res = "";
+        let n = num;
+        while (n > 0) {
+            const rem = (n - 1) % 26;
+            res = String.fromCharCode(65 + rem) + res;
+            n = Math.floor((n - 1) / 26);
+        }
+        return upper ? res : res.toLowerCase();
+    }
+
+    function formatPageNumber(pageIdx, totalPages, style, fmt, customSuffix) {
+        const pageNum = pageIdx + 1;
+        let nStr = `${pageNum}`;
+        let totStr = `${totalPages}`;
+
+        if (style === 'roman_upper') {
+            nStr = toRoman(pageNum, true);
+            totStr = toRoman(totalPages, true);
+        } else if (style === 'roman_lower') {
+            nStr = toRoman(pageNum, false);
+            totStr = toRoman(totalPages, false);
+        } else if (style === 'alpha_upper') {
+            nStr = toAlpha(pageNum, true);
+            totStr = toAlpha(totalPages, true);
+        } else if (style === 'alpha_lower') {
+            nStr = toAlpha(pageNum, false);
+            totStr = toAlpha(totalPages, false);
+        }
+
+        let baseTxt = nStr;
+        if (fmt === '{n}/{total}' || fmt === '1/N') {
+            baseTxt = `${nStr} / ${totStr}`;
+        } else if (fmt === 'Page {n} of {total}' || fmt === 'Page 1 of N') {
+            baseTxt = `Page ${nStr} of ${totStr}`;
+        } else if (fmt === '- {n} -' || fmt === '- 1 -') {
+            baseTxt = `- ${nStr} -`;
+        }
+
+        if (customSuffix) {
+            baseTxt = `${baseTxt}${customSuffix}`;
+        }
+        return baseTxt;
+    }
+
+    function getPnFontFamily() {
+        if (!pnFontFamily) return 'sans-serif';
+        if (pnFontFamily.value === 'custom') {
+            return (pnFontCustom && pnFontCustom.value.trim()) ? pnFontCustom.value.trim() : 'sans-serif';
+        }
+        return pnFontFamily.value || 'sans-serif';
+    }
+
+    if (pnFontFamily) {
+        pnFontFamily.addEventListener('change', () => {
+            if (pnFontCustom) {
+                pnFontCustom.style.display = pnFontFamily.value === 'custom' ? 'inline-block' : 'none';
+            }
+            renderCanvas();
+        });
+    }
+
+    function createSvgText(parent, text, x, y, anchor, color, size, fontFamily = 'sans-serif') {
         const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         t.setAttribute('x', x);
         t.setAttribute('y', y);
         t.setAttribute('text-anchor', anchor);
         t.setAttribute('fill', color);
         t.setAttribute('font-size', `${size}px`);
-        t.setAttribute('font-family', 'sans-serif');
+        t.setAttribute('font-family', fontFamily);
         t.setAttribute('pointer-events', 'none');
         t.textContent = text;
         parent.appendChild(t);
@@ -532,20 +764,39 @@ document.addEventListener('DOMContentLoaded', () => {
     // =========================================================================
     btnAddPage.addEventListener('click', () => {
         const presetKey = pagePresetSelect.value;
-        const orient = pageOrientationSelect.value;
-        const count = parseInt(addCountInput.value) || 1;
-
         let w = docWidth;
         let h = docHeight;
-        if (PRESETS[presetKey]) {
-            w = PRESETS[presetKey].w;
-            h = PRESETS[presetKey].h;
-        }
+        let count = 1;
 
-        if (orient === 'landscape' && h > w) {
-            const tmp = w; w = h; h = tmp;
-        } else if (orient === 'portrait' && w > h) {
-            const tmp = w; w = h; h = tmp;
+        if (presetKey === 'custom') {
+            w = parseFloat(customWInput.value) || docWidth;
+            h = parseFloat(customHInput.value) || docHeight;
+            count = parseInt(addCountCustomInput.value) || 1;
+        } else if (presetKey.startsWith('user_')) {
+            const name = presetKey.replace('user_', '');
+            if (userCustomPresets[name]) {
+                w = userCustomPresets[name].w;
+                h = userCustomPresets[name].h;
+            }
+            const orient = pageOrientationSelect.value;
+            if (orient === 'landscape' && h > w) {
+                const tmp = w; w = h; h = tmp;
+            } else if (orient === 'portrait' && w > h) {
+                const tmp = w; w = h; h = tmp;
+            }
+            count = parseInt(addCountInput.value) || 1;
+        } else {
+            if (PRESETS[presetKey]) {
+                w = PRESETS[presetKey].w;
+                h = PRESETS[presetKey].h;
+            }
+            const orient = pageOrientationSelect.value;
+            if (orient === 'landscape' && h > w) {
+                const tmp = w; w = h; h = tmp;
+            } else if (orient === 'portrait' && w > h) {
+                const tmp = w; w = h; h = tmp;
+            }
+            count = parseInt(addCountInput.value) || 1;
         }
 
         const gap = parseFloat(layoutGapInput.value) || 20;
@@ -788,16 +1039,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // 7. LIVE WYSIWYG EVENT LISTENERS
     // =========================================================================
     [marginEnabled, chkGuidesEnabled, mTopInput, mRightInput, mBottomInput, mLeftInput, mBleedInput,
-     pnEnabled, pnFormat, pnPosition, pnFontSize, pnColor, pnOffset, pnSkipFirst,
+     pnEnabled, pnStyle, pnFormat, pnCustomText, pnPosition, pnFontFamily, pnFontCustom, pnFontSize, pnColor, pnOffset, pnSkipFirst,
      hfEnabled, hLeft, hCenter, hRight, fLeft, fCenter, fRight, hfDivider, hfSkipFirst,
      wmEnabled, wmText, wmRotation, wmColor, wmOpacity].forEach(input => {
         if (!input) return;
-        input.addEventListener('input', () => {
+        const trigger = () => {
             if (input === wmOpacity && wmOpacityVal) {
                 wmOpacityVal.textContent = `${Math.round(parseFloat(wmOpacity.value) * 100)}%`;
             }
             renderCanvas();
-        });
+        };
+        input.addEventListener('input', trigger);
+        input.addEventListener('change', trigger);
     });
 
     btnApplyMargins.addEventListener('click', () => {
@@ -925,13 +1178,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     },
                     page_numbers: {
                         enabled: pnEnabled.checked,
+                        style: pnStyle ? pnStyle.value : 'arabic',
                         format: pnFormat.value,
+                        custom_text: pnCustomText ? pnCustomText.value : '',
                         position: pnPosition.value,
                         font_size: parseFloat(pnFontSize.value) || 10,
                         color: pnColor.value,
                         offset: parseFloat(pnOffset.value) || 10,
                         skip_first: pnSkipFirst.checked,
-                        font_family: 'sans-serif'
+                        font_family: getPnFontFamily()
                     },
                     header_footer: {
                         enabled: hfEnabled.checked,
@@ -1013,4 +1268,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Start App
     loadDocument();
+    loadConfig();
 });

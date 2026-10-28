@@ -98,3 +98,30 @@
   - Jika diaktifkan:
     - Margin dan bleed diterapkan ke halaman terpilih atau saat tombol "Terapkan" diklik.
     - Garis canvas guides dibuat pada dokumen Inkscape hanya jika opsi "Buat Canvas Guides" dicentang.
+- **2026-10-28 [CUSTOM PAGE SIZE & CONFIG.JSON TEMPLATE MANAGEMENT]**:
+  - Penjelasan & Konfirmasi: Ketika memilih preset "Kustom...", sistem otomatis memunculkan baris input Lebar (W) × Tinggi (H) dan Jumlah halaman baru.
+  - Penyimpanan Template ke `config.json`:
+    - Tombol simpan template (💾 `#btn-save-template`) memungkinkan pengguna menyimpan ukuran custom favorit (misal 500 × 500 mm) langsung ke `config.json` di bawah objek `"custom_presets"`.
+    - Template kustom otomatis dimuat di bawah `<optgroup label="Template Saya">` saat aplikasi dibuka (`loadConfig()`).
+    - Dilengkapi tombol hapus (🗑 `#btn-del-template`) yang otomatis muncul saat memilih template kustom dari daftar untuk memudahkan manajemen template tanpa perlu menyunting file json secara manual.
+    - `POST /api/config` pada backend diperbarui menggunakan safe-merge dictionary agar tidak menimpa setelan konfigurasi lainnya.
+- **2026-10-28 [PAGE NUMBERING: STYLES, CUSTOM TEXT, TYPOGRAPHY & LIVE PREVIEW FIX]**:
+  - Perbaikan Preview Real-time:
+    - Fungsi `toRoman()`, `toAlpha()`, dan `formatPageNumber()` diimplementasikan secara identik di frontend (`ui/app.js`) dan backend (`ink-pageman.py`).
+    - Event listener WYSIWYG kini mengikat event `input` dan `change` pada elemen gaya (`pn-style`), teks kustom (`pn-custom-text`), format (`pn-format`), font (`pn-font-family`), dan custom font (`pn-font-custom`).
+    - Kanvas SVG preview langsung merender perubahan secara instan tanpa perlu refresh.
+  - Dukungan Format & Gaya Angka:
+    - Arab: `1, 2, 3...`
+    - Romawi Besar: `I, II, III...`
+    - Romawi Kecil: `i, ii, iii...`
+    - Alfabet Besar: `A, B, C...`
+    - Alfabet Kecil: `a, b, c...`
+    - Format template: `{n}`, `{n}/{total}`, `Page {n} of {total}`, `- {n} -`.
+    - Teks kustom tambahan (misal: ` | Custom teks` menghasilkan `1 | Custom teks` atau `Page II of III | Laporan 2026`).
+  - Pemilihan Font & Tipografi Rapi:
+    - Menambahkan dropdown pilihan font (`Sans-serif`, `Serif`, `Monospace`, `Arial`, `Helvetica`, `Roboto`, `Ubuntu`, `Times New Roman`, `Georgia`, `Courier New`, dan opsi `Font Kustom...`).
+    - Melebarkan kontainer ribbon "Tipografi, Warna & Offset" menjadi 295px sehingga input ukuran, swatch warna (34×22px), dan offset berbaris rapi dengan jarak lega tanpa ada elemen yang bertumpuk atau nabrak.
+    - Fungsi `createSvgText()` mendukung parameter `fontFamily` sehingga font teks di kanvas SVG preview sesuai dengan pilihan font yang aktif.
+  - Pengujian & Verifikasi:
+    - Skrip uji integrasi end-to-end (`test_custom_and_pn.py`) mengonfirmasi bahwa eksekusi `apply_changes` berhasil menghasilkan elemen SVG dengan teks `Page II of III | Laporan 2026` ber-font `Ubuntu` pada halaman berdimensi custom 500×500 mm.
+    - Pembuatan paket rilis via `./package.sh` berhasil menghasilkan `ink-pageman.zip` dan `ink-pageman.zip.md5` yang valid (`md5sum -c` OK).

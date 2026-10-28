@@ -36,10 +36,13 @@
                             <button type="button" class="ribbon-icon-btn btn-large btn-accent" id="btn-add-page" data-tooltip="Tambah Halaman Baru (Enter)">
                                 <span class="btn-icon">＋</span>
                             </button>
-                            <div class="group-form-col" style="width: 220px;">
+                            <div class="group-form-col" style="width: 250px;">
                                 <div class="form-row">
                                     <label class="form-label" for="page-preset">Preset:</label>
                                     <select id="page-preset" class="form-select flex-1">
+                                        <optgroup label="Template Saya" id="optgroup-custom-presets">
+                                            <!-- Dynamically loaded from config.json -->
+                                        </optgroup>
                                         <optgroup label="Standar ISO">
                                             <option value="A4" selected>A4 (210 × 297 mm)</option>
                                             <option value="A3">A3 (297 × 420 mm)</option>
@@ -60,15 +63,32 @@
                                         </optgroup>
                                         <option value="custom">Kustom...</option>
                                     </select>
+                                    <button type="button" class="ribbon-icon-btn btn-sm" id="btn-save-template" data-tooltip="Simpan ukuran ini sebagai Template baru ke config.json" style="margin-left: 2px;">
+                                        <span class="btn-icon">💾</span>
+                                    </button>
+                                    <button type="button" class="ribbon-icon-btn btn-sm" id="btn-del-template" data-tooltip="Hapus template kustom terpilih dari config.json" style="margin-left: 2px; display: none;">
+                                        <span class="btn-icon">🗑</span>
+                                    </button>
                                 </div>
-                                <div class="form-row">
+                                <!-- Baris Standard Preset -->
+                                <div class="form-row" id="row-standard-preset">
                                     <label class="form-label" for="page-orientation">Arah:</label>
                                     <select id="page-orientation" class="form-select" style="width: 105px;">
                                         <option value="portrait" selected>Portrait</option>
                                         <option value="landscape">Landscape</option>
                                     </select>
-                                    <label class="form-label-compact" for="add-count">Jml:</label>
+                                    <label class="form-label-compact" for="add-count" style="margin-left: 4px;">Jml:</label>
                                     <input type="number" id="add-count" class="form-input number-input" value="1" min="1" max="100" style="width: 44px;">
+                                </div>
+                                <!-- Baris Custom Preset (muncul saat Kustom... dipilih) -->
+                                <div class="form-row" id="row-custom-preset" style="display: none;">
+                                    <label class="form-label" for="custom-w">Ukuran:</label>
+                                    <input type="number" id="custom-w" class="form-input number-input" value="210" step="0.1" style="width: 52px;" title="Lebar (W)">
+                                    <span class="cross-sep">×</span>
+                                    <input type="number" id="custom-h" class="form-input number-input" value="297" step="0.1" style="width: 52px;" title="Tinggi (H)">
+                                    <span class="unit-label" id="custom-unit-label">mm</span>
+                                    <label class="form-label-compact" for="add-count-custom" style="margin-left: 4px;">Jml:</label>
+                                    <input type="number" id="add-count-custom" class="form-input number-input" value="1" min="1" max="100" style="width: 40px;">
                                 </div>
                             </div>
                         </div>
@@ -256,18 +276,41 @@
                         <div class="group-label">Status</div>
                     </div>
 
-                    <!-- Blok: Format & Posisi -->
+                    <!-- Blok: Gaya & Format Angka -->
                     <div class="ribbon-group">
                         <div class="group-body">
-                            <div class="group-form-col" style="width: 190px;">
+                            <div class="group-form-col" style="width: 195px;">
+                                <div class="form-row">
+                                    <label class="form-label" for="pn-style">Gaya:</label>
+                                    <select id="pn-style" class="form-select flex-1">
+                                        <option value="arabic" selected>1, 2, 3 (Angka Arab)</option>
+                                        <option value="roman_upper">I, II, III (Romawi Besar)</option>
+                                        <option value="roman_lower">i, ii, iii (Romawi Kecil)</option>
+                                        <option value="alpha_upper">A, B, C (Huruf Besar)</option>
+                                        <option value="alpha_lower">a, b, c (Huruf Kecil)</option>
+                                    </select>
+                                </div>
                                 <div class="form-row">
                                     <label class="form-label" for="pn-format">Format:</label>
                                     <select id="pn-format" class="form-select flex-1">
-                                        <option value="1">1, 2, 3...</option>
-                                        <option value="1/N">1 / N</option>
-                                        <option value="Page 1 of N">Page 1 of N</option>
-                                        <option value="- 1 -">- 1 -</option>
+                                        <option value="{n}" selected>{n} (Hanya Nomor)</option>
+                                        <option value="{n}/{total}">{n} / {total}</option>
+                                        <option value="Page {n} of {total}">Page {n} of {total}</option>
+                                        <option value="- {n} -">- {n} -</option>
                                     </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="group-label">Gaya & Format</div>
+                    </div>
+
+                    <!-- Blok: Teks Kustom & Posisi -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <div class="group-form-col" style="width: 205px;">
+                                <div class="form-row">
+                                    <label class="form-label" for="pn-custom-text">Teks:</label>
+                                    <input type="text" id="pn-custom-text" class="form-input flex-1" placeholder="misal: | Dokumen">
                                 </div>
                                 <div class="form-row">
                                     <label class="form-label" for="pn-position">Posisi:</label>
@@ -282,28 +325,43 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="group-label">Tata Letak & Format</div>
+                        <div class="group-label">Teks Tambahan & Posisi</div>
                     </div>
 
-                    <!-- Blok: Gaya & Offset -->
+                    <!-- Blok: Tipografi, Warna & Offset -->
                     <div class="ribbon-group">
                         <div class="group-body">
-                            <div class="group-form-col" style="width: 170px;">
+                            <div class="group-form-col" style="width: 295px;">
                                 <div class="form-row">
-                                    <label class="form-label" for="pn-font-size">Ukuran:</label>
-                                    <input type="number" id="pn-font-size" class="form-input number-input" value="10" min="6" max="72" style="width: 44px;">
-                                    <span class="unit-label">pt</span>
-                                    <label class="form-label-compact" for="pn-color" style="margin-left: 6px;">Warna:</label>
-                                    <input type="color" id="pn-color" class="form-color" value="#333333">
+                                    <label class="form-label" for="pn-font-family">Font:</label>
+                                    <select id="pn-font-family" class="form-select flex-1">
+                                        <option value="sans-serif" selected>Sans-serif (Modern)</option>
+                                        <option value="serif">Serif (Formal)</option>
+                                        <option value="monospace">Monospace (Code)</option>
+                                        <option value="Arial">Arial</option>
+                                        <option value="Helvetica">Helvetica</option>
+                                        <option value="Roboto">Roboto</option>
+                                        <option value="Ubuntu">Ubuntu</option>
+                                        <option value="Times New Roman">Times New Roman</option>
+                                        <option value="Georgia">Georgia</option>
+                                        <option value="Courier New">Courier New</option>
+                                        <option value="custom">Font Kustom...</option>
+                                    </select>
+                                    <input type="text" id="pn-font-custom" class="form-input" placeholder="Nama font..." style="display: none; width: 95px;">
                                 </div>
                                 <div class="form-row">
-                                    <label class="form-label" for="pn-offset">Offset:</label>
-                                    <input type="number" id="pn-offset" class="form-input number-input" value="10" min="0" step="1" style="width: 44px;">
+                                    <label class="form-label" for="pn-color">Warna:</label>
+                                    <input type="color" id="pn-color" class="form-color" value="#333333" title="Pilih warna nomor halaman">
+                                    <label class="form-label-compact" for="pn-font-size" style="margin-left: 6px;">Ukuran:</label>
+                                    <input type="number" id="pn-font-size" class="form-input number-input" value="10" min="6" max="72" style="width: 44px;">
+                                    <span class="unit-label">pt</span>
+                                    <label class="form-label-compact" for="pn-offset" style="margin-left: 6px;">Offset:</label>
+                                    <input type="number" id="pn-offset" class="form-input number-input" value="10" min="0" step="1" style="width: 42px;">
                                     <span class="unit-label">mm</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="group-label">Gaya & Offset</div>
+                        <div class="group-label">Tipografi, Warna & Offset</div>
                     </div>
 
                     <!-- Blok: Pengecualian -->
