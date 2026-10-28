@@ -1872,6 +1872,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // =========================================================================
+    // MOUSE WHEEL STEPPING FOR NUMBER INPUTS (PRO-DESIGN WORKFLOW)
+    // =========================================================================
+    document.querySelectorAll('input[type="number"]').forEach(input => {
+        input.addEventListener('wheel', (e) => {
+            if (input.disabled || input.readOnly) return;
+            e.preventDefault();
+            const step = parseFloat(input.step) || 1;
+            const min = input.min !== '' ? parseFloat(input.min) : -Infinity;
+            const max = input.max !== '' ? parseFloat(input.max) : Infinity;
+            let val = parseFloat(input.value) || 0;
+
+            if (e.deltaY < 0) {
+                val = Math.min(max, val + step);
+            } else {
+                val = Math.max(min, val - step);
+            }
+
+            const decimals = (step.toString().split('.')[1] || '').length;
+            input.value = decimals > 0 ? val.toFixed(decimals) : Math.round(val);
+
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+        }, { passive: false });
+    });
+
+    // =========================================================================
     // 8. INTERACTIVE CANVAS: PAN & ZOOM
     // =========================================================================
     canvasViewport.addEventListener('wheel', (e) => {

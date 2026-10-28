@@ -408,3 +408,27 @@
     - Validasi sintaks JS `node -c ui/app.js` dan Python `python3 -m py_compile ink-pageman.py` lolos tanpa error.
     - Validasi format JSON `ui/id.json` dan `ui/en.json` lolos 100%.
     - Menjalankan `./package.sh` dan memverifikasi `ink-pageman.zip.md5: OK`.
+
+- **2026-10-28 [PEMBERSIHAN SPINNER INPUT ANGKA & MOUSE WHEEL STEPPING]**:
+  - **Identifikasi Masalah (Berdasarkan Feedback & Screenshot Pengguna)**:
+    - Input angka `<input type="number">` pada WebKit2GTK / browser Linux menampilkan tombol panah naik/turun bawaan (*native stepper button*) berupa kotak putih terang (~20px) yang sangat mencolok dan kontras kasar dengan tema gelap (*dark theme*).
+    - Panah bawaan tersebut memakan ruang horizontal sebesar ~20px di dalam input, sehingga tampilan angka menjadi sesak, terhimpit, dan merusak estetika antarmuka secara keseluruhan.
+    - Pengguna meminta agar panah spinner tersebut dihilangkan atau dipoles menjadi input bersih yang sesuai tema.
+  - **Solusi & Implementasi**:
+    1. **Pembersihan Panah Native Spinner (CSS)**:
+       - Menghilangkan tombol spinner WebKit dengan `::-webkit-inner-spin-button, ::-webkit-outer-spin-button { -webkit-appearance: none !important; margin: 0 !important; display: none !important; }`.
+       - Mengatur `appearance: textfield !important; -moz-appearance: textfield !important;` pada `input[type="number"]`.
+       - Menyesuaikan padding `.number-input` menjadi `padding: 3px 6px;` dan `min-width: 42px;` dengan font monospaced rata kanan (`text-align: right`) sehingga angka tampil sangat rapi, elegan, dan lega ala Blender / Figma.
+    2. **Interaksi Cepat Mouse Wheel Stepping (JS)**:
+       - Menambahkan event listener `wheel` pada seluruh elemen `input[type="number"]`.
+       - Saat kursor mouse berada di atas input angka dan di-scroll (roda putar mouse), nilai angka bertambah atau berkurang secara otomatis mengikuti atribut `step`, `min`, dan `max`.
+       - Menjaga presisi desimal (*floating point rounding*) sesuai step (misal 0.1 atau 0.5).
+       - Men-dispatch event `input` dan `change` secara otomatis agar kanvas WYSIWYG langsung terupdate seketika (*real-time preview*).
+       - Mengabaikan input yang dalam status `disabled` atau `readOnly`.
+       - Navigasi tombol panah keyboard (Up / Down) dan pengetikan langsung tetap berfungsi 100% normal.
+  - **Verifikasi**:
+    - Validasi sintaks JS `node -c ui/app.js` dan Python `python3 -m py_compile ink-pageman.py` lolos tanpa error.
+    - Menjalankan render headless WebKit2GTK (`render_all_tabs.py`) pada seluruh tab (`pages`, `layout`, `margins`, `numbers`, `headerfooter`, `watermark`, `settings`):
+      - Terverifikasi visual: kotak putih panah native 100% hilang di seluruh tab.
+      - Input angka tampil menyatu rapi dengan background gelap, teks rata kanan, dan proporsi jarak lega.
+    - Menjalankan `./package.sh` dan memverifikasi `ink-pageman.zip.md5: OK`.

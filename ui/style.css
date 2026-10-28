@@ -489,11 +489,24 @@ body, html {
     border-color: var(--border-focus);
 }
 
+/* Hilangkan spinner panah native bawaan browser yang merusak tema gelap dan bikin sesak */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none !important;
+    margin: 0 !important;
+    display: none !important;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield !important;
+    appearance: textfield !important;
+}
+
 .number-input {
     font-family: var(--font-mono);
     text-align: right;
-    min-width: 46px;
-    padding: 3px 2px 3px 4px;
+    min-width: 42px;
+    padding: 3px 6px;
 }
 
 /* Fix WebKit Select Visibility on Linux */
