@@ -364,3 +364,17 @@
     - Validasi sintaks JS `node -c ui/app.js` dan Python `python3 -m py_compile ink-pageman.py` lolos tanpa error.
     - Validasi format JSON `ui/id.json` dan `ui/en.json` lolos 100%.
     - Menjalankan `./package.sh` dan memverifikasi `ink-pageman.zip.md5: OK`.
+
+- **2026-10-28 [PERBAIKAN OVERFLOW BARIS KUSTOM TAB HALAMAN (NABRAK PEMBATAS)]**:
+  - **Identifikasi Masalah**:
+    - Pada tab Halaman (Blok Tambah Baru), saat preset dipilih "Kustom...", baris input ukuran kustom (`Ukuran (mm): [ 210 ] × [ 297 ] Jml: [ 1 ]`) membutuhkan ruang horizontal sekitar 278px.
+    - Kontainer `.group-form-col` sebelumnya dipatok pada `width: 260px;`.
+    - Akibatnya, input stepper jumlah `Jml: [ 1 ]` meluber keluar melewati batas dan menabrak garis pembatas grup (*border-right*).
+  - **Solusi & Perbaikan**:
+    - Meningkatkan lebar kontainer `.group-form-col` dari `260px` menjadi `295px`.
+    - Menggunakan `.form-label-compact` untuk label Ukuran agar lebih fleksibel tanpa `min-width` berlebih.
+    - Menyesuaikan lebar input `custom-w` dan `custom-h` (50px) serta `add-count-custom` (46px) agar memiliki margin lega (+17px buffer) dari garis pembatas.
+    - Mengatur dropdown orientasi pada baris standar dengan `flex-1` agar mengisi ruang secara proporsional.
+  - **Verifikasi**:
+    - Validasi sintaks JS `node -c ui/app.js` dan Python `python3 -m py_compile ink-pageman.py` lolos tanpa error.
+    - Menjalankan `./package.sh` dan memverifikasi `ink-pageman.zip.md5: OK`.

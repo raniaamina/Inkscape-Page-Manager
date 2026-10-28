@@ -37,9 +37,9 @@
                             <button type="button" class="ribbon-icon-btn btn-large btn-accent" id="btn-add-page" data-tooltip="Tambah Halaman Baru (Enter)" data-i18n-tooltip="tooltips.add_page">
                                 <span class="btn-icon">＋</span>
                             </button>
-                            <div class="group-form-col" style="width: 260px;">
+                            <div class="group-form-col" style="width: 295px;">
                                 <div class="form-row">
-                                    <label class="form-label" for="page-preset" data-i18n="labels.preset">Preset:</label>
+                                    <label class="form-label-compact" for="page-preset" data-i18n="labels.preset">Preset:</label>
                                     <select id="page-preset" class="form-select flex-1">
                                         <optgroup label="Template Saya" id="optgroup-custom-presets" data-i18n-label="options.opt_my_templates">
                                             <!-- Dynamically loaded from config.json -->
@@ -73,8 +73,8 @@
                                 </div>
                                 <!-- Baris Standard Preset -->
                                 <div class="form-row" id="row-standard-preset">
-                                    <label class="form-label" for="page-orientation" data-i18n="labels.orientation">Arah:</label>
-                                    <select id="page-orientation" class="form-select" style="width: 105px;">
+                                    <label class="form-label-compact" for="page-orientation" data-i18n="labels.orientation">Arah:</label>
+                                    <select id="page-orientation" class="form-select flex-1">
                                         <option value="portrait" selected data-i18n="labels.portrait">Portrait</option>
                                         <option value="landscape" data-i18n="labels.landscape">Landscape</option>
                                     </select>
@@ -83,12 +83,12 @@
                                 </div>
                                 <!-- Baris Custom Preset (muncul saat Kustom... dipilih) -->
                                 <div class="form-row" id="row-custom-preset" style="display: none;">
-                                    <label class="form-label" for="custom-w"><span data-i18n="labels.size">Ukuran</span> (<span id="custom-unit-label">mm</span>):</label>
-                                    <input type="number" id="custom-w" class="form-input number-input" value="210" step="0.1" style="width: 52px; text-align: right;" title="Lebar (W)">
+                                    <label class="form-label-compact" for="custom-w"><span data-i18n="labels.size">Ukuran</span> (<span id="custom-unit-label">mm</span>):</label>
+                                    <input type="number" id="custom-w" class="form-input number-input" value="210" step="0.1" style="width: 50px; text-align: right;" title="Lebar (W)">
                                     <span class="cross-sep">×</span>
-                                    <input type="number" id="custom-h" class="form-input number-input" value="297" step="0.1" style="width: 52px; text-align: right;" title="Tinggi (H)">
+                                    <input type="number" id="custom-h" class="form-input number-input" value="297" step="0.1" style="width: 50px; text-align: right;" title="Tinggi (H)">
                                     <label class="form-label-compact" for="add-count-custom" style="margin-left: 4px;" data-i18n="labels.qty">Jml:</label>
-                                    <input type="number" id="add-count-custom" class="form-input number-input" value="1" min="1" max="100" style="width: 48px; text-align: right;">
+                                    <input type="number" id="add-count-custom" class="form-input number-input" value="1" min="1" max="100" style="width: 46px; text-align: right;">
                                 </div>
                             </div>
                         </div>
