@@ -2,7 +2,7 @@
 
 Sebuah ekstensi canggih untuk mengelola dokumen multi-halaman di Inkscape (versi 1.2+) secara visual, interaktif, dan realtime.
 
-Dibangun dengan arsitektur **Python Backend + Web-based GUI (WebKit2Gtk / Native Window / App-mode Browser)** dengan desain **Ribbon UI modern & clean** ala software produktivitas desktop profesional.
+Dibangun dengan arsitektur **Python Backend + Web-based GUI (WebKit2Gtk / Native Window / App-mode Browser)** dengan desain **antarmuka menu yang intuitif, visual, dan modern** ala software produktivitas desktop profesional.
 
 ---
 

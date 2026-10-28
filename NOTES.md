@@ -198,3 +198,24 @@
     - Melepas pelacakan git (`git rm --cached config.json`) tanpa menghapus berkas fisik lokal di disk.
     - Memperbarui skrip `package.sh` agar secara otomatis membuat berkas template `config.json` default bersih jika dijalankan di lingkungan baru (misal klona baru repository) tanpa berkas `config.json`.
     - Menguji pemaketan ulang via `./package.sh` dan memverifikasi integritas checksum MD5.
+- **2026-10-28 [LAYOUT OVERFLOW FIX, HEADER/FOOTER CONSOLIDATION & VERSION/WORDING ALIGNMENT]**:
+  - **Koreksi Nomor Versi & Deskripsi Wording**:
+    - Penjelasan Jujur: Versi `v1.2.0` sebelumnya dibuat secara sepihak/keliru oleh asisten AI karena terdistraksi target kompatibilitas "Inkscape 1.2+". Proyek ini sebenarnya merupakan rilis awal `v1.0.0`.
+    - Tindakan: Nomor versi dikembalikan dan disamakan menjadi **v1.0.0** pada modal info (`#modal-about`) dan tab pengaturan.
+    - Penyebutan "Ribbon" dihapus dari semua deskripsi (modal about dan `README.md`), digantikan dengan istilah yang tepat: *"antarmuka menu yang intuitif dan visual"*.
+  - **Perbaikan Teks Offset Melewati Batas (Tab Nomor Halaman)**:
+    - *Identifikasi Masalah:* Pada grup "Tipografi, Warna & Offset", label `form-label` memiliki `min-width: 48px`, dan input number `44px` dan `42px` menghasilkan total lebar baris kedua ~320px. Ketika kontainer dibatasi `295px`, baris kedua terdorong menyeberang garis divider vertikal ke grup "Pengecualian" sehingga teks `Offset: 10 mm` terpotong garis batas.
+    - *Solusi:* Mengubah seluruh label menjadi `form-label-compact`, merampingkan input number menjadi `36px`, dan memperlebar kontainer menjadi `290px` proporsional. Baris kedua kini hanya menggunakan lebar ~238px, sehingga terdapat margin aman yang lega dan tidak akan pernah menabrak garis batas.
+    - Menambahkan checkbox `[x] Kunci Objek (Lock)` (`#pn-locked`) pada blok Pengecualian & Proteksi di HTML agar konsisten dengan `ui/app.js`.
+  - **Simplifikasi & Perampingan Header & Footer untuk Layar Kecil**:
+    - *Identifikasi Masalah:* Tab Header & Footer sebelumnya memiliki 7 grup terpisah secara horizontal dengan total lebar mencapai > 1400px, sehingga pada layar laptop standar / resolusi kecil (1366x768 atau dialog ~1100px), menu sebelah kanan terpotong (*overflow cutoff*).
+    - *Solusi Perampingan:*
+      1. Rampingkan grup Header dan Footer dari 275px menjadi 200px masing-masing.
+      2. Rampingkan grup Logo & Gambar dari 225px menjadi 175px.
+      3. Rampingkan grup Tipografi & Warna dari 215px menjadi 175px.
+      4. Satukan grup Pembatas & Margin (220px) dan Opsi & Proteksi (160px) menjadi satu grup terpadu: **Pembatas & Opsi** (235px).
+      5. Total lebar menu terpangkas drastis dari **> 1400px** menjadi hanya **~1050px**, sehingga muat sempurna pada jendela standar tanpa terpotong.
+    - *Dukungan Responsif Ekstra:* Menambahkan `overflow-x: auto` dengan custom thin scrollbar pada `.ribbon-content` dan `flex-shrink: 0` pada `.ribbon-group` agar jika jendela dibuka di layar sekecil apapun, seluruh tombol tetap dapat diakses dengan mulus tanpa terpotong.
+  - **Verifikasi**:
+    - Validasi sintaks `node -c ui/app.js` dan kompilasi Python `python3 -m py_compile ink-pageman.py` lolos 100%.
+    - Pemaketan `./package.sh` berhasil memperbarui `ink-pageman.zip` dan `ink-pageman.zip.md5` terverifikasi OK.
