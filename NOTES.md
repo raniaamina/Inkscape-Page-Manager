@@ -219,3 +219,11 @@
   - **Verifikasi**:
     - Validasi sintaks `node -c ui/app.js` dan kompilasi Python `python3 -m py_compile ink-pageman.py` lolos 100%.
     - Pemaketan `./package.sh` berhasil memperbarui `ink-pageman.zip` dan `ink-pageman.zip.md5` terverifikasi OK.
+- **2026-10-28 [README DISCLAIMER, SINGLE GPLV3 LICENSE & REPOSITORY URL]**:
+  - **Penambahan Disclaimer & Saweria**:
+    - Menambahkan klausul Disclaimer standar dan tautan donasi Saweria (`https://saweria.co/raniaamina`) pada `README.md` persis sesuai pola ekstensi Pattern on Shape.
+  - **Penyelarasan Lisensi & URL Repositori**:
+    - Menghapus kerancuan lisensi ganda ("GPLv3 / MIT") pada dialog Tentang Ekstensi (`#modal-about`) di `ui/index.html`. Ditetapkan secara tunggal dan presisi: **GNU General Public License v3.0 (GPLv3)**.
+    - Menambahkan URL repositori resmi (`https://github.com/raniaamina/Inkscape-Page-Manager.git`) pada dialog Tentang Ekstensi dan `README.md`.
+  - **Verifikasi**:
+    - Validasi `./package.sh` berhasil memperbarui `ink-pageman.zip` dan `ink-pageman.zip.md5` dengan status checksum OK.

@@ -66,5 +66,13 @@ Dibangun dengan arsitektur **Python Backend + Web-based GUI (WebKit2Gtk / Native
 
 ---
 
-## Lisensi
-GPL v3.0
+## Repositori
+[https://github.com/raniaamina/Inkscape-Page-Manager](https://github.com/raniaamina/Inkscape-Page-Manager)
+
+## Disclaimer 
+We don't guarantee anything about this tool/extension, so please use it at your own risk. We can't give 24/7 support if you have a problem when using this boilerplate. 
+
+If you feel that this tool has helped you to create, feel free to donate a cup of coffee on the [Support Dev](https://saweria.co/raniaamina) :")
+
+## License
+This project is licensed under the GNU General Public License v3.0 (GPLv3). See the [LICENSE](LICENSE) file for details.
