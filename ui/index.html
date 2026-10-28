@@ -84,9 +84,9 @@
                                 <!-- Baris Custom Preset (muncul saat Kustom... dipilih) -->
                                 <div class="form-row" id="row-custom-preset" style="display: none;">
                                     <label class="form-label-compact" for="custom-w"><span data-i18n="labels.size">Ukuran</span> (<span id="custom-unit-label">mm</span>):</label>
-                                    <input type="number" id="custom-w" class="form-input number-input" value="210" step="0.1" style="width: 50px; text-align: right;" title="Lebar (W)">
+                                    <input type="number" id="custom-w" class="form-input number-input flex-1" value="210" step="0.1" style="min-width: 44px; text-align: right;" title="Lebar (W)">
                                     <span class="cross-sep">×</span>
-                                    <input type="number" id="custom-h" class="form-input number-input" value="297" step="0.1" style="width: 50px; text-align: right;" title="Tinggi (H)">
+                                    <input type="number" id="custom-h" class="form-input number-input flex-1" value="297" step="0.1" style="min-width: 44px; text-align: right;" title="Tinggi (H)">
                                     <label class="form-label-compact" for="add-count-custom" style="margin-left: 4px;" data-i18n="labels.qty">Jml:</label>
                                     <input type="number" id="add-count-custom" class="form-input number-input" value="1" min="1" max="100" style="width: 46px; text-align: right;">
                                 </div>
@@ -138,16 +138,40 @@
                                 </div>
                                 <div class="form-row">
                                     <label class="form-label" for="edit-w" data-i18n="labels.dimensions">Dimensi:</label>
-                                    <input type="number" id="edit-w" class="form-input number-input" step="0.1" style="width: 58px; text-align: right;" title="Lebar (W)">
+                                    <input type="number" id="edit-w" class="form-input number-input flex-1" step="0.1" style="min-width: 46px; text-align: right;" title="Lebar (W)">
                                     <span class="cross-sep">×</span>
-                                    <input type="number" id="edit-h" class="form-input number-input" step="0.1" style="width: 58px; text-align: right;" title="Tinggi (H)">
-                                    <button type="button" class="ribbon-icon-btn btn-sm" id="btn-toggle-orient" data-tooltip="Balik Arah (Portrait ↔ Landscape)" data-i18n-tooltip="tooltips.toggle_orient" style="margin-left: 4px;">
+                                    <input type="number" id="edit-h" class="form-input number-input flex-1" step="0.1" style="min-width: 46px; text-align: right;" title="Tinggi (H)">
+                                    <button type="button" class="ribbon-icon-btn btn-sm" id="btn-toggle-orient" data-tooltip="Balik Arah (Portrait ↔ Landscape)" data-i18n-tooltip="tooltips.toggle_orient" style="margin-left: 4px; flex-shrink: 0;">
                                         <span class="btn-icon">⤾</span>
                                     </button>
                                 </div>
                             </div>
                         </div>
                         <div class="group-label" data-i18n="groups.active_properties">Properti Halaman Aktif</div>
+                    </div>
+
+                    <!-- Blok: Master Page (Template Bersama) -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <div class="group-form-col" style="width: 240px;">
+                                <div class="form-row">
+                                    <label class="form-label-compact" for="master-source" data-i18n="labels.master_source">Master:</label>
+                                    <select id="master-source" class="form-select flex-1">
+                                        <option value="none" selected data-i18n="options.master_none">Tanpa Master</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label-compact" for="master-target" data-i18n="labels.master_target">Target:</label>
+                                    <select id="master-target" class="form-select flex-1">
+                                        <option value="all_except_first" selected data-i18n="options.master_all_except_first">Semua (Kecuali Cover)</option>
+                                        <option value="all" data-i18n="options.master_all">Semua Halaman</option>
+                                        <option value="even" data-i18n="options.master_even">Halaman Genap</option>
+                                        <option value="odd" data-i18n="options.master_odd">Halaman Ganjil</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="group-label" data-i18n="groups.master_page">Master Page</div>
                     </div>
                 </div>
 
@@ -177,7 +201,7 @@
                     <!-- Blok: Parameter Jarak -->
                     <div class="ribbon-group">
                         <div class="group-body">
-                            <div class="group-form-col" style="width: 145px;">
+                            <div class="group-form-col" style="width: 150px;">
                                 <div class="form-row" style="justify-content: space-between;">
                                     <label class="form-label" for="layout-cols" data-i18n="labels.cols">Kolom:</label>
                                     <input type="number" id="layout-cols" class="form-input number-input" value="3" min="1" max="20" style="width: 55px; text-align: right;">
@@ -189,6 +213,24 @@
                             </div>
                         </div>
                         <div class="group-label" data-i18n="groups.spacing">Parameter Jarak</div>
+                    </div>
+
+                    <!-- Blok: Opsi Konten (Feature 1) -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <div class="group-form-col" style="width: 215px;">
+                                <div class="form-row">
+                                    <label class="checkbox-inline" style="font-size: 11px;">
+                                        <input type="checkbox" id="layout-move-content" checked>
+                                        <span data-i18n="labels.move_content">Ikutkan Objek / Artwork</span>
+                                    </label>
+                                </div>
+                                <div class="form-row">
+                                    <span class="unit-label" style="font-size: 10px; color: var(--text-muted);" data-i18n="labels.move_content_hint">Objek ikut bergeser saat tata ulang</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="group-label" data-i18n="groups.content_options">Opsi Konten</div>
                     </div>
 
                     <!-- Blok: Eksekusi -->
@@ -239,10 +281,14 @@
                     <!-- Blok: Bleed & Panduan -->
                     <div class="ribbon-group">
                         <div class="group-body">
-                            <div class="group-form-col" style="width: 195px;">
+                            <div class="group-form-col" style="width: 240px;">
                                 <div class="form-row" style="justify-content: space-between;">
-                                    <label class="form-label" for="m-bleed" data-i18n="labels.bleed">Bleed (mm):</label>
-                                    <input type="number" id="m-bleed" class="form-input number-input" value="3" min="0" step="0.5" style="width: 52px; text-align: right;">
+                                    <label class="form-label-compact" for="m-bleed" data-i18n="labels.bleed">Bleed (mm):</label>
+                                    <input type="number" id="m-bleed" class="form-input number-input" value="3" min="0" step="0.5" style="width: 48px; text-align: right;">
+                                    <label class="checkbox-inline" style="font-size: 11px; margin-left: auto;">
+                                        <input type="checkbox" id="margin-facing">
+                                        <span data-i18n="labels.facing_margins">Mode Buku</span>
+                                    </label>
                                 </div>
                                 <div class="form-row">
                                     <label class="checkbox-inline">
@@ -273,7 +319,7 @@
                     <!-- Blok: Gaya & Format Angka -->
                     <div class="ribbon-group">
                         <div class="group-body">
-                            <div class="group-form-col" style="width: 195px;">
+                            <div class="group-form-col" style="width: 180px;">
                                 <div class="form-row">
                                     <label class="form-label" for="pn-style" data-i18n="labels.style">Gaya:</label>
                                     <select id="pn-style" class="form-select flex-1">
@@ -301,7 +347,7 @@
                     <!-- Blok: Teks Kustom & Posisi -->
                     <div class="ribbon-group">
                         <div class="group-body">
-                            <div class="group-form-col" style="width: 205px;">
+                            <div class="group-form-col" style="width: 175px;">
                                 <div class="form-row">
                                     <label class="form-label" for="pn-custom-text" data-i18n="labels.text">Teks:</label>
                                     <input type="text" id="pn-custom-text" class="form-input flex-1" placeholder="misal: | Dokumen" data-i18n-placeholder="placeholders.custom_text">
@@ -325,7 +371,7 @@
                     <!-- Blok: Tipografi, Warna & Offset -->
                     <div class="ribbon-group">
                         <div class="group-body">
-                            <div class="group-form-col" style="width: 325px;">
+                            <div class="group-form-col" style="width: 295px;">
                                 <div class="form-row">
                                     <label class="form-label-compact" for="pn-font-family" data-i18n="labels.font">Font:</label>
                                     <select id="pn-font-family" class="form-select flex-1" style="min-width: 0;">
@@ -343,34 +389,48 @@
                                     </select>
                                     <input type="text" id="pn-font-custom" class="form-input" placeholder="Nama font..." data-i18n-placeholder="placeholders.font_name" style="display: none; width: 85px;">
                                 </div>
-                                <div class="form-row">
-                                    <label class="form-label-compact" for="pn-color" data-i18n="labels.color">Warna:</label>
-                                    <input type="color" id="pn-color" class="form-color" value="#333333" title="Pilih warna nomor halaman" style="width: 26px; height: 22px; padding: 1px;">
-                                    <label class="form-label-compact" for="pn-font-size" style="margin-left: 6px;" data-i18n="labels.size_pt">Ukuran (pt):</label>
-                                    <input type="number" id="pn-font-size" class="form-input number-input" value="10" min="6" max="72" style="width: 48px; text-align: right;">
-                                    <label class="form-label-compact" for="pn-offset" style="margin-left: 6px;" data-i18n="labels.offset_mm">Offset (mm):</label>
-                                    <input type="number" id="pn-offset" class="form-input number-input" value="10" min="0" step="1" style="width: 48px; text-align: right;">
+                                <div class="form-row" style="justify-content: space-between;">
+                                    <div style="display: flex; align-items: center; gap: 4px;">
+                                        <label class="form-label-compact" for="pn-color" data-i18n="labels.color">Warna:</label>
+                                        <input type="color" id="pn-color" class="form-color" value="#333333" title="Pilih warna nomor halaman" style="width: 24px; height: 22px; padding: 1px;">
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 4px;">
+                                        <label class="form-label-compact" for="pn-font-size" data-i18n="labels.size_pt">Ukuran (pt):</label>
+                                        <input type="number" id="pn-font-size" class="form-input number-input" value="10" min="6" max="72" style="width: 44px; text-align: right;">
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 4px;">
+                                        <label class="form-label-compact" for="pn-offset" data-i18n="labels.offset_mm">Offset (mm):</label>
+                                        <input type="number" id="pn-offset" class="form-input number-input" value="10" min="0" step="1" style="width: 44px; text-align: right;">
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="group-label" data-i18n="groups.typography_color_offset">Tipografi, Warna & Offset</div>
                     </div>
 
-                    <!-- Blok: Pengecualian & Proteksi -->
+                    <!-- Blok: Pengecualian & Mode Buku (Feature 2) -->
                     <div class="ribbon-group">
                         <div class="group-body">
-                            <div class="group-form-col">
-                                <label class="checkbox-inline">
-                                    <input type="checkbox" id="pn-skip-first">
-                                    <span data-i18n="labels.skip_first">Lewati Halaman 1 (Cover)</span>
-                                </label>
-                                <label class="checkbox-inline">
-                                    <input type="checkbox" id="pn-locked" checked>
-                                    <span data-i18n="labels.lock_object">Kunci Objek (Lock)</span>
-                                </label>
+                            <div class="group-form-col" style="width: 180px;">
+                                <div class="form-row" style="justify-content: space-between;">
+                                    <label class="checkbox-inline" style="font-size: 11px;">
+                                        <input type="checkbox" id="pn-skip-first">
+                                        <span data-i18n="labels.skip_first">Lewati Cover</span>
+                                    </label>
+                                    <label class="checkbox-inline" style="font-size: 11px;">
+                                        <input type="checkbox" id="pn-locked" checked>
+                                        <span data-i18n="labels.lock_short">Kunci</span>
+                                    </label>
+                                </div>
+                                <div class="form-row">
+                                    <label class="checkbox-inline" style="font-size: 11px;">
+                                        <input type="checkbox" id="pn-facing-pages">
+                                        <span data-i18n="labels.facing_pages">Mode Buku (Ganjil-Genap)</span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
-                        <div class="group-label" data-i18n="groups.exceptions_protection">Pengecualian & Proteksi</div>
+                        <div class="group-label" data-i18n="groups.exceptions_protection">Pengecualian & Mode Buku</div>
                     </div>
                 </div>
 
@@ -391,38 +451,38 @@
                     <!-- Blok: Teks & Posisi (Header / Footer Sub-toggle) -->
                     <div class="ribbon-group">
                         <div class="group-body">
-                            <div class="group-form-col" style="width: 285px;">
-                                <!-- Baris 1: Switcher Header/Footer + Offset Y + Tombol Edit Multiline -->
-                                <div class="form-row" style="align-items: center;">
-                                    <div class="segmented-control">
+                            <div class="group-form-col" style="width: 225px;">
+                                <!-- Baris 1: 3 Kolom sejajar dengan Baris 2 -->
+                                <div class="form-row" style="align-items: center; justify-content: space-between;">
+                                    <div class="segmented-control" style="width: 86px; flex-shrink: 0;">
                                         <button type="button" class="btn-segmented active" id="btn-toggle-header" data-i18n="labels.header">Header</button>
                                         <button type="button" class="btn-segmented" id="btn-toggle-footer" data-i18n="labels.footer">Footer</button>
                                     </div>
-                                    <div id="wrap-hf-offset-header" class="form-row" style="margin-left: auto; gap: 4px; align-items: center;">
-                                        <label class="form-label-compact" for="hf-offset-top" data-i18n="labels.offset_y">Offset Y (mm):</label>
-                                        <input type="number" id="hf-offset-top" class="form-input number-input" value="12" min="1" max="100" style="width: 44px; text-align: right;" title="Jarak dari batas atas halaman">
-                                        <button type="button" class="ribbon-icon-btn btn-sm" id="btn-modal-header" data-tooltip="Sunting teks header multiline / sisipkan tag variabel" data-i18n-tooltip="tooltips.edit_header">
-                                            <span class="btn-icon">✎</span>
-                                        </button>
+                                    <div id="wrap-hf-offset-header" class="form-inline" style="display: flex; align-items: center; gap: 4px;">
+                                        <label class="form-label-compact" for="hf-offset-top" data-i18n="labels.offset_y_short">Offset:</label>
+                                        <input type="number" id="hf-offset-top" class="form-input number-input" value="12" min="1" max="100" style="width: 36px; text-align: right;" title="Jarak dari batas atas halaman">
                                     </div>
-                                    <div id="wrap-hf-offset-footer" class="form-row" style="margin-left: auto; gap: 4px; align-items: center; display: none;">
-                                        <label class="form-label-compact" for="hf-offset-bottom" data-i18n="labels.offset_y">Offset Y (mm):</label>
-                                        <input type="number" id="hf-offset-bottom" class="form-input number-input" value="12" min="1" max="100" style="width: 44px; text-align: right;" title="Jarak dari batas bawah halaman">
-                                        <button type="button" class="ribbon-icon-btn btn-sm" id="btn-modal-footer" data-tooltip="Sunting teks footer multiline / sisipkan tag variabel" data-i18n-tooltip="tooltips.edit_footer">
-                                            <span class="btn-icon">✎</span>
-                                        </button>
+                                    <div id="wrap-hf-offset-footer" class="form-inline" style="display: none; align-items: center; gap: 4px;">
+                                        <label class="form-label-compact" for="hf-offset-bottom" data-i18n="labels.offset_y_short">Offset:</label>
+                                        <input type="number" id="hf-offset-bottom" class="form-input number-input" value="12" min="1" max="100" style="width: 36px; text-align: right;" title="Jarak dari batas bawah halaman">
                                     </div>
+                                    <button type="button" class="ribbon-icon-btn btn-sm" id="btn-modal-header" data-tooltip="Sunting teks header multiline / sisipkan tag variabel" data-i18n-tooltip="tooltips.edit_header" style="width: 24px; min-width: 24px; height: 22px; flex-shrink: 0;">
+                                        <span class="btn-icon">✎</span>
+                                    </button>
+                                    <button type="button" class="ribbon-icon-btn btn-sm" id="btn-modal-footer" data-tooltip="Sunting teks footer multiline / sisipkan tag variabel" data-i18n-tooltip="tooltips.edit_footer" style="width: 24px; min-width: 24px; height: 22px; flex-shrink: 0; display: none;">
+                                        <span class="btn-icon">✎</span>
+                                    </button>
                                 </div>
                                 <!-- Baris 2: Tiga Slot Input Teks -->
                                 <div class="form-row" id="wrap-hf-slots-header">
-                                    <input type="text" id="h-left" class="form-input flex-1" placeholder="Kiri" data-i18n-placeholder="placeholders.header_left" style="min-width: 0; padding: 2px 5px; font-size: 11px;">
-                                    <input type="text" id="h-center" class="form-input flex-1" placeholder="Tengah" data-i18n-placeholder="placeholders.header_center" style="min-width: 0; padding: 2px 5px; font-size: 11px;">
-                                    <input type="text" id="h-right" class="form-input flex-1" placeholder="Kanan" data-i18n-placeholder="placeholders.header_right" style="min-width: 0; padding: 2px 5px; font-size: 11px;">
+                                    <input type="text" id="h-left" class="form-input flex-1" placeholder="Kiri" data-i18n-placeholder="placeholders.header_left" style="min-width: 0; padding: 2px 4px; font-size: 11px;">
+                                    <input type="text" id="h-center" class="form-input flex-1" placeholder="Tengah" data-i18n-placeholder="placeholders.header_center" style="min-width: 0; padding: 2px 4px; font-size: 11px;">
+                                    <input type="text" id="h-right" class="form-input flex-1" placeholder="Kanan" data-i18n-placeholder="placeholders.header_right" style="min-width: 0; padding: 2px 4px; font-size: 11px;">
                                 </div>
                                 <div class="form-row" id="wrap-hf-slots-footer" style="display: none;">
-                                    <input type="text" id="f-left" class="form-input flex-1" placeholder="Kiri" data-i18n-placeholder="placeholders.footer_left" style="min-width: 0; padding: 2px 5px; font-size: 11px;">
-                                    <input type="text" id="f-center" class="form-input flex-1" placeholder="{page}" data-i18n-placeholder="placeholders.footer_center" style="min-width: 0; padding: 2px 5px; font-size: 11px;">
-                                    <input type="text" id="f-right" class="form-input flex-1" placeholder="Kanan" data-i18n-placeholder="placeholders.footer_right" style="min-width: 0; padding: 2px 5px; font-size: 11px;">
+                                    <input type="text" id="f-left" class="form-input flex-1" placeholder="Kiri" data-i18n-placeholder="placeholders.footer_left" style="min-width: 0; padding: 2px 4px; font-size: 11px;">
+                                    <input type="text" id="f-center" class="form-input flex-1" placeholder="{page}" data-i18n-placeholder="placeholders.footer_center" style="min-width: 0; padding: 2px 4px; font-size: 11px;">
+                                    <input type="text" id="f-right" class="form-input flex-1" placeholder="Kanan" data-i18n-placeholder="placeholders.footer_right" style="min-width: 0; padding: 2px 4px; font-size: 11px;">
                                 </div>
                             </div>
                         </div>
@@ -432,16 +492,16 @@
                     <!-- Blok: Logo & Gambar -->
                     <div class="ribbon-group">
                         <div class="group-body">
-                            <div class="group-form-col" style="width: 230px;">
+                            <div class="group-form-col" style="width: 180px;">
                                 <div class="form-row">
-                                    <button type="button" class="btn-sm-action flex-1" id="btn-pick-hf-image" title="Pilih logo atau berkas gambar PNG/SVG/JPG" style="padding: 2px 6px; font-size: 11px; min-width: 0;">
+                                    <button type="button" class="btn-sm-action flex-1" id="btn-pick-hf-image" title="Pilih logo atau berkas gambar PNG/SVG/JPG" style="padding: 2px 5px; font-size: 11px; min-width: 0;">
                                         <span class="btn-icon">🖼</span> <span id="hf-image-btn-label" data-i18n="buttons.pick_logo">Logo...</span>
                                     </button>
                                     <input type="file" id="hf-image-file" accept="image/*,.svg,.png,.jpg,.jpeg,.webp" style="display: none;">
                                     <button type="button" class="ribbon-icon-btn btn-sm" id="btn-clear-hf-image" data-tooltip="Hapus logo terpilih" data-i18n-tooltip="tooltips.clear_logo" style="display: none; width: 22px; min-width: 22px; height: 22px; flex-shrink: 0;">
                                         <span class="btn-icon">✕</span>
                                     </button>
-                                    <select id="hf-image-pos" class="form-select" style="width: 86px; font-size: 11px; padding: 2px 4px; flex-shrink: 0;">
+                                    <select id="hf-image-pos" class="form-select" style="width: 80px; font-size: 11px; padding: 2px 3px; flex-shrink: 0;">
                                         <option value="footer-left" selected data-i18n="options.pos_footer_left">Ftr Kiri</option>
                                         <option value="footer-center" data-i18n="options.pos_footer_center">Ftr Tengah</option>
                                         <option value="footer-right" data-i18n="options.pos_footer_right">Ftr Kanan</option>
@@ -451,10 +511,14 @@
                                     </select>
                                 </div>
                                 <div class="form-row">
-                                    <label class="form-label-compact" for="hf-image-w" data-i18n="labels.logo_w">W (mm):</label>
-                                    <input type="number" id="hf-image-w" class="form-input number-input" value="25" min="5" max="200" style="width: 44px; text-align: right;" title="Lebar (mm)">
-                                    <label class="form-label-compact" for="hf-image-h" style="margin-left: 6px;" data-i18n="labels.logo_h">H (mm):</label>
-                                    <input type="number" id="hf-image-h" class="form-input number-input" value="10" min="2" max="100" style="width: 44px; text-align: right;" title="Tinggi (mm)">
+                                    <div style="display: flex; align-items: center; gap: 4px; flex: 1;">
+                                        <label class="form-label-compact" for="hf-image-w" data-i18n="labels.logo_w">W:</label>
+                                        <input type="number" id="hf-image-w" class="form-input number-input flex-1" value="25" min="5" max="200" style="text-align: right;" title="Lebar (mm)">
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 4px; width: 80px; flex-shrink: 0;">
+                                        <label class="form-label-compact" for="hf-image-h" data-i18n="labels.logo_h">H:</label>
+                                        <input type="number" id="hf-image-h" class="form-input number-input flex-1" value="10" min="2" max="100" style="text-align: right;" title="Tinggi (mm)">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -464,7 +528,7 @@
                     <!-- Blok: Tipografi & Warna Header & Footer -->
                     <div class="ribbon-group">
                         <div class="group-body">
-                            <div class="group-form-col" style="width: 195px;">
+                            <div class="group-form-col" style="width: 165px;">
                                 <div class="form-row">
                                     <label class="form-label-compact" for="hf-font-family" data-i18n="labels.font">Font:</label>
                                     <select id="hf-font-family" class="form-select flex-1" style="min-width: 0; font-size: 11px;">
@@ -482,11 +546,15 @@
                                     </select>
                                     <input type="text" id="hf-font-custom" class="form-input" placeholder="Nama..." data-i18n-placeholder="placeholders.font_name" style="display: none; width: 65px; font-size: 11px;">
                                 </div>
-                                <div class="form-row">
-                                    <label class="form-label-compact" for="hf-color" data-i18n="labels.color">Warna:</label>
-                                    <input type="color" id="hf-color" class="form-color" value="#555555" title="Warna font header & footer" style="width: 24px; height: 22px; padding: 1px;">
-                                    <label class="form-label-compact" for="hf-font-size" style="margin-left: 6px;" data-i18n="labels.size_pt">Ukuran (pt):</label>
-                                    <input type="number" id="hf-font-size" class="form-input number-input" value="9" min="6" max="36" style="width: 44px; text-align: right;">
+                                <div class="form-row" style="justify-content: space-between;">
+                                    <div style="display: flex; align-items: center; gap: 4px;">
+                                        <label class="form-label-compact" for="hf-color" data-i18n="labels.color">Warna:</label>
+                                        <input type="color" id="hf-color" class="form-color" value="#555555" title="Warna font header & footer" style="width: 24px; height: 22px; padding: 1px;">
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 4px;">
+                                        <label class="form-label-compact" for="hf-font-size" data-i18n="labels.size_pt">Ukuran (pt):</label>
+                                        <input type="number" id="hf-font-size" class="form-input number-input" value="9" min="6" max="36" style="width: 38px; text-align: right;">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -496,19 +564,25 @@
                     <!-- Blok: Garis Pembatas -->
                     <div class="ribbon-group">
                         <div class="group-body">
-                            <div class="group-form-col" style="width: 245px;">
-                                <div class="form-row" style="align-items: center;">
+                            <div class="group-form-col" style="width: 175px;">
+                                <div class="form-row" style="align-items: center; justify-content: space-between;">
                                     <label class="checkbox-inline" style="font-size: 11px;">
                                         <input type="checkbox" id="hf-divider"> <span data-i18n="labels.divider">Aktifkan Garis</span>
                                     </label>
-                                    <label class="form-label-compact" for="hf-divider-color" style="margin-left: auto;" data-i18n="labels.color">Warna:</label>
-                                    <input type="color" id="hf-divider-color" class="form-color" value="#cccccc" title="Warna garis pembatas" style="width: 20px; height: 20px; padding: 1px;">
+                                    <div style="display: flex; align-items: center; gap: 4px;">
+                                        <label class="form-label-compact" for="hf-divider-color" data-i18n="labels.color">Warna:</label>
+                                        <input type="color" id="hf-divider-color" class="form-color" value="#cccccc" title="Warna garis pembatas" style="width: 22px; height: 20px; padding: 1px;">
+                                    </div>
                                 </div>
-                                <div class="form-row" style="align-items: center;">
-                                    <label class="form-label-compact" for="hf-divider-thickness" data-i18n="labels.thickness">Tebal (pt):</label>
-                                    <input type="number" id="hf-divider-thickness" class="form-input number-input" value="0.5" step="0.25" min="0.25" max="5" style="width: 44px; text-align: right;">
-                                    <label class="form-label-compact" for="hf-margin-x" style="margin-left: 6px;" data-i18n="labels.margin_x">Margin X (mm):</label>
-                                    <input type="number" id="hf-margin-x" class="form-input number-input" value="10" min="0" max="100" style="width: 44px; text-align: right;">
+                                <div class="form-row" style="align-items: center; justify-content: space-between;">
+                                    <div style="display: flex; align-items: center; gap: 4px;">
+                                        <label class="form-label-compact" for="hf-divider-thickness" data-i18n="labels.thickness">Tebal:</label>
+                                        <input type="number" id="hf-divider-thickness" class="form-input number-input" value="0.5" step="0.25" min="0.25" max="5" style="width: 36px; text-align: right;">
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 4px;">
+                                        <label class="form-label-compact" for="hf-margin-x" data-i18n="labels.margin_x">Margin X:</label>
+                                        <input type="number" id="hf-margin-x" class="form-input number-input" value="10" min="0" max="100" style="width: 36px; text-align: right;">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -518,15 +592,23 @@
                     <!-- Blok: Pengecualian & Proteksi -->
                     <div class="ribbon-group">
                         <div class="group-body">
-                            <div class="group-form-col" style="width: 185px;">
-                                <label class="checkbox-inline" style="font-size: 11px;">
-                                    <input type="checkbox" id="hf-skip-first">
-                                    <span data-i18n="labels.skip_first">Lewati Halaman 1 (Cover)</span>
-                                </label>
-                                <label class="checkbox-inline" style="font-size: 11px;">
-                                    <input type="checkbox" id="hf-locked" checked>
-                                    <span data-i18n="labels.lock_object">Kunci Objek (Lock)</span>
-                                </label>
+                            <div class="group-form-col" style="width: 165px;">
+                                <div class="form-row" style="justify-content: space-between;">
+                                    <label class="checkbox-inline" style="font-size: 11px;">
+                                        <input type="checkbox" id="hf-skip-first">
+                                        <span data-i18n="labels.skip_first">Lewati Cover</span>
+                                    </label>
+                                    <label class="checkbox-inline" style="font-size: 11px;">
+                                        <input type="checkbox" id="hf-locked" checked>
+                                        <span data-i18n="labels.lock_short">Kunci</span>
+                                    </label>
+                                </div>
+                                <div class="form-row">
+                                    <label class="checkbox-inline" style="font-size: 11px;">
+                                        <input type="checkbox" id="hf-facing-pages">
+                                        <span data-i18n="labels.facing_hf">Tukar Kiri/Kanan Genap</span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
                         <div class="group-label" data-i18n="groups.exceptions_protection">Pengecualian & Proteksi</div>

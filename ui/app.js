@@ -79,12 +79,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const editLabelInput = document.getElementById('edit-label');
     const editWInput = document.getElementById('edit-w');
     const editHInput = document.getElementById('edit-h');
+    const masterSource = document.getElementById('master-source');
+    const masterTarget = document.getElementById('master-target');
 
     // Layout Controls
     const layoutOptBtns = document.querySelectorAll('.ribbon-opt-btn[data-layout]');
     const layoutColsInput = document.getElementById('layout-cols');
     const layoutGapInput = document.getElementById('layout-gap');
     const layoutGapUnit = document.getElementById('layout-gap-unit');
+    const layoutMoveContent = document.getElementById('layout-move-content');
     const btnAutoArrange = document.getElementById('btn-auto-arrange');
     let currentLayoutMode = 'grid';
 
@@ -95,6 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const mBottomInput = document.getElementById('m-bottom');
     const mLeftInput = document.getElementById('m-left');
     const mBleedInput = document.getElementById('m-bleed');
+    const marginFacing = document.getElementById('margin-facing');
     const chkGuidesEnabled = document.getElementById('chk-guides-enabled');
     const btnLinkMargins = document.getElementById('btn-link-margins');
     let marginsLinked = false;
@@ -112,6 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pnOffset = document.getElementById('pn-offset');
     const pnSkipFirst = document.getElementById('pn-skip-first');
     const pnLocked = document.getElementById('pn-locked');
+    const pnFacingPages = document.getElementById('pn-facing-pages');
 
     // Header & Footer
     const hfEnabled = document.getElementById('hf-enabled');
@@ -133,6 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const hfDividerColor = document.getElementById('hf-divider-color');
     const hfSkipFirst = document.getElementById('hf-skip-first');
     const hfLocked = document.getElementById('hf-locked');
+    const hfFacingPages = document.getElementById('hf-facing-pages');
     const btnModalHeader = document.getElementById('btn-modal-header');
     const btnModalFooter = document.getElementById('btn-modal-footer');
     const btnPickHfImage = document.getElementById('btn-pick-hf-image');
@@ -312,6 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     bottom: mBottomInput ? mBottomInput.value : 10,
                     left: mLeftInput ? mLeftInput.value : 10,
                     bleed: mBleedInput ? mBleedInput.value : 0,
+                    facing: marginFacing ? marginFacing.checked : false,
                     guides: chkGuidesEnabled ? chkGuidesEnabled.checked : false
                 },
                 page_numbers: {
@@ -326,7 +333,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     color: pnColor ? pnColor.value : '#333333',
                     offset: pnOffset ? pnOffset.value : 10,
                     skip_first: pnSkipFirst ? pnSkipFirst.checked : false,
-                    locked: pnLocked ? pnLocked.checked : true
+                    locked: pnLocked ? pnLocked.checked : true,
+                    facing_pages: pnFacingPages ? pnFacingPages.checked : false
                 },
                 header_footer: {
                     enabled: hfEnabled ? hfEnabled.checked : false,
@@ -348,6 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     divider_color: hfDividerColor ? hfDividerColor.value : '#cccccc',
                     skip_first: hfSkipFirst ? hfSkipFirst.checked : false,
                     locked: hfLocked ? hfLocked.checked : true,
+                    facing_pages: hfFacingPages ? hfFacingPages.checked : false,
                     image_data: hfImageData || '',
                     image_pos: hfImagePos ? hfImagePos.value : 'footer-left',
                     image_width: hfImageW ? hfImageW.value : 25,
@@ -371,7 +380,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 layout: {
                     mode: currentLayoutMode,
                     cols: layoutColsInput ? layoutColsInput.value : 3,
-                    gap: layoutGapInput ? layoutGapInput.value : 20
+                    gap: layoutGapInput ? layoutGapInput.value : 20,
+                    move_content: layoutMoveContent ? layoutMoveContent.checked : true
+                },
+                master_page: {
+                    source: masterSource ? masterSource.value : 'none',
+                    target: masterTarget ? masterTarget.value : 'all_except_first'
                 },
                 app_prefs: {
                     language: prefLanguage ? prefLanguage.value : 'id',
@@ -406,6 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (mBottomInput && s.margins.bottom) mBottomInput.value = s.margins.bottom;
             if (mLeftInput && s.margins.left) mLeftInput.value = s.margins.left;
             if (mBleedInput && s.margins.bleed) mBleedInput.value = s.margins.bleed;
+            if (marginFacing && s.margins.facing !== undefined) marginFacing.checked = s.margins.facing;
             if (chkGuidesEnabled && s.margins.guides !== undefined) chkGuidesEnabled.checked = s.margins.guides;
         }
 
@@ -428,6 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (pnOffset && s.page_numbers.offset) pnOffset.value = s.page_numbers.offset;
             if (pnSkipFirst && s.page_numbers.skip_first !== undefined) pnSkipFirst.checked = s.page_numbers.skip_first;
             if (pnLocked && s.page_numbers.locked !== undefined) pnLocked.checked = s.page_numbers.locked;
+            if (pnFacingPages && s.page_numbers.facing_pages !== undefined) pnFacingPages.checked = s.page_numbers.facing_pages;
         }
 
         // Header & Footer
@@ -456,6 +472,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (hfDividerColor && s.header_footer.divider_color) hfDividerColor.value = s.header_footer.divider_color;
             if (hfSkipFirst && s.header_footer.skip_first !== undefined) hfSkipFirst.checked = s.header_footer.skip_first;
             if (hfLocked && s.header_footer.locked !== undefined) hfLocked.checked = s.header_footer.locked;
+            if (hfFacingPages && s.header_footer.facing_pages !== undefined) hfFacingPages.checked = s.header_footer.facing_pages;
 
             if (s.header_footer.image_data) {
                 hfImageData = s.header_footer.image_data;
@@ -517,6 +534,23 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (prefBackend && s.app_prefs.ui_backend) {
                 prefBackend.value = s.app_prefs.ui_backend;
+            }
+        }
+
+        // Layout
+        if (s.layout) {
+            if (layoutMoveContent && s.layout.move_content !== undefined) {
+                layoutMoveContent.checked = s.layout.move_content;
+            }
+        }
+
+        // Master Page
+        if (s.master_page) {
+            if (masterSource && s.master_page.source) {
+                masterSource.value = s.master_page.source;
+            }
+            if (masterTarget && s.master_page.target) {
+                masterTarget.value = s.master_page.target;
             }
         }
 
@@ -1089,7 +1123,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // =========================================================================
     // 3. RENDERING (PAGE SORTER & LIVE CANVAS)
     // =========================================================================
+    function populateMasterSelect() {
+        if (!masterSource) return;
+        const currentVal = masterSource.value;
+        const noneText = currentLang === 'en' ? 'No Master' : 'Tanpa Master';
+        masterSource.innerHTML = `<option value="none">${noneText}</option>`;
+        pages.forEach((p, idx) => {
+            const opt = document.createElement('option');
+            opt.value = p.id;
+            opt.textContent = `#${idx + 1} (${p.label || `Page ${idx + 1}`})`;
+            masterSource.appendChild(opt);
+        });
+        if (pages.some(p => p.id === currentVal)) {
+            masterSource.value = currentVal;
+        } else {
+            masterSource.value = 'none';
+        }
+    }
+
     function renderAll() {
+        populateMasterSelect();
         renderSorter();
         renderCanvas();
         updateStatusBarMeta();
@@ -1154,6 +1207,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Read current feature states for live WYSIWYG
         const isMargin = marginEnabled ? marginEnabled.checked : false;
+        const isFacingMargin = marginFacing ? marginFacing.checked : false;
         const showGuides = isMargin && chkGuidesEnabled && chkGuidesEnabled.checked;
         const mTop = parseFloat(mTopInput.value) || 10;
         const mRight = parseFloat(mRightInput.value) || 10;
@@ -1162,6 +1216,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const bleed = parseFloat(mBleedInput.value) || 0;
 
         const isPn = pnEnabled.checked;
+        const isPnFacing = pnFacingPages ? pnFacingPages.checked : false;
         const pnStyleVal = pnStyle ? pnStyle.value : 'arabic';
         const pnFmt = pnFormat ? pnFormat.value : '{n}';
         const pnCustomVal = pnCustomText ? pnCustomText.value : '';
@@ -1173,6 +1228,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const pnSkip = pnSkipFirst.checked;
 
         const isHf = hfEnabled.checked;
+        const isHfFacing = hfFacingPages ? hfFacingPages.checked : false;
         const hfSkip = hfSkipFirst.checked;
         const hfLine = hfDivider.checked;
         const hl = hLeft.value.trim();
@@ -1245,21 +1301,34 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             pageG.appendChild(rect);
 
-            // 3. Page Header Badges (Index & Label)
+            // 3. Page Header Badges (Index & Label & Master Indicator)
             const badgeText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             badgeText.setAttribute('class', 'svg-page-badge');
             badgeText.setAttribute('x', p.x + 6);
             badgeText.setAttribute('y', p.y - 6);
-            badgeText.textContent = `#${idx + 1} (${p.label || `Page ${idx + 1}`})`;
+            const isMasterPage = masterSource && masterSource.value === p.id;
+            if (isMasterPage) {
+                badgeText.textContent = `#${idx + 1} (${p.label || `Page ${idx + 1}`}) ★ MASTER`;
+                badgeText.setAttribute('fill', '#3b82f6');
+                badgeText.setAttribute('font-weight', '700');
+            } else {
+                badgeText.textContent = `#${idx + 1} (${p.label || `Page ${idx + 1}`})`;
+            }
             pageG.appendChild(badgeText);
 
-            // 4. Margin Guides
-            if (showGuides && p.width > (mLeft + mRight) && p.height > (mTop + mBottom)) {
+            // 4. Margin Guides (with Facing Margins)
+            let curMLeft = mLeft;
+            let curMRight = mRight;
+            if (isFacingMargin && (idx % 2 === 1)) {
+                curMLeft = mRight;
+                curMRight = mLeft;
+            }
+            if (showGuides && p.width > (curMLeft + curMRight) && p.height > (mTop + mBottom)) {
                 const guideRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
                 guideRect.setAttribute('class', 'svg-guide-line');
-                guideRect.setAttribute('x', p.x + mLeft);
+                guideRect.setAttribute('x', p.x + curMLeft);
                 guideRect.setAttribute('y', p.y + mTop);
-                guideRect.setAttribute('width', p.width - mLeft - mRight);
+                guideRect.setAttribute('width', p.width - curMLeft - curMRight);
                 guideRect.setAttribute('height', p.height - mTop - mBottom);
                 guideRect.setAttribute('fill', 'none');
                 guideRect.setAttribute('pointer-events', 'none');
@@ -1307,7 +1376,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // 6. Live Header Preview
+            // 6. Live Header Preview (with Facing Page Slot Swap)
             if (isHf && (!hfSkip || !isCover)) {
                 const replaceHfVars = (tmpl) => {
                     return (tmpl || '')
@@ -1316,26 +1385,35 @@ document.addEventListener('DOMContentLoaded', () => {
                         .replace(/\{date\}/gi, todayStr);
                 };
 
+                let curHl = hl, curHr = hr, curFl = fl, curFr = fr;
+                let curHfImgPos = hfImgPos;
+                if (isHfFacing && (idx % 2 === 1)) {
+                    curHl = hr; curHr = hl;
+                    curFl = fr; curFr = fl;
+                    if (curHfImgPos.includes('left')) curHfImgPos = curHfImgPos.replace('left', 'right');
+                    else if (curHfImgPos.includes('right')) curHfImgPos = curHfImgPos.replace('right', 'left');
+                }
+
                 const hTopY = p.y + hfOffTop;
-                if (hl) createSvgText(pageG, replaceHfVars(hl), p.x + hfPadX, hTopY, 'start', hfClr, hfSize, hfFontFam);
+                if (curHl) createSvgText(pageG, replaceHfVars(curHl), p.x + hfPadX, hTopY, 'start', hfClr, hfSize, hfFontFam);
                 if (hc) createSvgText(pageG, replaceHfVars(hc), p.x + (p.width / 2), hTopY, 'middle', hfClr, hfSize, hfFontFam);
-                if (hr) createSvgText(pageG, replaceHfVars(hr), p.x + p.width - hfPadX, hTopY, 'end', hfClr, hfSize, hfFontFam);
+                if (curHr) createSvgText(pageG, replaceHfVars(curHr), p.x + p.width - hfPadX, hTopY, 'end', hfClr, hfSize, hfFontFam);
 
                 const fBotY = p.y + p.height - hfOffBot;
-                if (fl) createSvgText(pageG, replaceHfVars(fl), p.x + hfPadX, fBotY, 'start', hfClr, hfSize, hfFontFam);
+                if (curFl) createSvgText(pageG, replaceHfVars(curFl), p.x + hfPadX, fBotY, 'start', hfClr, hfSize, hfFontFam);
                 if (fc) createSvgText(pageG, replaceHfVars(fc), p.x + (p.width / 2), fBotY, 'middle', hfClr, hfSize, hfFontFam);
-                if (fr) createSvgText(pageG, replaceHfVars(fr), p.x + p.width - hfPadX, fBotY, 'end', hfClr, hfSize, hfFontFam);
+                if (curFr) createSvgText(pageG, replaceHfVars(curFr), p.x + p.width - hfPadX, fBotY, 'end', hfClr, hfSize, hfFontFam);
 
                 // Logo / Image
                 if (hfImageData) {
                     let imgX = p.x + hfPadX;
                     let imgY = p.y + p.height - hfOffBot - hfImgH;
-                    if (hfImgPos.includes('header')) {
+                    if (curHfImgPos.includes('header')) {
                         imgY = p.y + hfOffTop - hfImgH;
                     }
-                    if (hfImgPos.includes('center')) {
+                    if (curHfImgPos.includes('center')) {
                         imgX = p.x + (p.width - hfImgW) / 2;
-                    } else if (hfImgPos.includes('right')) {
+                    } else if (curHfImgPos.includes('right')) {
                         imgX = p.x + p.width - hfPadX - hfImgW;
                     }
 
@@ -1352,7 +1430,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 if (hfLine) {
-                    if (hl || hc || hr) {
+                    if (curHl || hc || curHr) {
                         const lineH = document.createElementNS('http://www.w3.org/2000/svg', 'line');
                         lineH.setAttribute('x1', p.x + hfPadX);
                         lineH.setAttribute('y1', hTopY + 3);
@@ -1363,7 +1441,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         pageG.appendChild(lineH);
                     }
 
-                    if (fl || fc || fr) {
+                    if (curFl || fc || curFr) {
                         const lineF = document.createElementNS('http://www.w3.org/2000/svg', 'line');
                         lineF.setAttribute('x1', p.x + hfPadX);
                         lineF.setAttribute('y1', fBotY - hfSize - 2);
@@ -1376,18 +1454,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // 7. Live Page Number Preview
+            // 7. Live Page Number Preview (with Facing Pages mirroring)
             if (isPn && (!pnSkip || !isCover)) {
                 const pnVal = formatPageNumber(idx, pages.length, pnStyleVal, pnFmt, pnCustomVal);
+
+                let curPnPos = pnPos;
+                if (isPnFacing && (idx % 2 === 1)) {
+                    if (curPnPos.includes('right')) curPnPos = curPnPos.replace('right', 'left');
+                    else if (curPnPos.includes('left')) curPnPos = curPnPos.replace('left', 'right');
+                }
 
                 let anchor = 'middle';
                 let tx = p.x + (p.width / 2);
                 let ty = p.y + p.height - pnOff;
 
-                if (pnPos.includes('left')) { tx = p.x + pnOff; anchor = 'start'; }
-                else if (pnPos.includes('right')) { tx = p.x + p.width - pnOff; anchor = 'end'; }
+                if (curPnPos.includes('left')) { tx = p.x + pnOff; anchor = 'start'; }
+                else if (curPnPos.includes('right')) { tx = p.x + p.width - pnOff; anchor = 'end'; }
 
-                if (pnPos.includes('top')) { ty = p.y + pnOff + (pnSize * 0.4); }
+                if (curPnPos.includes('top')) { ty = p.y + pnOff + (pnSize * 0.4); }
 
                 createSvgText(pageG, pnVal, tx, ty, anchor, pnClr, pnSize, pnFontFam);
             }
@@ -1840,10 +1924,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // =========================================================================
     // 7. LIVE WYSIWYG EVENT LISTENERS
     // =========================================================================
-    [marginEnabled, chkGuidesEnabled, mTopInput, mRightInput, mBottomInput, mLeftInput, mBleedInput,
-     pnEnabled, pnStyle, pnFormat, pnCustomText, pnPosition, pnFontFamily, pnFontCustom, pnFontSize, pnColor, pnOffset, pnSkipFirst, pnLocked,
+    [masterSource, masterTarget, layoutMoveContent,
+     marginEnabled, chkGuidesEnabled, marginFacing, mTopInput, mRightInput, mBottomInput, mLeftInput, mBleedInput,
+     pnEnabled, pnStyle, pnFormat, pnCustomText, pnPosition, pnFontFamily, pnFontCustom, pnFontSize, pnColor, pnOffset, pnSkipFirst, pnLocked, pnFacingPages,
      hfEnabled, hLeft, hCenter, hRight, fLeft, fCenter, fRight, hfOffsetTop, hfOffsetBottom, hfMarginX,
-     hfFontFamily, hfFontCustom, hfFontSize, hfColor, hfDivider, hfDividerThick, hfDividerColor, hfSkipFirst, hfLocked,
+     hfFontFamily, hfFontCustom, hfFontSize, hfColor, hfDivider, hfDividerThick, hfDividerColor, hfSkipFirst, hfLocked, hfFacingPages,
      hfImagePos, hfImageW, hfImageH,
      wmEnabled, wmMode, wmText, wmFontFamily, wmFontCustom, wmFontSize, wmImageWidth, wmRotation, wmColor, wmOpacity, wmSkipFirst, wmLocked].forEach(input => {
         if (!input) return;
@@ -2049,6 +2134,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     guides: {
                         enabled: (marginEnabled && marginEnabled.checked) && (chkGuidesEnabled && chkGuidesEnabled.checked),
                         apply_margins: marginEnabled ? marginEnabled.checked : false,
+                        facing_margins: marginFacing ? marginFacing.checked : false,
                         top: parseFloat(mTopInput.value) || 10,
                         right: parseFloat(mRightInput.value) || 10,
                         bottom: parseFloat(mBottomInput.value) || 10,
@@ -2066,6 +2152,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         offset: parseFloat(pnOffset.value) || 10,
                         skip_first: pnSkipFirst.checked,
                         locked: pnLocked ? pnLocked.checked : true,
+                        facing_pages: pnFacingPages ? pnFacingPages.checked : false,
                         font_family: getPnFontFamily()
                     },
                     header_footer: {
@@ -2088,6 +2175,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         divider_offset: 3.0,
                         skip_first: hfSkipFirst.checked,
                         locked: hfLocked ? hfLocked.checked : true,
+                        facing_pages: hfFacingPages ? hfFacingPages.checked : false,
                         image_data: hfImageData || '',
                         image_pos: hfImagePos.value || 'footer-left',
                         image_width: parseFloat(hfImageW.value) || 25,
@@ -2106,6 +2194,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         locked: wmLocked ? wmLocked.checked : true,
                         image_data: wmImageData || '',
                         image_width: parseFloat(wmImageWidth ? wmImageWidth.value : 80) || 80
+                    },
+                    layout: {
+                        move_content: layoutMoveContent ? layoutMoveContent.checked : true
+                    },
+                    master_page: {
+                        source: masterSource ? masterSource.value : 'none',
+                        target: masterTarget ? masterTarget.value : 'all_except_first'
                     }
                 }
             };

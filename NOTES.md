@@ -455,3 +455,37 @@
       - Tidak ada lagi elemen atau tombol yang menabrak garis pembatas.
       - Tampilan lapang, rapi, dan konsisten di Bahasa Indonesia dan Bahasa Inggris.
     - Menjalankan `./package.sh` dan memverifikasi `ink-pageman.zip.md5: OK`.
+
+- **2026-10-29 [EKSEKUSI FITUR 1, 2, 4 & PEROMBAKAN GRID PRESISI RATA KANAN-KIRI]**:
+  - **Identifikasi Kebutuhan & Permintaan Pengguna**:
+    1. Pengguna menyetujui eksekusi fitur prioritas: Fitur 1 (Ikutkan Objek/Artwork), Fitur 2 (Mode Buku / Facing Pages Ganjil-Genap), dan Fitur 4 (Master Page / Template Bersama), serta melewati Fitur 3.
+    2. Pengguna meminta perombakan antarmuka ribbon agar solid, teratur, matematis per kolom, dan **100% rata kanan-kiri (justified edge-to-edge)** di semua tab tanpa blok yang asal taruh atau berantakan.
+  - **Solusi & Implementasi**:
+    1. **Fitur 1: Ikutkan Objek / Artwork Saat Halaman Berpindah (`move_content`)**:
+       - Di `ink-pageman.py`: Menyimpan koordinat awal halaman (`self.initial_pages`) saat memuat dokumen untuk menghitung pergeseran delta $(\Delta x, \Delta y)$ setiap halaman.
+       - Saat `apply_changes`: Memeriksa objek-objek level atas pada layer (mengecualikan layer otomatis yang digenerate sistem). Jika titik tengah (*bounding box center*) objek berada di dalam halaman asal, objek dipindahkan dengan `Transform(translate=(dx, dy))`.
+       - Di `ui/index.html` & `ui/app.js`: Ditambahkan checkbox `#layout-move-content` ("Ikutkan Objek / Artwork") dengan tooltip penjelasan.
+    2. **Fitur 2: Facing Pages / Mode Buku (Ganjil-Genap) Cermin**:
+       - *Margin*: Ditambahkan checkbox `#margin-facing` ("Mode Buku"). Pada halaman genap (halaman kiri buku), margin kiri dan margin kanan (dalam/luar) otomatis ditukar secara matematis baik pada `<inkscape:page>` maupun canvas guides `<sodipodi:guide>`.
+       - *Nomor Halaman*: Ditambahkan checkbox `#pn-facing-pages`. Pada halaman genap, posisi `left` $\leftrightarrow$ `right` dicerminkan secara dinamis pada Live Preview dan export SVG.
+       - *Header & Footer*: Ditambahkan checkbox `#hf-facing-pages` ("Tukar Kiri/Kanan Genap"). Slot teks kiri dan kanan serta penempatan logo dicerminkan pada halaman genap.
+    3. **Fitur 4: Master Page / Template Bersama (Native SVG `<use>`)**:
+       - Di `ui/index.html` & `ui/app.js`: Ditambahkan blok `Master Page` pada tab Halaman (`#master-source` untuk memilih halaman master dan `#master-target` untuk memilih target: Semua, Semua Kecuali Cover, atau Halaman Tertentu).
+       - Pada Live Preview kanvas, halaman master ditandai dengan badge elegan `★ MASTER`.
+       - Di `ink-pageman.py`: Seluruh elemen artwork pada halaman master dikloning ke dalam `<defs><g id="master_page_template">`, lalu dipasang ke target halaman menggunakan elemen native `<use href="#master_page_template" x="..." y="..." />` di dalam layer non-destruktif `layer_master_page` di posisi background paling bawah. Sangat ringan, file SVG tetap kecil, dan 100% didukung Inkscape.
+    4. **Perombakan Grid Ribbon Toolbar 100% Presisi Rata Kanan-Kiri**:
+       - Seluruh tab (`pages`, `layout`, `margins`, `numbers`, `headerfooter`, `watermark`, `settings`) dirapikan dengan struktur kolom vertikal yang sejajar antara Baris 1 dan Baris 2.
+       - Menghilangkan `[✎ Sunting]` lebar menjadi square icon button `[✎]` 24px yang pas di kolom 3 sejajar dengan input slot ketiga.
+       - Menyesuaikan lebar grup Header & Footer (`225px`, `180px`, `165px`, `175px`, `165px`) sehingga seluruh 6 grup dapat muat secara simultan pada lebar standar 1150px tanpa memerlukan scrollbar horizontal.
+       - Seluruh baris form memiliki perataan rata kanan-kiri yang presisi (*flush alignment*).
+    5. **Dukungan Multibahasa Penuh (i18n)**:
+       - Memperbarui `ui/id.json` dan `ui/en.json` untuk semua string, label, dan opsi baru.
+  - **Verifikasi**:
+    - Validasi sintaks JS `node -c ui/app.js` dan Python `python3 -m py_compile ink-pageman.py` lolos tanpa error.
+    - Validasi JSON `ui/id.json` dan `ui/en.json` lolos 100%.
+    - Skrip uji otomatis mengonfirmasi:
+      - Pergeseran artwork rect mengikuti delta halaman ($x + 66.05, y + 50$) terverifikasi `translate(66.0549, 50)`.
+      - Template master page `<defs><g id="master_page_template">` dan 2 instansi `<use>` terbuat di `layer_master_page`.
+      - Facing pages cermin nomor halaman dan header/footer terpasang sempurna.
+    - Render visual headless WebKit2GTK offscreen 1150px mengonfirmasi seluruh 7 tab tampil rapi, solid, rata kanan-kiri, dan tanpa clipping.
+    - Pemaketan `./package.sh` berhasil dan checksum `md5sum -c ink-pageman.zip.md5` terverifikasi `OK`.

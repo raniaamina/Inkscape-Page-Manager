@@ -26,8 +26,9 @@ for p in ext_paths:
     if os.path.exists(p) and p not in sys.path:
         sys.path.append(p)
 
+import copy
 import inkex
-from inkex import TextElement, Tspan, Layer, Group, Guide, Page, Image
+from inkex import TextElement, Tspan, Layer, Group, Guide, Page, Image, Use, Transform
 
 # Try to load GTK and WebKit2 for native window on Linux
 GTK_UI_AVAILABLE = False
@@ -260,8 +261,12 @@ class PageManagerExtension(inkex.EffectExtension):
         existing_layers = {
             'page_numbers': svg.getElementById('layer_page_numbers') is not None,
             'header_footer': svg.getElementById('layer_header_footer') is not None,
-            'watermark': svg.getElementById('layer_watermark') is not None
+            'watermark': svg.getElementById('layer_watermark') is not None,
+            'master_page': svg.getElementById('layer_master_page') is not None
         }
+
+        # Remember initial page positions to compute shift deltas (Move Artwork)
+        self.initial_pages = {p['id']: dict(p) for p in pages_list}
 
         return {
             'unit': unit,
@@ -280,6 +285,54 @@ class PageManagerExtension(inkex.EffectExtension):
 
         if not pages_data:
             return False, "No page data provided."
+
+        # Feature 1: Move Artwork / Objects with Page
+        layout_opt = options.get('layout', {})
+        move_content = layout_opt.get('move_content', True)
+        if move_content and hasattr(self, 'initial_pages') and self.initial_pages:
+            page_shifts = {}
+            for p in pages_data:
+                pid = p.get('id')
+                if pid in self.initial_pages:
+                    init_p = self.initial_pages[pid]
+                    dx = float(p.get('x', 0.0)) - float(init_p.get('x', 0.0))
+                    dy = float(p.get('y', 0.0)) - float(init_p.get('y', 0.0))
+                    if abs(dx) > 0.001 or abs(dy) > 0.001:
+                        page_shifts[pid] = {
+                            'dx': dx,
+                            'dy': dy,
+                            'bounds': (float(init_p.get('x', 0.0)),
+                                       float(init_p.get('y', 0.0)),
+                                       float(init_p.get('width', 210.0)),
+                                       float(init_p.get('height', 297.0)))
+                        }
+            if page_shifts:
+                ignored_layer_ids = {'layer_page_numbers', 'layer_header_footer', 'layer_watermark', 'layer_master_page'}
+                elements_to_move = []
+                for child in list(svg):
+                    if child.tag.endswith(('namedview', 'defs', 'metadata')):
+                        continue
+                    if isinstance(child, Layer):
+                        if child.get('id') in ignored_layer_ids:
+                            continue
+                        for sub in list(child):
+                            elements_to_move.append(sub)
+                    else:
+                        elements_to_move.append(child)
+
+                for elem in elements_to_move:
+                    try:
+                        bbox = elem.bounding_box()
+                        if bbox:
+                            cx = (bbox.x.minimum + bbox.x.maximum) / 2.0
+                            cy = (bbox.y.minimum + bbox.y.maximum) / 2.0
+                            for pid, s in page_shifts.items():
+                                bx, by, bw, bh = s['bounds']
+                                if bx <= cx < bx + bw and by <= cy < by + bh:
+                                    elem.transform = Transform(translate=(s['dx'], s['dy'])) @ elem.transform
+                                    break
+                    except Exception:
+                        pass
 
         # 1. Update / Recreate pages in namedview
         guides_opt = options.get('guides', {})
@@ -321,7 +374,13 @@ class PageManagerExtension(inkex.EffectExtension):
                 m_bottom = guides_opt.get('bottom', 10.0)
                 m_left = guides_opt.get('left', 10.0)
                 m_bleed = guides_opt.get('bleed', 0.0)
-                m_val = margin if (margin and margin != '0') else f"{m_top} {m_right} {m_bottom} {m_left}"
+                facing_margins = guides_opt.get('facing_margins', False)
+                cur_l = m_left
+                cur_r = m_right
+                if facing_margins and (idx % 2 == 1):
+                    # Even page in spread: gutter is on the right
+                    cur_l, cur_r = m_right, m_left
+                m_val = margin if (margin and margin != '0') else f"{m_top} {cur_r} {m_bottom} {cur_l}"
                 b_val = bleed if (bleed and bleed != '0') else str(m_bleed)
                 if m_val:
                     new_p.set('margin', str(m_val))
@@ -344,6 +403,7 @@ class PageManagerExtension(inkex.EffectExtension):
             m_right = float(guides_opt.get('right', 10.0))
             m_bottom = float(guides_opt.get('bottom', 10.0))
             m_left = float(guides_opt.get('left', 10.0))
+            facing_margins = guides_opt.get('facing_margins', False)
 
             for idx, pd in enumerate(pages_data):
                 px = float(pd.get('x', 0.0))
@@ -351,11 +411,16 @@ class PageManagerExtension(inkex.EffectExtension):
                 pw = float(pd.get('width', 210.0))
                 ph = float(pd.get('height', 297.0))
 
+                cur_l = m_left
+                cur_r = m_right
+                if facing_margins and (idx % 2 == 1):
+                    cur_l, cur_r = m_right, m_left
+
                 try:
                     namedview.add_guide(py + m_top, orient=True, name=f"P{idx+1} Margin Top")
                     namedview.add_guide(py + ph - m_bottom, orient=True, name=f"P{idx+1} Margin Bottom")
-                    namedview.add_guide(px + m_left, orient=False, name=f"P{idx+1} Margin Left")
-                    namedview.add_guide(px + pw - m_right, orient=False, name=f"P{idx+1} Margin Right")
+                    namedview.add_guide(px + cur_l, orient=False, name=f"P{idx+1} Margin Left")
+                    namedview.add_guide(px + pw - cur_r, orient=False, name=f"P{idx+1} Margin Right")
                 except Exception:
                     pass
 
@@ -391,6 +456,7 @@ class PageManagerExtension(inkex.EffectExtension):
             fmt = pn_opt.get('format', '{n}')
             custom_text = pn_opt.get('custom_text', '')
             pos = pn_opt.get('position', 'bottom-center')
+            pn_facing = pn_opt.get('facing_pages', False)
             f_size = pn_opt.get('font_size', 10)
             f_color = pn_opt.get('color', '#333333')
             f_family = pn_opt.get('font_family', 'sans-serif')
@@ -458,18 +524,25 @@ class PageManagerExtension(inkex.EffectExtension):
                 ph = float(pd.get('height', 297.0))
 
                 # Compute position
+                cur_pos = pos
+                if pn_facing and (idx % 2 == 1):
+                    if 'right' in cur_pos:
+                        cur_pos = cur_pos.replace('right', 'left')
+                    elif 'left' in cur_pos:
+                        cur_pos = cur_pos.replace('left', 'right')
+
                 anchor = 'middle'
-                if 'left' in pos:
+                if 'left' in cur_pos:
                     tx = px + offset
                     anchor = 'start'
-                elif 'right' in pos:
+                elif 'right' in cur_pos:
                     tx = px + pw - offset
                     anchor = 'end'
                 else:
                     tx = px + (pw / 2.0)
                     anchor = 'middle'
 
-                if 'top' in pos:
+                if 'top' in cur_pos:
                     ty = py + offset + (f_size * 0.35)
                 else:
                     ty = py + ph - offset
@@ -522,6 +595,7 @@ class PageManagerExtension(inkex.EffectExtension):
             f_left = hf_opt.get('footer_left', '')
             f_center = hf_opt.get('footer_center', '')
             f_right = hf_opt.get('footer_right', '')
+            hf_facing = hf_opt.get('facing_pages', False)
             hf_img_data = hf_opt.get('image_data', '')
             hf_img_pos = hf_opt.get('image_pos', 'footer-left')
             hf_img_w = float(hf_opt.get('image_width', 25.0))
@@ -561,11 +635,25 @@ class PageManagerExtension(inkex.EffectExtension):
                 pw = float(pd.get('width', 210.0))
                 ph = float(pd.get('height', 297.0))
 
+                cur_hl = h_left
+                cur_hr = h_right
+                cur_fl = f_left
+                cur_fr = f_right
+                cur_img_pos = hf_img_pos
+                if hf_facing and (idx % 2 == 1):
+                    # Even page (left spread): swap left & right
+                    cur_hl, cur_hr = h_right, h_left
+                    cur_fl, cur_fr = f_right, f_left
+                    if 'left' in cur_img_pos:
+                        cur_img_pos = cur_img_pos.replace('left', 'right')
+                    elif 'right' in cur_img_pos:
+                        cur_img_pos = cur_img_pos.replace('right', 'left')
+
                 # Header entries
                 header_entries = [
-                    (h_left, px + pad, py + m_top, 'start'),
+                    (cur_hl, px + pad, py + m_top, 'start'),
                     (h_center, px + (pw / 2.0), py + m_top, 'middle'),
-                    (h_right, px + pw - pad, py + m_top, 'end')
+                    (cur_hr, px + pw - pad, py + m_top, 'end')
                 ]
                 for text_tpl, tx, ty, anc in header_entries:
                     val = replace_vars(text_tpl, idx).strip()
@@ -574,9 +662,9 @@ class PageManagerExtension(inkex.EffectExtension):
 
                 # Footer entries
                 footer_entries = [
-                    (f_left, px + pad, py + ph - m_bottom, 'start'),
+                    (cur_fl, px + pad, py + ph - m_bottom, 'start'),
                     (f_center, px + (pw / 2.0), py + ph - m_bottom, 'middle'),
-                    (f_right, px + pw - pad, py + ph - m_bottom, 'end')
+                    (cur_fr, px + pw - pad, py + ph - m_bottom, 'end')
                 ]
                 for text_tpl, tx, ty, anc in footer_entries:
                     val = replace_vars(text_tpl, idx).strip()
@@ -587,11 +675,11 @@ class PageManagerExtension(inkex.EffectExtension):
                 if hf_img_data:
                     ix = px + pad
                     iy = py + ph - m_bottom - hf_img_h
-                    if 'header' in hf_img_pos:
+                    if 'header' in cur_img_pos:
                         iy = py + m_top - hf_img_h
-                    if 'center' in hf_img_pos:
+                    if 'center' in cur_img_pos:
                         ix = px + (pw - hf_img_w) / 2.0
-                    elif 'right' in hf_img_pos:
+                    elif 'right' in cur_img_pos:
                         ix = px + pw - pad - hf_img_w
 
                     img_elem = Image()
@@ -706,6 +794,90 @@ class PageManagerExtension(inkex.EffectExtension):
         else:
             if wm_layer is not None:
                 svg.remove(wm_layer)
+
+        # 7. Master Page Layer (Feature 4)
+        master_opt = options.get('master_page', {})
+        master_src = master_opt.get('source', 'none')
+        master_target = master_opt.get('target', 'all_except_first')
+        master_layer = svg.getElementById('layer_master_page')
+        if master_src and master_src != 'none':
+            src_page = None
+            for p in pages_data:
+                if p.get('id') == master_src:
+                    src_page = p
+                    break
+            if src_page:
+                master_layer = get_or_create_layer('layer_master_page', 'Master Page')
+                master_layer.set('sodipodi:insensitive', 'true')
+                master_layer.style['pointer-events'] = 'none'
+
+                sx = float(src_page.get('x', 0.0))
+                sy = float(src_page.get('y', 0.0))
+                sw = float(src_page.get('width', 210.0))
+                sh = float(src_page.get('height', 297.0))
+
+                defs = svg.defs
+                template_id = 'master_page_template'
+                existing_tmpl = svg.getElementById(template_id)
+                if existing_tmpl is not None:
+                    existing_tmpl.getparent().remove(existing_tmpl)
+
+                tmpl_group = Group(id=template_id)
+                tmpl_group.transform = Transform(translate=(-sx, -sy))
+                defs.append(tmpl_group)
+
+                # Clone artwork inside master page bounds
+                ignored_l_ids = {'layer_page_numbers', 'layer_header_footer', 'layer_watermark', 'layer_master_page'}
+                for child in list(svg):
+                    if child.tag.endswith(('namedview', 'defs', 'metadata')):
+                        continue
+                    if isinstance(child, Layer):
+                        if child.get('id') in ignored_l_ids:
+                            continue
+                        for sub in list(child):
+                            try:
+                                bbox = sub.bounding_box()
+                                if bbox:
+                                    cx = (bbox.x.minimum + bbox.x.maximum) / 2.0
+                                    cy = (bbox.y.minimum + bbox.y.maximum) / 2.0
+                                    if sx <= cx < sx + sw and sy <= cy < sy + sh:
+                                        cloned = copy.deepcopy(sub)
+                                        tmpl_group.append(cloned)
+                            except Exception:
+                                pass
+
+                # Replicate via <use> to target pages
+                for idx, pd in enumerate(pages_data):
+                    pid = pd.get('id')
+                    if pid == master_src:
+                        continue
+                    if master_target == 'all_except_first' and idx == 0:
+                        continue
+                    elif master_target == 'even' and (idx % 2 == 0):
+                        continue
+                    elif master_target == 'odd' and (idx % 2 == 1):
+                        continue
+
+                    px = float(pd.get('x', 0.0))
+                    py = float(pd.get('y', 0.0))
+                    use_inst = Use()
+                    use_inst.set('href', f"#{template_id}")
+                    use_inst.set('x', str(px))
+                    use_inst.set('y', str(py))
+                    master_layer.append(use_inst)
+
+                # Position master layer as background (below first artwork layer)
+                first_layer = None
+                for c in list(svg):
+                    if isinstance(c, Layer) and c.get('id') != 'layer_master_page':
+                        first_layer = c
+                        break
+                if first_layer is not None:
+                    svg.remove(master_layer)
+                    first_layer.addprevious(master_layer)
+        else:
+            if master_layer is not None:
+                svg.remove(master_layer)
 
         return True, f"Successfully updated {len(pages_data)} pages in Inkscape!"
 
