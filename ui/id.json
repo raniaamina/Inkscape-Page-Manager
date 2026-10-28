@@ -117,7 +117,8 @@
     "edit_header": "Sunting teks header multiline / sisipkan tag variabel",
     "edit_footer": "Sunting teks footer multiline / sisipkan tag variabel",
     "clear_logo": "Hapus logo terpilih",
-    "clear_wm": "Hapus gambar watermark"
+    "clear_wm": "Hapus gambar watermark",
+    "brand_about": "Tentang Page Manager (Klik untuk Info & Bantuan)"
   },
   "page_sorter": {
     "title": "DAFTAR HALAMAN"

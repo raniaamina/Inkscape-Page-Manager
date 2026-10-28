@@ -790,11 +790,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // =========================================================================
     // ABOUT MODAL
     // =========================================================================
-    if (btnShowAbout) {
-        btnShowAbout.addEventListener('click', () => {
-            if (modalAbout) modalAbout.style.display = 'flex';
-        });
-    }
+    const btnAppBrand = document.getElementById('btn-app-brand') || document.querySelector('.app-brand');
+    const openAboutModal = () => { if (modalAbout) modalAbout.style.display = 'flex'; };
+    if (btnAppBrand) btnAppBrand.addEventListener('click', openAboutModal);
+    if (btnShowAbout) btnShowAbout.addEventListener('click', openAboutModal);
     const closeAboutModal = () => { if (modalAbout) modalAbout.style.display = 'none'; };
     if (btnCloseAboutModal) btnCloseAboutModal.addEventListener('click', closeAboutModal);
     if (btnDismissAbout) btnDismissAbout.addEventListener('click', closeAboutModal);

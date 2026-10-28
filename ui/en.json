@@ -117,7 +117,8 @@
     "edit_header": "Edit multiline header text / insert variable tags",
     "edit_footer": "Edit multiline footer text / insert variable tags",
     "clear_logo": "Clear selected logo",
-    "clear_wm": "Clear watermark image"
+    "clear_wm": "Clear watermark image",
+    "brand_about": "About Page Manager (Click for Info & Help)"
   },
   "page_sorter": {
     "title": "PAGE LIST"

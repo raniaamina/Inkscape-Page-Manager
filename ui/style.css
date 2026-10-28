@@ -105,6 +105,17 @@ body, html {
     padding-right: 14px;
     border-right: 1px solid var(--border-subtle);
     margin-right: 6px;
+    cursor: pointer;
+    user-select: none;
+    transition: opacity 0.15s ease, transform 0.1s ease;
+}
+
+.app-brand:hover {
+    opacity: 0.85;
+}
+
+.app-brand:active {
+    transform: scale(0.98);
 }
 
 .brand-badge {

@@ -347,3 +347,20 @@
     - Validasi sintaks JS `node -c ui/app.js` dan Python `python3 -m py_compile ink-pageman.py` lolos tanpa error.
     - Validasi JSON `python3 -m json.tool` untuk `ui/id.json` dan `ui/en.json` lolos 100%.
     - Menjalankan `./package.sh` dan memverifikasi `ink-pageman.zip.md5: OK`.
+
+- **2026-10-28 [LOGO BRAND KLIK ABOUT & PENGHAPUSAN TEKS INKSCAPE 1.2+]**:
+  - **Identifikasi Kebutuhan**:
+    1. Logo brand `[INK] PAGE MANAGER` di pojok kiri atas antarmuka diharapkan membuka dialog About ketika diklik (interaksi cepat/shortcut pengguna).
+    2. Teks/label `Inkscape 1.2+` di tab Pengaturan & Info (blok Tentang Ekstensi) tidak jelas konteksnya dan menimbulkan kebingungan bagi pengguna sehingga lebih baik dihapus.
+  - **Solusi & Implementasi**:
+    1. **Logo Brand Interaktif**:
+       - Menambahkan cursor pointer, user-select none, transisi hover/active pada `.app-brand` di `ui/style.css`.
+       - Menambahkan tooltip/title `Tentang Page Manager (Klik untuk Info & Bantuan)` dengan dukungan i18n (`tooltips.brand_about`).
+       - Menghubungkan event listener click `.app-brand` pada `ui/app.js` untuk membuka modal About (`modal-about`).
+    2. **Pembersihan Teks `Inkscape 1.2+`**:
+       - Menghapus elemen `<span class="unit-label">Inkscape 1.2+</span>` dari baris 1 di blok Tentang Ekstensi (`ui/index.html`).
+       - Menyesuaikan lebar kontainer grup dari `230px` menjadi `200px` yang pas dan proporsional untuk tombol Info Lengkap.
+  - **Verifikasi**:
+    - Validasi sintaks JS `node -c ui/app.js` dan Python `python3 -m py_compile ink-pageman.py` lolos tanpa error.
+    - Validasi format JSON `ui/id.json` dan `ui/en.json` lolos 100%.
+    - Menjalankan `./package.sh` dan memverifikasi `ink-pageman.zip.md5: OK`.
