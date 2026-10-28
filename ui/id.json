@@ -77,7 +77,7 @@
     "language": "Bahasa:",
     "theme": "Tema:",
     "window_engine": "Dialog:",
-    "canvas_guides": "Buat Canvas Guides (Garis Pandu)",
+    "canvas_guides": "Buat Garis Pandu Kanvas",
     "logo_w": "W (mm):",
     "logo_h": "H (mm):",
     "image_width": "Lebar (mm):"
@@ -110,6 +110,7 @@
     "deselect_all": "Batal Pilih / Kosongkan Seleksi",
     "toggle_orient": "Balik Arah (Portrait ↔ Landscape)",
     "auto_arrange": "Tata Ulang Seluruh Halaman Sekarang",
+    "link_margins": "Kaitkan semua margin (Sinkron)",
     "edit_header": "Sunting teks header multiline / sisipkan tag variabel",
     "edit_footer": "Sunting teks footer multiline / sisipkan tag variabel",
     "clear_logo": "Hapus logo terpilih",
@@ -217,3 +218,4 @@
     "template_deleted": "Template dihapus dari config.json!"
   }
 }
+

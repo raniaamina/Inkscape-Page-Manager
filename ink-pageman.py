@@ -316,10 +316,17 @@ class PageManagerExtension(inkex.EffectExtension):
             new_p.set('id', pid)
             new_p.set('inkscape:label', str(label))
             if apply_margins:
-                if margin and margin != '0':
-                    new_p.set('margin', str(margin))
-                if bleed and bleed != '0':
-                    new_p.set('bleed', str(bleed))
+                m_top = guides_opt.get('top', 10.0)
+                m_right = guides_opt.get('right', 10.0)
+                m_bottom = guides_opt.get('bottom', 10.0)
+                m_left = guides_opt.get('left', 10.0)
+                m_bleed = guides_opt.get('bleed', 0.0)
+                m_val = margin if (margin and margin != '0') else f"{m_top} {m_right} {m_bottom} {m_left}"
+                b_val = bleed if (bleed and bleed != '0') else str(m_bleed)
+                if m_val:
+                    new_p.set('margin', str(m_val))
+                if b_val and b_val != '0':
+                    new_p.set('bleed', str(b_val))
             if page_size:
                 new_p.set('page-size', str(page_size))
             namedview.append(new_p)

@@ -96,7 +96,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const mLeftInput = document.getElementById('m-left');
     const mBleedInput = document.getElementById('m-bleed');
     const chkGuidesEnabled = document.getElementById('chk-guides-enabled');
-    const btnApplyMargins = document.getElementById('btn-apply-margins');
+    const btnLinkMargins = document.getElementById('btn-link-margins');
+    let marginsLinked = false;
 
     // Page Numbers
     const pnEnabled = document.getElementById('pn-enabled');
@@ -1818,18 +1819,48 @@ document.addEventListener('DOMContentLoaded', () => {
         input.addEventListener('change', trigger);
     });
 
-    btnApplyMargins.addEventListener('click', () => {
-        if (marginEnabled) marginEnabled.checked = true;
+    function syncMarginsToPages() {
         const mStr = `${mTopInput.value} ${mRightInput.value} ${mBottomInput.value} ${mLeftInput.value}`;
-        const bStr = mBleedInput.value;
+        const bStr = mBleedInput ? mBleedInput.value : '0';
         pages.forEach(p => {
-            if (selectedPageIds.has(p.id)) {
-                p.margin = mStr;
-                p.bleed = bStr;
+            p.margin = mStr;
+            p.bleed = bStr;
+        });
+    }
+
+    if (btnLinkMargins) {
+        btnLinkMargins.addEventListener('click', () => {
+            marginsLinked = !marginsLinked;
+            btnLinkMargins.classList.toggle('active', marginsLinked);
+            if (marginsLinked && mTopInput) {
+                const val = mTopInput.value;
+                if (mRightInput) mRightInput.value = val;
+                if (mBottomInput) mBottomInput.value = val;
+                if (mLeftInput) mLeftInput.value = val;
+                syncMarginsToPages();
+                renderCanvas();
+                saveSettingsDebounced();
             }
         });
-        renderAll();
+    }
+
+    [mTopInput, mRightInput, mBottomInput, mLeftInput].forEach(inp => {
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            if (marginsLinked) {
+                const val = inp.value;
+                if (inp !== mTopInput && mTopInput) mTopInput.value = val;
+                if (inp !== mRightInput && mRightInput) mRightInput.value = val;
+                if (inp !== mBottomInput && mBottomInput) mBottomInput.value = val;
+                if (inp !== mLeftInput && mLeftInput) mLeftInput.value = val;
+            }
+            syncMarginsToPages();
+        });
     });
+
+    if (mBleedInput) {
+        mBleedInput.addEventListener('input', syncMarginsToPages);
+    }
 
     // =========================================================================
     // 8. INTERACTIVE CANVAS: PAN & ZOOM
@@ -1942,7 +1973,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         top: parseFloat(mTopInput.value) || 10,
                         right: parseFloat(mRightInput.value) || 10,
                         bottom: parseFloat(mBottomInput.value) || 10,
-                        left: parseFloat(mLeftInput.value) || 10
+                        left: parseFloat(mLeftInput.value) || 10,
+                        bleed: parseFloat(mBleedInput ? mBleedInput.value : 0) || 0
                     },
                     page_numbers: {
                         enabled: pnEnabled.checked,

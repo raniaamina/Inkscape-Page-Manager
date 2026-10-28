@@ -245,3 +245,20 @@
     - Validasi sintaks JSON `ui/id.json` dan `ui/en.json` lolos tanpa error.
     - Validasi sintaks JS `node -c ui/app.js` dan Python `python3 -m py_compile ink-pageman.py` lolos 100%.
     - Menjalankan `./package.sh` dan memverifikasi isi `ink-pageman.zip` memuat lengkap 10 berkas dengan checksum MD5 valid.
+- **2026-10-28 [PERBAIKAN TAB MARGIN & PANDUAN: GRID PRESISI, LINK SYNC & PEMBERSIHAN BUTTON TERAPKAN]**:
+  - **Identifikasi Masalah (Tampilan Berantakan)**:
+    - Pada tab "Margin & Panduan", input 4 margin (Atas, Bawah, Kiri, Kanan) disusun menggunakan flexbox dua baris tanpa grid kaku. Karena panjang teks label berbeda (`Atas:` vs `Kiri:`, serta `Bawah:` vs `Kanan:`), input baris pertama dan kedua tidak sejajar vertikal (zigzag/staggered hingga selisih 7px).
+    - Pada blok "Bleed & Panduan", terdapat teks satuan trailing `mm` dan tombol kaku `[ Terapkan ]` yang diletakkan di baris pertama. Tombol ini tidak konsisten dengan tab lain yang bersifat realtime WYSIWYG, serta membingungkan pengguna karena perubahan sudah otomatis di-preview di kanvas.
+  - **Solusi & Perbaikan**:
+    1. **Grid Presisi 2x2 + Tombol Kaitkan (🔗 Link Margins)**:
+       - Mengubah form margin menjadi CSS Grid `.margin-inputs-grid` dengan 5 kolom presisi (`44px 48px 46px 48px 24px`) dan gap 4px/6px.
+       - Kolom label rata kanan (`.form-label-grid`), dan input number (48px) sejajar vertikal 100% presisi piksel.
+       - Menambahkan tombol interaktif `🔗` (`#btn-link-margins`) di kolom ke-5 yang merentang 2 baris (ala Adobe InDesign / Illustrator / Figma). Ketika aktif (status biru), mengubah salah satu nilai margin otomatis menyinkronkan ketiga sisi margin lainnya.
+    2. **Pembersihan & Perapian Blok Bleed & Panduan**:
+       - Menghapus tombol manual redundan `[ Terapkan ]`. Seluruh perubahan margin dan bleed kini otomatis tersinkronisasi ke objek `pages` dan `ink-pageman.py` secara realtime saat input diubah atau saat tombol utama "Terapkan & Tutup" diklik.
+       - Merapikan baris `Bleed (mm):` dengan input rata kanan dan perataan `justify-content: space-between`.
+       - Menyederhanakan label checkbox menjadi `"Buat Garis Pandu Kanvas"` (`ui/id.json`) dan `"Create Canvas Guides"` (`ui/en.json`).
+  - **Verifikasi**:
+    - Validasi sintaks JS `node -c ui/app.js` dan Python `python3 -m py_compile ink-pageman.py` lolos tanpa error.
+    - Validasi format JSON `ui/id.json` dan `ui/en.json` lolos 100%.
+    - Menjalankan `./package.sh` dan memverifikasi `ink-pageman.zip.md5: OK`.

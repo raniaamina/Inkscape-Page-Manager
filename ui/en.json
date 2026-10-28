@@ -110,6 +110,7 @@
     "deselect_all": "Deselect All / Clear Selection",
     "toggle_orient": "Flip Orientation (Portrait ↔ Landscape)",
     "auto_arrange": "Rearrange All Pages Now",
+    "link_margins": "Link all margins (Sync)",
     "edit_header": "Edit multiline header text / insert variable tags",
     "edit_footer": "Edit multiline footer text / insert variable tags",
     "clear_logo": "Clear selected logo",
@@ -217,3 +218,4 @@
     "template_deleted": "Template deleted from config.json!"
   }
 }
+

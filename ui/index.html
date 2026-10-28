@@ -219,19 +219,18 @@
                     <!-- Blok: Margin Halaman -->
                     <div class="ribbon-group">
                         <div class="group-body">
-                            <div class="group-form-col" style="width: 240px;">
-                                <div class="form-row">
-                                    <label class="form-label-compact" for="m-top" data-i18n="labels.top">Atas:</label>
-                                    <input type="number" id="m-top" class="form-input number-input" value="10" min="0" step="0.5" style="width: 52px; text-align: right;">
-                                    <label class="form-label-compact" for="m-bottom" style="margin-left: 6px;" data-i18n="labels.bottom">Bawah:</label>
-                                    <input type="number" id="m-bottom" class="form-input number-input" value="10" min="0" step="0.5" style="width: 52px; text-align: right;">
-                                </div>
-                                <div class="form-row">
-                                    <label class="form-label-compact" for="m-left" data-i18n="labels.left">Kiri:</label>
-                                    <input type="number" id="m-left" class="form-input number-input" value="10" min="0" step="0.5" style="width: 52px; text-align: right;">
-                                    <label class="form-label-compact" for="m-right" style="margin-left: 6px;" data-i18n="labels.right">Kanan:</label>
-                                    <input type="number" id="m-right" class="form-input number-input" value="10" min="0" step="0.5" style="width: 52px; text-align: right;">
-                                </div>
+                            <div class="margin-inputs-grid">
+                                <label class="form-label-grid" for="m-top" data-i18n="labels.top">Atas:</label>
+                                <input type="number" id="m-top" class="form-input number-input" value="10" min="0" step="0.5" style="width: 48px; text-align: right;">
+                                <label class="form-label-grid" for="m-bottom" data-i18n="labels.bottom">Bawah:</label>
+                                <input type="number" id="m-bottom" class="form-input number-input" value="10" min="0" step="0.5" style="width: 48px; text-align: right;">
+                                <button type="button" class="ribbon-icon-btn btn-sm" id="btn-link-margins" data-tooltip="Kaitkan semua margin (Sinkron)" data-i18n-tooltip="tooltips.link_margins">
+                                    <span class="btn-icon" style="font-size: 11px;">🔗</span>
+                                </button>
+                                <label class="form-label-grid" for="m-left" data-i18n="labels.left">Kiri:</label>
+                                <input type="number" id="m-left" class="form-input number-input" value="10" min="0" step="0.5" style="width: 48px; text-align: right;">
+                                <label class="form-label-grid" for="m-right" data-i18n="labels.right">Kanan:</label>
+                                <input type="number" id="m-right" class="form-input number-input" value="10" min="0" step="0.5" style="width: 48px; text-align: right;">
                             </div>
                         </div>
                         <div class="group-label" data-i18n="groups.page_margins">Margin Halaman (mm)</div>
@@ -240,18 +239,15 @@
                     <!-- Blok: Bleed & Panduan -->
                     <div class="ribbon-group">
                         <div class="group-body">
-                            <div class="group-form-col" style="width: 220px;">
-                                <div class="form-row">
+                            <div class="group-form-col" style="width: 195px;">
+                                <div class="form-row" style="justify-content: space-between;">
                                     <label class="form-label" for="m-bleed" data-i18n="labels.bleed">Bleed (mm):</label>
-                                    <input type="number" id="m-bleed" class="form-input number-input" value="3" min="0" step="0.5" style="width: 48px; text-align: right;">
-                                    <button type="button" class="btn-compact" id="btn-apply-margins" style="margin-left: auto;" data-i18n="buttons.apply">
-                                        Terapkan
-                                    </button>
+                                    <input type="number" id="m-bleed" class="form-input number-input" value="3" min="0" step="0.5" style="width: 52px; text-align: right;">
                                 </div>
                                 <div class="form-row">
                                     <label class="checkbox-inline">
                                         <input type="checkbox" id="chk-guides-enabled">
-                                        <span data-i18n="labels.canvas_guides">Buat Canvas Guides (Garis Pandu)</span>
+                                        <span data-i18n="labels.canvas_guides">Buat Garis Pandu Kanvas</span>
                                     </label>
                                 </div>
                             </div>
