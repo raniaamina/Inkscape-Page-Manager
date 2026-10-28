@@ -696,6 +696,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 hfImageData = evt.target.result;
                 if (hfImageBtnLabel) hfImageBtnLabel.textContent = file.name.length > 14 ? file.name.substring(0, 12) + '...' : file.name;
                 if (btnClearHfImage) btnClearHfImage.style.display = 'inline-flex';
+                // Auto-enable Header & Footer status toggle when image is selected
+                if (hfEnabled && !hfEnabled.checked) {
+                    hfEnabled.checked = true;
+                }
                 renderCanvas();
                 saveSettingsDebounced();
             };
@@ -742,6 +746,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 wmImageData = evt.target.result;
                 if (wmImageBtnLabel) wmImageBtnLabel.textContent = file.name.length > 14 ? file.name.substring(0, 12) + '...' : file.name;
                 if (btnClearWmImage) btnClearWmImage.style.display = 'inline-flex';
+                // Auto-enable Watermark status toggle when image is selected
+                if (wmEnabled && !wmEnabled.checked) {
+                    wmEnabled.checked = true;
+                }
                 renderCanvas();
                 saveSettingsDebounced();
             };
@@ -1111,8 +1119,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (wmModeVal === 'image' && wmImageData) {
                     const wmImgW = parseFloat(wmImageWidth ? wmImageWidth.value : 80) || 80;
                     const imgElem = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-                    imgElem.setAttributeNS('http://www.w3.org/1999/xlink', 'href', wmImageData);
                     imgElem.setAttribute('href', wmImageData);
+                    imgElem.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', wmImageData);
                     imgElem.setAttribute('x', cx - (wmImgW / 2));
                     imgElem.setAttribute('y', cy - (wmImgW / 2));
                     imgElem.setAttribute('width', wmImgW);
@@ -1120,6 +1128,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     imgElem.setAttribute('preserveAspectRatio', 'xMidYMid meet');
                     imgElem.setAttribute('transform', `rotate(${wmRot}, ${cx}, ${cy})`);
                     imgElem.setAttribute('opacity', wmOp);
+                    imgElem.style.opacity = wmOp;
                     imgElem.setAttribute('pointer-events', 'none');
                     pageG.appendChild(imgElem);
                 } else if (wmTxt) {
@@ -1175,8 +1184,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     const imgElem = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-                    imgElem.setAttributeNS('http://www.w3.org/1999/xlink', 'href', hfImageData);
                     imgElem.setAttribute('href', hfImageData);
+                    imgElem.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', hfImageData);
                     imgElem.setAttribute('x', imgX);
                     imgElem.setAttribute('y', imgY);
                     imgElem.setAttribute('width', hfImgW);

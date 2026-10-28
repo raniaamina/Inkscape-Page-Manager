@@ -164,3 +164,14 @@
     - Kompilasi `python3 -m py_compile ink-pageman.py` sukses 100%.
     - Validasi sintaks `node -c ui/app.js` lolos tanpa galat.
     - Pemaketan ulang melalui `./package.sh` berhasil memperbarui `ink-pageman.zip` dan `ink-pageman.zip.md5`.
+- **2026-10-28 [WATERMARK & LOGO IMAGE FORMAT SUPPORT & AUTO-ACTIVATE UX]**:
+  - **Format yang Didukung**:
+    - `PNG` (.png): Paling direkomendasikan karena mendukung transparansi (alpha channel/transparan), sangat pas untuk cap, logo, dan watermark.
+    - `SVG` (.svg): Vektor tajam resolusi tinggi tanpa pecah; disematkan sebagai base64 data URI ke SVG `<image>`.
+    - `JPG/JPEG` (.jpg, .jpeg): Didukung penuh untuk gambar fotografi (tanpa transparansi).
+    - `WebP` (.webp): Didukung penuh.
+  - **Perbaikan Masalah Gambar Tidak Muncul di Kanvas Preview**:
+    - *Akar Masalah:* Ketika pengguna mengunggah gambar watermark (`kde-mp-abu.svg`), switch toggle "Aktif" pada blok Status tab Watermark masih dalam keadaan MATI (OFF), sehingga fungsi `renderCanvas()` melewatkan penggambaran watermark.
+    - *Solusi UX Cerdas:* Ketika pengguna memilih file gambar baru lewat tombol "Pilih Gambar...", sistem otomatis mengaktifkan switch toggle `Aktif` (`wmEnabled.checked = true`) dan seketika merender live preview di kanvas. Hal yang sama juga diterapkan pada logo Header & Footer (`hfEnabled.checked = true`).
+    - *Atribut Input File:* Menambahkan ekstensi eksplisit `accept="image/*,.svg,.png,.jpg,.jpeg,.webp"` pada `#wm-image-file` dan `#hf-image-file` agar seluruh file picker di Linux, macOS, dan Windows menampilkan file SVG dan grafis dengan tepat.
+    - *Namespace & Opacity SVG:* Memperbarui penyematan SVG `<image>` di kanvas preview dengan `xlink:href`, `href`, serta `style.opacity` demi kompatibilitas WebKit2GTK dan Chromium yang sempurna.
