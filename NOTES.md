@@ -319,3 +319,31 @@
     - Validasi sintaks JS `node -c ui/app.js` dan Python `python3 -m py_compile ink-pageman.py` lolos tanpa error.
     - Validasi format JSON `ui/id.json` dan `ui/en.json` lolos 100%.
     - Menjalankan `./package.sh` dan memverifikasi `ink-pageman.zip.md5: OK`.
+
+- **2026-10-28 [REORGANISASI TAB WATERMARK: PENYATUAN SUMBER & KONTEN, PERATAAN RAPI & KONSISTENSI TOTAL]**:
+  - **Identifikasi Masalah**:
+    - Pada tab Watermark, grup "Tipe Watermark" berdiri sendiri hanya dengan 1 kontrol dropdown `Mode:` sehingga melayang canggung dan menyisakan ruang kosong di bawahnya.
+    - Pada "Berkas Gambar", baris 2 `Lebar: [ 80 ] mm` memiliki satuan yang terpisah di luar atau tidak rata kanan, serta menyisakan ruang kosong di sebelah kanannya yang tidak seimbang dengan baris 1.
+    - Ketika berpindah ke mode gambar, grup "Gaya, Arah & Opasitas" menyembunyikan kontrol Warna dan Ukuran (pt) sehingga baris kontrol menjadi renggang dan tidak simetris (Rotasi memiliki margin kiri bawaan, Opasitas melebar sendiri).
+    - Proteksi berdiri sendiri dengan 1 checkbox canggung.
+  - **Solusi & Perapian Menyeluruh**:
+    1. **Penyatuan Sumber & Konten (`Sumber & Konten` / `Source & Content`)**:
+       - Menggabungkan pemilih `Mode:` langsung di awal baris 1 pada grup `290px`.
+       - Mode Teks: Baris 1 memuat `Mode:` + `Teks: [ DRAFT ]`; Baris 2 memuat `Font: [ Sans-serif... v ]` (+ input kustom jika dipilih).
+       - Mode Gambar: Baris 1 memuat `Mode:` + tombol `[ 🖼 Pilih Gambar... ]` + tombol `[ ✕ ]`; Baris 2 memuat `Lebar (mm): [ 80 ]` (rata kanan flush 52px) + keterangan halus `(Proporsional)`.
+       - Kedua baris di kedua mode selalu terisi penuh, padat, simetris, dan tidak ada lubang kosong.
+    2. **Perapian `Gaya & Transformasi` (`Style & Transform`)**:
+       - Kontainer selebar `255px`.
+       - Baris 1: `Rotasi:` dropdown + `Warna:` color picker (khusus mode teks, auto-hidden rapi di mode gambar).
+       - Baris 2: `Opasitas:` range slider + `%` + `Ukuran (pt):` (48px number-input rata kanan, auto-hidden rapi di mode gambar).
+       - Ketika mode gambar aktif, dropdown `Rotasi` dan slider `Opasitas` melebar penuh secara elegan (`flex-1`) tanpa sisa margin aneh.
+    3. **Penyelarasan `Pengecualian & Proteksi` (`Exceptions & Protection`)**:
+       - Menstandarkan grup proteksi selebar `185px` persis seperti pada Tab Nomor Halaman dan Tab Header & Footer:
+         - Baris 1: `[ ] Lewati Halaman 1 (Cover)` (didukung penuh di live preview WYSIWYG dan backend Python `ink-pageman.py`).
+         - Baris 2: `[x] Kunci Objek (Lock)`.
+    4. **Modular i18n & Package**:
+       - Menambahkan terjemahan `watermark_source`, `style_transform`, `proportional` pada `ui/id.json` dan `ui/en.json`.
+  - **Verifikasi**:
+    - Validasi sintaks JS `node -c ui/app.js` dan Python `python3 -m py_compile ink-pageman.py` lolos tanpa error.
+    - Validasi JSON `python3 -m json.tool` untuk `ui/id.json` dan `ui/en.json` lolos 100%.
+    - Menjalankan `./package.sh` dan memverifikasi `ink-pageman.zip.md5: OK`.

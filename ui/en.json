@@ -29,6 +29,8 @@
     "logo_image": "Logo & Image",
     "typography_color": "Typography & Color",
     "dividers_options": "Divider Lines",
+    "watermark_source": "Source & Content",
+    "style_transform": "Style & Transform",
     "watermark_type": "Watermark Type",
     "text_typography": "Text & Typography",
     "image_file": "Image File",
@@ -80,7 +82,8 @@
     "canvas_guides": "Create Canvas Guides",
     "logo_w": "W (mm):",
     "logo_h": "H (mm):",
-    "image_width": "Width (mm):"
+    "image_width": "Width (mm):",
+    "proportional": "(Proportional)"
   },
   "buttons": {
     "apply": "Apply",

@@ -548,110 +548,109 @@
                         <div class="group-label" data-i18n="groups.status">Status</div>
                     </div>
 
-                    <!-- Blok: Mode Watermark -->
-                    <div class="ribbon-group">
+                    <!-- Blok: Sumber & Konten -->
+                    <div class="ribbon-group" id="group-wm-source">
                         <div class="group-body">
-                            <div class="group-form-col" style="width: 125px;">
+                            <div class="group-form-col" style="width: 290px;">
                                 <div class="form-row">
-                                    <label class="form-label" for="wm-mode" data-i18n="labels.mode">Mode:</label>
-                                    <select id="wm-mode" class="form-select flex-1">
+                                    <label class="form-label-compact" for="wm-mode" data-i18n="labels.mode">Mode:</label>
+                                    <select id="wm-mode" class="form-select" style="width: 95px;">
                                         <option value="text" selected data-i18n="options.mode_text">Teks</option>
-                                        <option value="image" data-i18n="options.mode_image">Gambar/Cap</option>
+                                        <option value="image" data-i18n="options.mode_image">Gambar</option>
                                     </select>
+                                    <!-- Addon Mode Teks: Baris 1 -->
+                                    <div id="wm-addon-text-r1" class="form-inline flex-1" style="display: flex; align-items: center; gap: 4px; min-width: 0;">
+                                        <label class="form-label-compact" for="wm-text" data-i18n="labels.text">Teks:</label>
+                                        <input type="text" id="wm-text" class="form-input flex-1" value="DRAFT" style="min-width: 0;">
+                                    </div>
+                                    <!-- Addon Mode Gambar: Baris 1 -->
+                                    <div id="wm-addon-image-r1" class="form-inline flex-1" style="display: none; align-items: center; gap: 4px; min-width: 0;">
+                                        <button type="button" class="btn-sm-action flex-1" id="btn-pick-wm-image" title="Pilih berkas gambar cap/stempel/logo untuk watermark" style="min-width: 0; padding: 2px 6px; font-size: 11px;">
+                                            <span class="btn-icon">🖼</span> <span id="wm-image-btn-label" data-i18n="buttons.pick_image">Pilih Gambar...</span>
+                                        </button>
+                                        <input type="file" id="wm-image-file" accept="image/*,.svg,.png,.jpg,.jpeg,.webp" style="display: none;">
+                                        <button type="button" class="ribbon-icon-btn btn-sm" id="btn-clear-wm-image" data-tooltip="Hapus gambar watermark" data-i18n-tooltip="tooltips.clear_wm" style="display: none;">
+                                            <span class="btn-icon">✕</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <!-- Addon Mode Teks: Baris 2 -->
+                                    <div id="wm-addon-text-r2" class="form-inline flex-1" style="display: flex; align-items: center; gap: 4px; min-width: 0;">
+                                        <label class="form-label-compact" for="wm-font-family" data-i18n="labels.font">Font:</label>
+                                        <select id="wm-font-family" class="form-select flex-1" style="min-width: 0;">
+                                            <option value="sans-serif" selected>Sans-serif (Modern)</option>
+                                            <option value="serif">Serif (Formal)</option>
+                                            <option value="monospace">Monospace (Code)</option>
+                                            <option value="Arial">Arial</option>
+                                            <option value="Helvetica">Helvetica</option>
+                                            <option value="Roboto">Roboto</option>
+                                            <option value="Ubuntu">Ubuntu</option>
+                                            <option value="Times New Roman">Times New Roman</option>
+                                            <option value="Georgia">Georgia</option>
+                                            <option value="Courier New">Courier New</option>
+                                            <option value="custom" data-i18n="options.font_custom">Font Kustom...</option>
+                                        </select>
+                                        <input type="text" id="wm-font-custom" class="form-input" placeholder="Nama font..." data-i18n-placeholder="placeholders.font_name" style="display: none; width: 85px;">
+                                    </div>
+                                    <!-- Addon Mode Gambar: Baris 2 -->
+                                    <div id="wm-addon-image-r2" class="form-inline flex-1" style="display: none; align-items: center; gap: 6px; min-width: 0;">
+                                        <label class="form-label-compact" for="wm-image-width" data-i18n="labels.image_width">Lebar (mm):</label>
+                                        <input type="number" id="wm-image-width" class="form-input number-input" value="80" min="10" max="500" style="width: 52px; text-align: right;">
+                                        <span class="unit-label" style="color: var(--text-muted); font-size: 11px; margin-left: auto;" data-i18n="labels.proportional">(Proporsional)</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="group-label" data-i18n="groups.watermark_type">Tipe Watermark</div>
+                        <div class="group-label" data-i18n="groups.watermark_source">Sumber & Konten</div>
                     </div>
 
-                    <!-- Blok: Konten Teks (Mode Teks) -->
-                    <div class="ribbon-group" id="group-wm-text">
-                        <div class="group-body">
-                            <div class="group-form-col" style="width: 240px;">
-                                <div class="form-row">
-                                    <label class="form-label" for="wm-text" data-i18n="labels.text">Teks:</label>
-                                    <input type="text" id="wm-text" class="form-input flex-1" value="DRAFT">
-                                </div>
-                                <div class="form-row">
-                                    <label class="form-label" for="wm-font-family" data-i18n="labels.font">Font:</label>
-                                    <select id="wm-font-family" class="form-select flex-1">
-                                        <option value="sans-serif" selected>Sans-serif (Modern)</option>
-                                        <option value="serif">Serif (Formal)</option>
-                                        <option value="monospace">Monospace (Code)</option>
-                                        <option value="Arial">Arial</option>
-                                        <option value="Helvetica">Helvetica</option>
-                                        <option value="Roboto">Roboto</option>
-                                        <option value="Ubuntu">Ubuntu</option>
-                                        <option value="Times New Roman">Times New Roman</option>
-                                        <option value="Georgia">Georgia</option>
-                                        <option value="Courier New">Courier New</option>
-                                        <option value="custom" data-i18n="options.font_custom">Font Kustom...</option>
-                                    </select>
-                                    <input type="text" id="wm-font-custom" class="form-input" placeholder="Nama font..." data-i18n-placeholder="placeholders.font_name" style="display: none; width: 85px;">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="group-label" data-i18n="groups.text_typography">Teks & Tipografi</div>
-                    </div>
-
-                    <!-- Blok: Konten Gambar (Mode Gambar) -->
-                    <div class="ribbon-group" id="group-wm-image" style="display: none;">
-                        <div class="group-body">
-                            <div class="group-form-col" style="width: 220px;">
-                                <div class="form-row">
-                                    <button type="button" class="btn-sm-action flex-1" id="btn-pick-wm-image" title="Pilih berkas gambar cap/stempel/logo untuk watermark">
-                                        <span class="btn-icon">🖼</span> <span id="wm-image-btn-label" data-i18n="buttons.pick_image">Pilih Gambar...</span>
-                                    </button>
-                                    <input type="file" id="wm-image-file" accept="image/*,.svg,.png,.jpg,.jpeg,.webp" style="display: none;">
-                                    <button type="button" class="ribbon-icon-btn btn-sm" id="btn-clear-wm-image" data-tooltip="Hapus gambar watermark" data-i18n-tooltip="tooltips.clear_wm" style="display: none;">
-                                        <span class="btn-icon">✕</span>
-                                    </button>
-                                </div>
-                                <div class="form-row">
-                                    <label class="form-label" for="wm-image-width" data-i18n="labels.image_width">Lebar (mm):</label>
-                                    <input type="number" id="wm-image-width" class="form-input number-input" value="80" min="10" max="500" style="width: 52px; text-align: right;">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="group-label" data-i18n="groups.image_file">Berkas Gambar</div>
-                    </div>
-
-                    <!-- Blok: Tampilan & Transformasi -->
+                    <!-- Blok: Gaya & Transformasi -->
                     <div class="ribbon-group">
                         <div class="group-body">
                             <div class="group-form-col" style="width: 255px;">
                                 <div class="form-row">
-                                    <label class="form-label" for="wm-color" id="lbl-wm-color" data-i18n="labels.color">Warna:</label>
-                                    <input type="color" id="wm-color" class="form-color" value="#888888">
-                                    <label class="form-label-compact" for="wm-rotation" style="margin-left: 6px;" data-i18n="labels.rotation">Rotasi:</label>
+                                    <label class="form-label-compact" for="wm-rotation" data-i18n="labels.rotation">Rotasi:</label>
                                     <select id="wm-rotation" class="form-select flex-1">
                                         <option value="-45" selected data-i18n="options.rot_diag_neg">-45° (Diagonal)</option>
                                         <option value="0" data-i18n="options.rot_horiz">0° (Mendatar)</option>
                                         <option value="45" data-i18n="options.rot_diag_pos">45° (Diagonal)</option>
                                         <option value="-90" data-i18n="options.rot_vert">-90° (Tegak)</option>
                                     </select>
+                                    <div id="wm-style-color-group" class="form-inline" style="display: flex; align-items: center; gap: 4px; margin-left: 6px;">
+                                        <label class="form-label-compact" for="wm-color" id="lbl-wm-color" data-i18n="labels.color">Warna:</label>
+                                        <input type="color" id="wm-color" class="form-color" value="#888888" style="width: 24px; height: 22px; padding: 1px;">
+                                    </div>
                                 </div>
                                 <div class="form-row">
-                                    <label class="form-label" for="wm-opacity" data-i18n="labels.opacity">Opasitas:</label>
+                                    <label class="form-label-compact" for="wm-opacity" data-i18n="labels.opacity">Opasitas:</label>
                                     <input type="range" id="wm-opacity" min="0.05" max="0.8" step="0.05" value="0.15" class="form-range flex-1">
-                                    <span id="wm-opacity-val" class="unit-label" style="width: 32px; text-align: right;">15%</span>
-                                    <label class="form-label-compact" for="wm-font-size" id="lbl-wm-size" style="margin-left: 6px;" data-i18n="labels.size_pt">Ukuran (pt):</label>
-                                    <input type="number" id="wm-font-size" class="form-input number-input" value="48" min="12" max="144" style="width: 48px; text-align: right;">
+                                    <span id="wm-opacity-val" class="unit-label" style="width: 28px; text-align: right;">15%</span>
+                                    <div id="wm-style-size-group" class="form-inline" style="display: flex; align-items: center; gap: 4px; margin-left: 6px;">
+                                        <label class="form-label-compact" for="wm-font-size" id="lbl-wm-size" data-i18n="labels.size_pt">Ukuran (pt):</label>
+                                        <input type="number" id="wm-font-size" class="form-input number-input" value="48" min="12" max="144" style="width: 48px; text-align: right;">
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="group-label" data-i18n="groups.style_angle_opacity">Gaya, Arah & Opasitas</div>
+                        <div class="group-label" data-i18n="groups.style_transform">Gaya & Transformasi</div>
                     </div>
 
-                    <!-- Blok: Proteksi Objek -->
+                    <!-- Blok: Pengecualian & Proteksi -->
                     <div class="ribbon-group">
                         <div class="group-body">
-                            <label class="checkbox-inline">
-                                <input type="checkbox" id="wm-locked" checked>
-                                <span data-i18n="labels.lock_object">Kunci Objek (Lock)</span>
-                            </label>
+                            <div class="group-form-col" style="width: 185px;">
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" id="wm-skip-first">
+                                    <span data-i18n="labels.skip_first">Lewati Halaman 1 (Cover)</span>
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" id="wm-locked" checked>
+                                    <span data-i18n="labels.lock_object">Kunci Objek (Lock)</span>
+                                </label>
+                            </div>
                         </div>
-                        <div class="group-label" data-i18n="groups.protection">Proteksi</div>
+                        <div class="group-label" data-i18n="groups.exceptions_protection">Pengecualian & Proteksi</div>
                     </div>
                 </div>
 

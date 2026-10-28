@@ -29,6 +29,8 @@
     "logo_image": "Logo & Gambar",
     "typography_color": "Tipografi & Warna",
     "dividers_options": "Garis Pembatas",
+    "watermark_source": "Sumber & Konten",
+    "style_transform": "Gaya & Transformasi",
     "watermark_type": "Tipe Watermark",
     "text_typography": "Teks & Tipografi",
     "image_file": "Berkas Gambar",
@@ -80,7 +82,8 @@
     "canvas_guides": "Buat Garis Pandu Kanvas",
     "logo_w": "W (mm):",
     "logo_h": "H (mm):",
-    "image_width": "Lebar (mm):"
+    "image_width": "Lebar (mm):",
+    "proportional": "(Proporsional)"
   },
   "buttons": {
     "apply": "Terapkan",

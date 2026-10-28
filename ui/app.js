@@ -147,8 +147,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Watermark
     const wmEnabled = document.getElementById('wm-enabled');
     const wmMode = document.getElementById('wm-mode');
-    const groupWmText = document.getElementById('group-wm-text');
-    const groupWmImage = document.getElementById('group-wm-image');
+    const wmAddonTextR1 = document.getElementById('wm-addon-text-r1');
+    const wmAddonTextR2 = document.getElementById('wm-addon-text-r2');
+    const wmAddonImgR1 = document.getElementById('wm-addon-image-r1');
+    const wmAddonImgR2 = document.getElementById('wm-addon-image-r2');
+    const wmStyleColor = document.getElementById('wm-style-color-group');
+    const wmStyleSize = document.getElementById('wm-style-size-group');
     const wmText = document.getElementById('wm-text');
     const wmFontFamily = document.getElementById('wm-font-family');
     const wmFontCustom = document.getElementById('wm-font-custom');
@@ -157,6 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const wmRotation = document.getElementById('wm-rotation');
     const wmOpacity = document.getElementById('wm-opacity');
     const wmOpacityVal = document.getElementById('wm-opacity-val');
+    const wmSkipFirst = document.getElementById('wm-skip-first');
     const wmLocked = document.getElementById('wm-locked');
     const btnPickWmImage = document.getElementById('btn-pick-wm-image');
     const wmImageFile = document.getElementById('wm-image-file');
@@ -358,6 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     color: wmColor ? wmColor.value : '#888888',
                     rotation: wmRotation ? wmRotation.value : -45,
                     opacity: wmOpacity ? wmOpacity.value : 0.15,
+                    skip_first: wmSkipFirst ? wmSkipFirst.checked : false,
                     locked: wmLocked ? wmLocked.checked : true,
                     image_data: wmImageData || '',
                     image_width: wmImageWidth ? wmImageWidth.value : 80
@@ -483,10 +489,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 wmOpacity.value = s.watermark.opacity;
                 if (wmOpacityVal) wmOpacityVal.textContent = `${Math.round(parseFloat(wmOpacity.value) * 100)}%`;
             }
+            if (wmSkipFirst && s.watermark.skip_first !== undefined) wmSkipFirst.checked = s.watermark.skip_first;
             if (wmLocked && s.watermark.locked !== undefined) wmLocked.checked = s.watermark.locked;
             if (s.watermark.image_data) {
                 wmImageData = s.watermark.image_data;
-                if (wmImageBtnLabel) wmImageBtnLabel.textContent = 'Gambar Terpasang';
+                if (wmImageBtnLabel) {
+                    const dict = i18nData[currentLang];
+                    wmImageBtnLabel.textContent = dict && dict.labels ? dict.labels.image_attached : (currentLang === 'en' ? 'Image Attached' : 'Gambar Terpasang');
+                }
                 if (btnClearWmImage) btnClearWmImage.style.display = 'inline-flex';
             }
             if (wmImageWidth && s.watermark.image_width) wmImageWidth.value = s.watermark.image_width;
@@ -828,16 +838,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (wmMode) {
         wmMode.addEventListener('change', () => {
             const isImg = wmMode.value === 'image';
-            if (groupWmText) groupWmText.style.display = isImg ? 'none' : '';
-            if (groupWmImage) groupWmImage.style.display = isImg ? '' : 'none';
-            const lblColor = document.getElementById('lbl-wm-color');
-            const lblSize = document.getElementById('lbl-wm-size');
-            const unitSize = document.getElementById('unit-wm-size');
-            if (lblColor) lblColor.style.display = isImg ? 'none' : '';
-            if (wmColor) wmColor.style.display = isImg ? 'none' : '';
-            if (lblSize) lblSize.style.display = isImg ? 'none' : '';
-            if (wmFontSize) wmFontSize.style.display = isImg ? 'none' : '';
-            if (unitSize) unitSize.style.display = isImg ? 'none' : '';
+            if (wmAddonTextR1) wmAddonTextR1.style.display = isImg ? 'none' : 'flex';
+            if (wmAddonTextR2) wmAddonTextR2.style.display = isImg ? 'none' : 'flex';
+            if (wmAddonImgR1) wmAddonImgR1.style.display = isImg ? 'flex' : 'none';
+            if (wmAddonImgR2) wmAddonImgR2.style.display = isImg ? 'flex' : 'none';
+            if (wmStyleColor) wmStyleColor.style.display = isImg ? 'none' : 'flex';
+            if (wmStyleSize) wmStyleSize.style.display = isImg ? 'none' : 'flex';
             renderCanvas();
             saveSettingsDebounced();
         });
@@ -1160,6 +1166,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const wmRot = parseFloat(wmRotation.value) || -45;
         const wmClr = wmColor.value;
         const wmOp = parseFloat(wmOpacity.value) || 0.15;
+        const wmSkip = wmSkipFirst ? wmSkipFirst.checked : false;
 
         const todayStr = new Date().toISOString().split('T')[0];
 
@@ -1228,7 +1235,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // 5. Live Watermark Preview
-            if (isWm) {
+            if (isWm && (!wmSkip || !isCover)) {
                 const cx = p.x + (p.width / 2);
                 const cy = p.y + (p.height / 2);
                 const wmModeVal = wmMode ? wmMode.value : 'text';
@@ -1806,7 +1813,7 @@ document.addEventListener('DOMContentLoaded', () => {
      hfEnabled, hLeft, hCenter, hRight, fLeft, fCenter, fRight, hfOffsetTop, hfOffsetBottom, hfMarginX,
      hfFontFamily, hfFontCustom, hfFontSize, hfColor, hfDivider, hfDividerThick, hfDividerColor, hfSkipFirst, hfLocked,
      hfImagePos, hfImageW, hfImageH,
-     wmEnabled, wmMode, wmText, wmFontFamily, wmFontCustom, wmFontSize, wmImageWidth, wmRotation, wmColor, wmOpacity, wmLocked].forEach(input => {
+     wmEnabled, wmMode, wmText, wmFontFamily, wmFontCustom, wmFontSize, wmImageWidth, wmRotation, wmColor, wmOpacity, wmSkipFirst, wmLocked].forEach(input => {
         if (!input) return;
         const trigger = () => {
             if (input === wmOpacity && wmOpacityVal) {
@@ -2023,6 +2030,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         color: wmColor.value,
                         rotation: parseFloat(wmRotation.value) || -45,
                         opacity: parseFloat(wmOpacity.value) || 0.15,
+                        skip_first: wmSkipFirst ? wmSkipFirst.checked : false,
                         locked: wmLocked ? wmLocked.checked : true,
                         image_data: wmImageData || '',
                         image_width: parseFloat(wmImageWidth ? wmImageWidth.value : 80) || 80

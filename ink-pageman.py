@@ -659,8 +659,11 @@ class PageManagerExtension(inkex.EffectExtension):
             rotation = float(wm_opt.get('rotation', -45.0))
             wm_img_data = wm_opt.get('image_data', '')
             wm_img_w = float(wm_opt.get('image_width', 80.0))
+            wm_skip_first = wm_opt.get('skip_first', False)
 
             for idx, pd in enumerate(pages_data):
+                if wm_skip_first and idx == 0:
+                    continue
                 px = float(pd.get('x', 0.0))
                 py = float(pd.get('y', 0.0))
                 pw = float(pd.get('width', 210.0))
