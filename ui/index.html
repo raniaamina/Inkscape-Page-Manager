@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Manager</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 1. TOP RIBBON -->
+        <header class="ribbon">
+            <!-- Ribbon Tab Bar -->
+            <div class="ribbon-tabs-bar">
+                <div class="app-brand">
+                    <span class="brand-badge">INK</span>
+                    <span class="brand-title">PAGE MANAGER</span>
+                </div>
+                <nav class="ribbon-tabs">
+                    <button type="button" class="ribbon-tab active" data-tab="tab-pages">Halaman</button>
+                    <button type="button" class="ribbon-tab" data-tab="tab-layout">Tata Letak</button>
+                    <button type="button" class="ribbon-tab" data-tab="tab-margins">Margin & Panduan</button>
+                    <button type="button" class="ribbon-tab" data-tab="tab-numbers">Nomor Halaman</button>
+                    <button type="button" class="ribbon-tab" data-tab="tab-headerfooter">Header & Footer</button>
+                    <button type="button" class="ribbon-tab" data-tab="tab-watermark">Watermark</button>
+                </nav>
+            </div>
+
+            <!-- Ribbon Command Panels -->
+            <div class="ribbon-content">
+                <!-- PANEL 1: HALAMAN -->
+                <div class="ribbon-panel active" id="tab-pages">
+                    <!-- Blok: Tambah Baru -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <button type="button" class="ribbon-icon-btn btn-large btn-accent" id="btn-add-page" data-tooltip="Tambah Halaman Baru (Enter)">
+                                <span class="btn-icon">＋</span>
+                            </button>
+                            <div class="group-form-col" style="width: 220px;">
+                                <div class="form-row">
+                                    <label class="form-label" for="page-preset">Preset:</label>
+                                    <select id="page-preset" class="form-select flex-1">
+                                        <optgroup label="Standar ISO">
+                                            <option value="A4" selected>A4 (210 × 297 mm)</option>
+                                            <option value="A3">A3 (297 × 420 mm)</option>
+                                            <option value="A5">A5 (148 × 210 mm)</option>
+                                            <option value="A6">A6 (105 × 148 mm)</option>
+                                            <option value="B4">B4 (250 × 353 mm)</option>
+                                            <option value="B5">B5 (176 × 250 mm)</option>
+                                        </optgroup>
+                                        <optgroup label="Standar US">
+                                            <option value="Letter">US Letter (215.9 × 279.4)</option>
+                                            <option value="Legal">US Legal (215.9 × 355.6)</option>
+                                            <option value="Tabloid">Tabloid (279.4 × 431.8)</option>
+                                        </optgroup>
+                                        <optgroup label="Digital / Media">
+                                            <option value="IG_Post">Instagram Post (1080×1080)</option>
+                                            <option value="IG_Story">Story / Reels (1080×1920)</option>
+                                            <option value="FHD">Full HD (1920×1080)</option>
+                                        </optgroup>
+                                        <option value="custom">Kustom...</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="page-orientation">Arah:</label>
+                                    <select id="page-orientation" class="form-select" style="width: 105px;">
+                                        <option value="portrait" selected>Portrait</option>
+                                        <option value="landscape">Landscape</option>
+                                    </select>
+                                    <label class="form-label-compact" for="add-count">Jml:</label>
+                                    <input type="number" id="add-count" class="form-input number-input" value="1" min="1" max="100" style="width: 44px;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="group-label">Tambah Baru</div>
+                    </div>
+
+                    <!-- Blok: Kelola Halaman -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <button type="button" class="ribbon-icon-btn" id="btn-duplicate-page" data-tooltip="Duplikasi Halaman Terpilih">
+                                <span class="btn-icon">⎘</span>
+                            </button>
+                            <button type="button" class="ribbon-icon-btn btn-danger" id="btn-delete-page" data-tooltip="Hapus Halaman Terpilih (Del)">
+                                <span class="btn-icon">🗑</span>
+                            </button>
+                            <div class="group-divider-v"></div>
+                            <button type="button" class="ribbon-icon-btn" id="btn-move-up" data-tooltip="Pindah Urutan Naik (Alt+↑)">
+                                <span class="btn-icon">↑</span>
+                            </button>
+                            <button type="button" class="ribbon-icon-btn" id="btn-move-down" data-tooltip="Pindah Urutan Turun (Alt+↓)">
+                                <span class="btn-icon">↓</span>
+                            </button>
+                        </div>
+                        <div class="group-label">Kelola Halaman</div>
+                    </div>
+
+                    <!-- Blok: Seleksi -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <button type="button" class="ribbon-icon-btn" id="btn-select-all" data-tooltip="Pilih Semua Halaman (Ctrl+A)">
+                                <span class="btn-icon">☑</span>
+                            </button>
+                            <button type="button" class="ribbon-icon-btn" id="btn-deselect-all" data-tooltip="Batal Pilih / Kosongkan Seleksi">
+                                <span class="btn-icon">☐</span>
+                            </button>
+                        </div>
+                        <div class="group-label">Seleksi</div>
+                    </div>
+
+                    <!-- Blok: Properti Halaman Aktif -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <div class="group-form-col" style="width: 230px;">
+                                <div class="form-row">
+                                    <label class="form-label" for="edit-label">Nama:</label>
+                                    <input type="text" id="edit-label" class="form-input flex-1" placeholder="Nama halaman">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="edit-w">Dimensi:</label>
+                                    <input type="number" id="edit-w" class="form-input number-input" step="0.1" style="width: 60px;" title="Lebar (W)">
+                                    <span class="cross-sep">×</span>
+                                    <input type="number" id="edit-h" class="form-input number-input" step="0.1" style="width: 60px;" title="Tinggi (H)">
+                                    <button type="button" class="ribbon-icon-btn btn-sm" id="btn-toggle-orient" data-tooltip="Balik Arah (Portrait ↔ Landscape)" style="margin-left: 4px;">
+                                        <span class="btn-icon">⤾</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="group-label">Properti Halaman Aktif</div>
+                    </div>
+                </div>
+
+                <!-- PANEL 2: TATA LETAK -->
+                <div class="ribbon-panel" id="tab-layout">
+                    <!-- Blok: Pola Susunan -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <div class="layout-grid-modes">
+                                <button type="button" class="ribbon-opt-btn active" data-layout="grid" id="opt-layout-grid" title="Susun dalam kotak matriks">
+                                    <span class="btn-icon">⊞</span> Grid Matrix
+                                </button>
+                                <button type="button" class="ribbon-opt-btn" data-layout="row" id="opt-layout-row" title="Susun mendatar dalam satu baris">
+                                    <span class="btn-icon">↔</span> Baris Horizontal
+                                </button>
+                                <button type="button" class="ribbon-opt-btn" data-layout="col" id="opt-layout-col" title="Susun tegak dalam satu kolom">
+                                    <span class="btn-icon">↕</span> Kolom Vertikal
+                                </button>
+                                <button type="button" class="ribbon-opt-btn" data-layout="spread" id="opt-layout-spread" title="Susun halaman bersebelahan ala buku">
+                                    <span class="btn-icon">📖</span> Buku / Spreads
+                                </button>
+                            </div>
+                        </div>
+                        <div class="group-label">Pola Susunan</div>
+                    </div>
+
+                    <!-- Blok: Parameter Jarak -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <div class="group-form-col" style="width: 175px;">
+                                <div class="form-row">
+                                    <label class="form-label" for="layout-cols">Jml Kolom:</label>
+                                    <input type="number" id="layout-cols" class="form-input number-input flex-1" value="3" min="1" max="20">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="layout-gap">Jarak/Gap:</label>
+                                    <input type="number" id="layout-gap" class="form-input number-input flex-1" value="20" min="0" step="1">
+                                    <span class="unit-label" id="layout-gap-unit">mm</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="group-label">Parameter Jarak</div>
+                    </div>
+
+                    <!-- Blok: Eksekusi -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <button type="button" class="ribbon-icon-btn btn-large btn-accent" id="btn-auto-arrange" data-tooltip="Tata Ulang Seluruh Halaman Sekarang">
+                                <span class="btn-icon">⚡</span>
+                            </button>
+                        </div>
+                        <div class="group-label">Tata Ulang</div>
+                    </div>
+                </div>
+
+                <!-- PANEL 3: MARGIN & PANDUAN -->
+                <div class="ribbon-panel" id="tab-margins">
+                    <!-- Blok: Status -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="margin-enabled">
+                                <span class="toggle-slider"></span>
+                                <span class="toggle-text">Aktif</span>
+                            </label>
+                        </div>
+                        <div class="group-label">Status</div>
+                    </div>
+
+                    <!-- Blok: Margin Halaman -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <div class="group-form-col" style="width: 240px;">
+                                <div class="form-row">
+                                    <label class="form-label-compact" for="m-top">Atas:</label>
+                                    <input type="number" id="m-top" class="form-input number-input" value="10" min="0" step="0.5" style="width: 52px;">
+                                    <label class="form-label-compact" for="m-bottom" style="margin-left: 6px;">Bawah:</label>
+                                    <input type="number" id="m-bottom" class="form-input number-input" value="10" min="0" step="0.5" style="width: 52px;">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label-compact" for="m-left">Kiri:</label>
+                                    <input type="number" id="m-left" class="form-input number-input" value="10" min="0" step="0.5" style="width: 52px;">
+                                    <label class="form-label-compact" for="m-right" style="margin-left: 6px;">Kanan:</label>
+                                    <input type="number" id="m-right" class="form-input number-input" value="10" min="0" step="0.5" style="width: 52px;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="group-label">Margin Halaman (mm)</div>
+                    </div>
+
+                    <!-- Blok: Bleed & Panduan -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <div class="group-form-col" style="width: 230px;">
+                                <div class="form-row">
+                                    <label class="form-label" for="m-bleed">Bleed:</label>
+                                    <input type="number" id="m-bleed" class="form-input number-input" value="3" min="0" step="0.5" style="width: 50px;">
+                                    <span class="unit-label">mm</span>
+                                    <button type="button" class="btn-compact" id="btn-apply-margins" style="margin-left: auto;">
+                                        Terapkan
+                                    </button>
+                                </div>
+                                <div class="form-row">
+                                    <label class="checkbox-inline">
+                                        <input type="checkbox" id="chk-guides-enabled">
+                                        Buat Canvas Guides (Garis Pandu)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="group-label">Bleed & Panduan</div>
+                    </div>
+                </div>
+
+                <!-- PANEL 4: NOMOR HALAMAN -->
+                <div class="ribbon-panel" id="tab-numbers">
+                    <!-- Blok: Status -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="pn-enabled">
+                                <span class="toggle-slider"></span>
+                                <span class="toggle-text">Aktif</span>
+                            </label>
+                        </div>
+                        <div class="group-label">Status</div>
+                    </div>
+
+                    <!-- Blok: Format & Posisi -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <div class="group-form-col" style="width: 190px;">
+                                <div class="form-row">
+                                    <label class="form-label" for="pn-format">Format:</label>
+                                    <select id="pn-format" class="form-select flex-1">
+                                        <option value="1">1, 2, 3...</option>
+                                        <option value="1/N">1 / N</option>
+                                        <option value="Page 1 of N">Page 1 of N</option>
+                                        <option value="- 1 -">- 1 -</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="pn-position">Posisi:</label>
+                                    <select id="pn-position" class="form-select flex-1">
+                                        <option value="bottom-center" selected>Bawah Tengah</option>
+                                        <option value="bottom-left">Bawah Kiri</option>
+                                        <option value="bottom-right">Bawah Kanan</option>
+                                        <option value="top-center">Atas Tengah</option>
+                                        <option value="top-left">Atas Kiri</option>
+                                        <option value="top-right">Atas Kanan</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="group-label">Tata Letak & Format</div>
+                    </div>
+
+                    <!-- Blok: Gaya & Offset -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <div class="group-form-col" style="width: 170px;">
+                                <div class="form-row">
+                                    <label class="form-label" for="pn-font-size">Ukuran:</label>
+                                    <input type="number" id="pn-font-size" class="form-input number-input" value="10" min="6" max="72" style="width: 44px;">
+                                    <span class="unit-label">pt</span>
+                                    <label class="form-label-compact" for="pn-color" style="margin-left: 6px;">Warna:</label>
+                                    <input type="color" id="pn-color" class="form-color" value="#333333">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="pn-offset">Offset:</label>
+                                    <input type="number" id="pn-offset" class="form-input number-input" value="10" min="0" step="1" style="width: 44px;">
+                                    <span class="unit-label">mm</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="group-label">Gaya & Offset</div>
+                    </div>
+
+                    <!-- Blok: Pengecualian -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <label class="checkbox-inline">
+                                <input type="checkbox" id="pn-skip-first">
+                                Lewati Halaman 1 (Cover)
+                            </label>
+                        </div>
+                        <div class="group-label">Pengecualian</div>
+                    </div>
+                </div>
+
+                <!-- PANEL 5: HEADER & FOOTER -->
+                <div class="ribbon-panel" id="tab-headerfooter">
+                    <!-- Blok: Status -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="hf-enabled">
+                                <span class="toggle-slider"></span>
+                                <span class="toggle-text">Aktif</span>
+                            </label>
+                        </div>
+                        <div class="group-label">Status</div>
+                    </div>
+
+                    <!-- Blok: Header -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <div class="group-form-col" style="width: 270px;">
+                                <div class="form-row">
+                                    <input type="text" id="h-left" class="form-input flex-1" placeholder="Header kiri">
+                                    <input type="text" id="h-center" class="form-input flex-1" placeholder="Header tengah">
+                                    <input type="text" id="h-right" class="form-input flex-1" placeholder="Header kanan">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="group-label">Header (Kiri / Tengah / Kanan)</div>
+                    </div>
+
+                    <!-- Blok: Footer -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <div class="group-form-col" style="width: 270px;">
+                                <div class="form-row">
+                                    <input type="text" id="f-left" class="form-input flex-1" placeholder="Footer kiri">
+                                    <input type="text" id="f-center" class="form-input flex-1" placeholder="{page}">
+                                    <input type="text" id="f-right" class="form-input flex-1" placeholder="Footer kanan">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="group-label">Footer - Tag: {page}, {total}, {date}</div>
+                    </div>
+
+                    <!-- Blok: Opsi -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <div class="group-form-col">
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" id="hf-divider">
+                                    Garis Pembatas
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" id="hf-skip-first">
+                                    Lewati Halaman 1
+                                </label>
+                            </div>
+                        </div>
+                        <div class="group-label">Opsi</div>
+                    </div>
+                </div>
+
+                <!-- PANEL 6: WATERMARK -->
+                <div class="ribbon-panel" id="tab-watermark">
+                    <!-- Blok: Status -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="wm-enabled">
+                                <span class="toggle-slider"></span>
+                                <span class="toggle-text">Aktif</span>
+                            </label>
+                        </div>
+                        <div class="group-label">Status</div>
+                    </div>
+
+                    <!-- Blok: Teks & Rotasi -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <div class="group-form-col" style="width: 210px;">
+                                <div class="form-row">
+                                    <label class="form-label" for="wm-text">Teks:</label>
+                                    <input type="text" id="wm-text" class="form-input flex-1" value="DRAFT">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="wm-rotation">Rotasi:</label>
+                                    <select id="wm-rotation" class="form-select flex-1">
+                                        <option value="-45" selected>-45° (Diagonal)</option>
+                                        <option value="0">0° (Mendatar)</option>
+                                        <option value="45">45° (Diagonal)</option>
+                                        <option value="-90">-90° (Tegak)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="group-label">Konten & Arah</div>
+                    </div>
+
+                    <!-- Blok: Gaya & Opasitas -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <div class="group-form-col" style="width: 210px;">
+                                <div class="form-row">
+                                    <label class="form-label" for="wm-color">Warna:</label>
+                                    <input type="color" id="wm-color" class="form-color" value="#888888">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="wm-opacity">Opasitas:</label>
+                                    <input type="range" id="wm-opacity" min="0.05" max="0.8" step="0.05" value="0.15" class="form-range flex-1">
+                                    <span id="wm-opacity-val" class="unit-label" style="width: 28px; text-align: right;">15%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="group-label">Tampilan & Opasitas</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 2. MAIN WORKSPACE (PAGE SORTER + LIVE CANVAS) -->
+        <main class="workspace">
+            <!-- Left: Page Sorter Sidebar -->
+            <aside class="page-sorter">
+                <div class="sorter-header">
+                    <span class="sorter-title">Daftar Halaman</span>
+                    <span class="sorter-count" id="sorter-count-badge">0</span>
+                </div>
+                <div class="sorter-list" id="sorter-list">
+                    <!-- Populated dynamically by JS -->
+                </div>
+            </aside>
+
+            <!-- Right: Interactive Live Canvas -->
+            <section class="canvas-area">
+                <div class="canvas-viewport" id="canvas-viewport">
+                    <svg id="canvas-svg" class="canvas-svg" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Dynamic SVG Pages rendered by JS -->
+                    </svg>
+                </div>
+
+                <!-- Floating Canvas Controls -->
+                <div class="canvas-overlay-controls">
+                    <button type="button" class="canvas-tool-btn" id="btn-zoom-out" title="Perkecil (−)">−</button>
+                    <span class="zoom-level-badge" id="zoom-badge">100%</span>
+                    <button type="button" class="canvas-tool-btn" id="btn-zoom-in" title="Perbesar (＋)">＋</button>
+                    <div class="control-divider-v" style="height: 16px;"></div>
+                    <button type="button" class="canvas-tool-btn" id="btn-fit-all" title="Pas Semua Halaman">Fit All</button>
+                    <button type="button" class="canvas-tool-btn" id="btn-zoom-reset" title="Zoom 100%">1:1</button>
+                </div>
+            </section>
+        </main>
+
+        <!-- 3. BOTTOM STATUS BAR -->
+        <footer class="status-bar">
+            <div class="status-left">
+                <span class="status-indicator" id="status-indicator"></span>
+                <span class="status-message" id="status-msg">Siap</span>
+                <span class="status-meta" id="status-meta">Memuat...</span>
+            </div>
+            <div class="status-right">
+                <button type="button" class="btn-ghost" id="btn-close-app">Tutup</button>
+                <button type="button" class="btn-primary" id="btn-apply-inkscape" title="Terapkan seluruh perubahan ke dokumen Inkscape dan tutup dialog">
+                    <span class="btn-icon">✓</span> Terapkan & Tutup
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
