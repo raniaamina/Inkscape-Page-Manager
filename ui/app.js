@@ -459,7 +459,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (s.header_footer.image_data) {
                 hfImageData = s.header_footer.image_data;
-                if (hfImageBtnLabel) hfImageBtnLabel.textContent = 'Logo Terpasang';
+                if (hfImageBtnLabel) {
+                    const dict = i18nData[currentLang];
+                    hfImageBtnLabel.textContent = dict && dict.labels ? (dict.labels.logo_attached || dict.labels.image_attached) : (currentLang === 'en' ? 'Logo Attached' : 'Logo Terpasang');
+                }
                 if (btnClearHfImage) btnClearHfImage.style.display = 'inline-flex';
             }
             if (hfImagePos && s.header_footer.image_pos) hfImagePos.value = s.header_footer.image_pos;
@@ -696,7 +699,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (hfImageBtnLabel && dict.buttons) {
             if (hfImageData) {
-                hfImageBtnLabel.textContent = dict.buttons.image_attached;
+                hfImageBtnLabel.textContent = dict.buttons.logo_attached || dict.buttons.image_attached;
             } else {
                 hfImageBtnLabel.textContent = dict.buttons.pick_logo;
             }

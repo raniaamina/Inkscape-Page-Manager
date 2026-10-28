@@ -83,7 +83,8 @@
     "logo_w": "W (mm):",
     "logo_h": "H (mm):",
     "image_width": "Width (mm):",
-    "proportional": "(Proportional)"
+    "proportional": "(Proportional)",
+    "logo_attached": "Logo Attached"
   },
   "buttons": {
     "apply": "Apply",
@@ -93,6 +94,7 @@
     "apply_text": "Apply Text",
     "pick_logo": "Logo...",
     "pick_image": "Pick Image...",
+    "logo_attached": "Logo Attached",
     "image_attached": "Image Attached",
     "full_info_help": "Full Info & Help",
     "reset_view": "Reset View",

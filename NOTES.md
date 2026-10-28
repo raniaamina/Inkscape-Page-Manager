@@ -378,3 +378,33 @@
   - **Verifikasi**:
     - Validasi sintaks JS `node -c ui/app.js` dan Python `python3 -m py_compile ink-pageman.py` lolos tanpa error.
     - Menjalankan `./package.sh` dan memverifikasi `ink-pageman.zip.md5: OK`.
+
+- **2026-10-28 [PERBAIKAN TOTAL TUMPANG TINDIH & OVERFLOW ELEMEN PADA SELURUH TAB]**:
+  - **Identifikasi Masalah (Berdasarkan Screenshot Pengguna)**:
+    1. Pada blok *Logo & Gambar* (Tab Header & Footer):
+       - Tombol pilih logo yang terpasang ("Image Attached" / "Logo Attached") dipaksa berbagi ruang sempit dengan tombol clear `[✕]` dan dropdown posisi `[Ftr Left]` dalam kontainer `185px`.
+       - Karena elemen flex tidak memiliki `min-width: 0;` dan `overflow: hidden;`, teks tombol meluber keluar dan tombol `[✕]` bertumpang tindih (*overlap*) langsung di atas teks tombol.
+       - Baris 2 `W (mm): [ 25 ] H (mm): [ 10 ]` membutuhkan 196px sehingga input `[ 10 ]` menabrak garis pembatas.
+    2. Pada blok *Garis Pembatas* (Tab Header & Footer):
+       - Baris 2 `Thick (pt): [ 0.5 ] Margin X (mm): [ 10 ]` membutuhkan ruang 240-246px dalam bahasa Inggris, tetapi kontainer dipatok `210px`. Akibatnya input `[ 10 ]` meluber 36px keluar melewati pembatas grup (*border-right*).
+    3. Pada blok *Tipografi & Warna* (Tab Header & Footer):
+       - Kontainer `180px` terlalu ketat untuk baris 2 `Color: [ ] Size (pt): [ 9 ]` (186px).
+    4. Pada blok *Tipografi, Warna & Offset* (Tab Nomor Halaman):
+       - Kontainer `315px` sangat mepet dengan baris 2 `Color: [ ] Size (pt): [ 10 ] Offset (mm): [ 10 ]` (310px).
+  - **Solusi & Perbaikan Menyeluruh**:
+    1. **CSS Proteksi Overlap & Truncation**:
+       - Menambahkan `min-width: 0; overflow: hidden;` pada `.btn-sm-action`.
+       - Menambahkan `text-overflow: ellipsis; white-space: nowrap; overflow: hidden; min-width: 0;` pada span teks `.btn-sm-action` agar teks panjang secara otomatis terpotong rapi dengan `...` di dalam batas tombol, tanpa pernah meluber atau menabrak tombol sibling `[✕]`.
+       - Menambahkan `flex-shrink: 0;` pada tombol `[✕]` dan icon agar ukurannya paten dan tidak tertekan gepeng.
+    2. **Penyesuaian Lebar Kontainer Proporsional**:
+       - *Logo & Gambar*: ditingkatkan dari `185px` ke **`240px`** (memberikan ruang lega 126px untuk tombol + 22px clear + 82px posisi di baris 1, serta ruang aman +56px di baris 2).
+       - *Garis Pembatas*: ditingkatkan dari `210px` ke **`255px`** (memberikan ruang aman +15px sehingga `Margin X (mm): [ 10 ]` tidak pernah menyentuh garis pembatas).
+       - *Tipografi & Warna (H&F)*: ditingkatkan dari `180px` ke **`200px`** (+24px buffer).
+       - *Tipografi, Warna & Offset (No. Hal)*: ditingkatkan dari `315px` ke **`325px`** (+15px buffer).
+       - *Gaya & Transformasi (Watermark)*: ditingkatkan dari `255px` ke **`265px`** (+15px buffer).
+    3. **Modular i18n**:
+       - Menambahkan label `"logo_attached": "Logo Attached" / "Logo Terpasang"` untuk membedakan konteks logo pada header/footer dari watermark gambar.
+  - **Verifikasi**:
+    - Validasi sintaks JS `node -c ui/app.js` dan Python `python3 -m py_compile ink-pageman.py` lolos tanpa error.
+    - Validasi format JSON `ui/id.json` dan `ui/en.json` lolos 100%.
+    - Menjalankan `./package.sh` dan memverifikasi `ink-pageman.zip.md5: OK`.

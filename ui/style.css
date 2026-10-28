@@ -999,8 +999,21 @@ select.form-select optgroup {
     align-items: center;
     gap: 5px;
     white-space: nowrap;
+    min-width: 0;
+    overflow: hidden;
     transition: background 0.15s, border-color 0.15s;
     user-select: none;
+}
+
+.btn-sm-action span:not(.btn-icon) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+.btn-sm-action .btn-icon {
+    flex-shrink: 0;
 }
 
 .btn-sm-action:hover {

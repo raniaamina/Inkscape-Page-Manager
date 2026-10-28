@@ -83,7 +83,8 @@
     "logo_w": "W (mm):",
     "logo_h": "H (mm):",
     "image_width": "Lebar (mm):",
-    "proportional": "(Proporsional)"
+    "proportional": "(Proporsional)",
+    "logo_attached": "Logo Terpasang"
   },
   "buttons": {
     "apply": "Terapkan",
@@ -93,6 +94,7 @@
     "apply_text": "Terapkan Teks",
     "pick_logo": "Logo...",
     "pick_image": "Pilih Gambar...",
+    "logo_attached": "Logo Terpasang",
     "image_attached": "Gambar Terpasang",
     "full_info_help": "Info Lengkap & Bantuan",
     "reset_view": "Reset View",
