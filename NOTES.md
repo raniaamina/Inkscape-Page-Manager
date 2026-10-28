@@ -175,3 +175,17 @@
     - *Solusi UX Cerdas:* Ketika pengguna memilih file gambar baru lewat tombol "Pilih Gambar...", sistem otomatis mengaktifkan switch toggle `Aktif` (`wmEnabled.checked = true`) dan seketika merender live preview di kanvas. Hal yang sama juga diterapkan pada logo Header & Footer (`hfEnabled.checked = true`).
     - *Atribut Input File:* Menambahkan ekstensi eksplisit `accept="image/*,.svg,.png,.jpg,.jpeg,.webp"` pada `#wm-image-file` dan `#hf-image-file` agar seluruh file picker di Linux, macOS, dan Windows menampilkan file SVG dan grafis dengan tepat.
     - *Namespace & Opacity SVG:* Memperbarui penyematan SVG `<image>` di kanvas preview dengan `xlink:href`, `href`, serta `style.opacity` demi kompatibilitas WebKit2GTK dan Chromium yang sempurna.
+- **2026-10-28 [OBJECT & LAYER LOCKING: SODIPODI:INSENSITIVE & POINTER-EVENTS]**:
+  - **Urgensi & Analisis Desain**:
+    - Pertanyaan User: *"page number, teks-teks header footer, watermark, itu mustinya ada opsi check untuk lock objek, jadi kalau aktif gambar2 ini ga bisa digeser2 sama sekali, sepertinya ini lebih safe nggak sih"*
+    - Analisis: **Sangat Tepat & Lebih Aman**. Saat pengguna mendesain pada dokumen multi-halaman Inkscape, seringkali mereka melakukan *marquee selection* (tarik kotak seleksi). Tanpa penguncian, elemen nomor halaman, header, footer, dan watermark akan ikut terpilih dan bergeser secara tidak sengaja.
+  - **Implementasi Standar Native Inkscape**:
+    - Atribut Inkscape standar untuk mengunci layer dan elemen adalah `sodipodi:insensitive="true"`.
+    - Ketika atribut ini dipasang pada elemen `<g inkscape:groupmode="layer" ...>` dan elemen anak (`<text>`, `<image>`, `<path>`), Inkscape menampilkan ikon gembok terkunci 🔒 pada panel *Layers and Objects*.
+    - Semua alat seleksi dan manipulasi di kanvas Inkscape secara otomatis mengabaikan objek yang terkunci, sehingga objek tersebut tidak dapat digeser atau disentuh tanpa membuka gemboknya terlebih dahulu.
+  - **Opsi UI & Persistensi**:
+    - Menambahkan checkbox `[x] Kunci Objek (Lock)` pada Tab Nomor Halaman (`#pn-locked`), Tab Header & Footer (`#hf-locked`), dan Tab Watermark (`#wm-locked`). Default adalah **AKTIF (TERKUNCI)** demi keamanan maksimal.
+    - Setelan disimpan secara persisten di `config.json` di bawah `"last_settings"` dan otomatis dipulihkan setiap kali membuka ekstensi.
+  - **Verifikasi**:
+    - Skrip pengujian `test_advanced_features.py` lulus 6/6 uji integrasi termasuk uji atribut `sodipodi:insensitive="true"`.
+    - Paket rilis `ink-pageman.zip` dan `ink-pageman.zip.md5` diperbarui via `./package.sh`.

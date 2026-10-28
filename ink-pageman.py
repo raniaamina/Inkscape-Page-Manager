@@ -370,6 +370,14 @@ class PageManagerExtension(inkex.EffectExtension):
         pn_layer = svg.getElementById('layer_page_numbers')
         if pn_enabled:
             pn_layer = get_or_create_layer('layer_page_numbers', 'Page Numbers')
+            pn_locked = pn_opt.get('locked', True)
+            if pn_locked:
+                pn_layer.set('sodipodi:insensitive', 'true')
+                pn_layer.style['pointer-events'] = 'none'
+            else:
+                pn_layer.attrib.pop('sodipodi:insensitive', None)
+                pn_layer.attrib.pop('{http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd}insensitive', None)
+                pn_layer.style.pop('pointer-events', None)
             total_pages = len(pages_data)
             skip_first = pn_opt.get('skip_first', False)
             pn_style = pn_opt.get('style', 'arabic')
@@ -467,6 +475,9 @@ class PageManagerExtension(inkex.EffectExtension):
                 tsp = Tspan()
                 tsp.text = txt_val
                 t_elem.append(tsp)
+                if pn_locked:
+                    t_elem.set('sodipodi:insensitive', 'true')
+                    t_elem.style['pointer-events'] = 'none'
                 pn_layer.append(t_elem)
         else:
             if pn_layer is not None:
@@ -478,6 +489,14 @@ class PageManagerExtension(inkex.EffectExtension):
         hf_layer = svg.getElementById('layer_header_footer')
         if hf_enabled:
             hf_layer = get_or_create_layer('layer_header_footer', 'Header & Footer')
+            hf_locked = hf_opt.get('locked', True)
+            if hf_locked:
+                hf_layer.set('sodipodi:insensitive', 'true')
+                hf_layer.style['pointer-events'] = 'none'
+            else:
+                hf_layer.attrib.pop('sodipodi:insensitive', None)
+                hf_layer.attrib.pop('{http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd}insensitive', None)
+                hf_layer.style.pop('pointer-events', None)
             total_pages = len(pages_data)
             skip_first = hf_opt.get('skip_first', False)
             f_size = float(hf_opt.get('font_size', 9))
@@ -521,6 +540,9 @@ class PageManagerExtension(inkex.EffectExtension):
                     if l_idx > 0:
                         tsp.set('dy', f"{f_size * 1.25}pt")
                     t_elem.append(tsp)
+                if hf_locked:
+                    t_elem.set('sodipodi:insensitive', 'true')
+                    t_elem.style['pointer-events'] = 'none'
                 layer.append(t_elem)
 
             for idx, pd in enumerate(pages_data):
@@ -573,6 +595,9 @@ class PageManagerExtension(inkex.EffectExtension):
                     img_elem.set('width', str(hf_img_w))
                     img_elem.set('height', str(hf_img_h))
                     img_elem.set('preserveAspectRatio', 'xMidYMid meet')
+                    if hf_locked:
+                        img_elem.set('sodipodi:insensitive', 'true')
+                        img_elem.style['pointer-events'] = 'none'
                     hf_layer.append(img_elem)
 
                 # Optional divider lines
@@ -585,6 +610,9 @@ class PageManagerExtension(inkex.EffectExtension):
                         line_h.set('d', f"M {px + pad} {d_y} L {px + pw - pad} {d_y}")
                         line_h.style['stroke'] = div_color
                         line_h.style['stroke-width'] = f"{div_thick}pt"
+                        if hf_locked:
+                            line_h.set('sodipodi:insensitive', 'true')
+                            line_h.style['pointer-events'] = 'none'
                         hf_layer.append(line_h)
                     # Footer divider
                     if any([f_left, f_center, f_right]):
@@ -593,6 +621,9 @@ class PageManagerExtension(inkex.EffectExtension):
                         line_f.set('d', f"M {px + pad} {d_y} L {px + pw - pad} {d_y}")
                         line_f.style['stroke'] = div_color
                         line_f.style['stroke-width'] = f"{div_thick}pt"
+                        if hf_locked:
+                            line_f.set('sodipodi:insensitive', 'true')
+                            line_f.style['pointer-events'] = 'none'
                         hf_layer.append(line_f)
         else:
             if hf_layer is not None:
@@ -604,6 +635,14 @@ class PageManagerExtension(inkex.EffectExtension):
         wm_layer = svg.getElementById('layer_watermark')
         if wm_enabled:
             wm_layer = get_or_create_layer('layer_watermark', 'Watermark')
+            wm_locked = wm_opt.get('locked', True)
+            if wm_locked:
+                wm_layer.set('sodipodi:insensitive', 'true')
+                wm_layer.style['pointer-events'] = 'none'
+            else:
+                wm_layer.attrib.pop('sodipodi:insensitive', None)
+                wm_layer.attrib.pop('{http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd}insensitive', None)
+                wm_layer.style.pop('pointer-events', None)
             wm_mode = wm_opt.get('mode', 'text')
             wm_text = wm_opt.get('text', 'DRAFT').strip()
             f_size = float(wm_opt.get('font_size', 48))
@@ -633,6 +672,9 @@ class PageManagerExtension(inkex.EffectExtension):
                     img_elem.set('preserveAspectRatio', 'xMidYMid meet')
                     img_elem.set('transform', f"rotate({rotation}, {cx}, {cy})")
                     img_elem.style['opacity'] = str(opacity)
+                    if wm_locked:
+                        img_elem.set('sodipodi:insensitive', 'true')
+                        img_elem.style['pointer-events'] = 'none'
                     wm_layer.append(img_elem)
                 elif wm_text:
                     t_elem = TextElement(x=str(cx), y=str(cy))
@@ -647,6 +689,9 @@ class PageManagerExtension(inkex.EffectExtension):
                     tsp = Tspan()
                     tsp.text = wm_text
                     t_elem.append(tsp)
+                    if wm_locked:
+                        t_elem.set('sodipodi:insensitive', 'true')
+                        t_elem.style['pointer-events'] = 'none'
                     wm_layer.append(t_elem)
         else:
             if wm_layer is not None:

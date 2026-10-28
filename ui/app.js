@@ -110,6 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pnColor = document.getElementById('pn-color');
     const pnOffset = document.getElementById('pn-offset');
     const pnSkipFirst = document.getElementById('pn-skip-first');
+    const pnLocked = document.getElementById('pn-locked');
 
     // Header & Footer
     const hfEnabled = document.getElementById('hf-enabled');
@@ -130,6 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const hfDividerThick = document.getElementById('hf-divider-thickness');
     const hfDividerColor = document.getElementById('hf-divider-color');
     const hfSkipFirst = document.getElementById('hf-skip-first');
+    const hfLocked = document.getElementById('hf-locked');
     const btnModalHeader = document.getElementById('btn-modal-header');
     const btnModalFooter = document.getElementById('btn-modal-footer');
     const btnPickHfImage = document.getElementById('btn-pick-hf-image');
@@ -154,6 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const wmRotation = document.getElementById('wm-rotation');
     const wmOpacity = document.getElementById('wm-opacity');
     const wmOpacityVal = document.getElementById('wm-opacity-val');
+    const wmLocked = document.getElementById('wm-locked');
     const btnPickWmImage = document.getElementById('btn-pick-wm-image');
     const wmImageFile = document.getElementById('wm-image-file');
     const btnClearWmImage = document.getElementById('btn-clear-wm-image');
@@ -315,7 +318,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     font_size: pnFontSize ? pnFontSize.value : 10,
                     color: pnColor ? pnColor.value : '#333333',
                     offset: pnOffset ? pnOffset.value : 10,
-                    skip_first: pnSkipFirst ? pnSkipFirst.checked : false
+                    skip_first: pnSkipFirst ? pnSkipFirst.checked : false,
+                    locked: pnLocked ? pnLocked.checked : true
                 },
                 header_footer: {
                     enabled: hfEnabled ? hfEnabled.checked : false,
@@ -336,6 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     divider_thickness: hfDividerThick ? hfDividerThick.value : 0.5,
                     divider_color: hfDividerColor ? hfDividerColor.value : '#cccccc',
                     skip_first: hfSkipFirst ? hfSkipFirst.checked : false,
+                    locked: hfLocked ? hfLocked.checked : true,
                     image_data: hfImageData || '',
                     image_pos: hfImagePos ? hfImagePos.value : 'footer-left',
                     image_width: hfImageW ? hfImageW.value : 25,
@@ -351,6 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     color: wmColor ? wmColor.value : '#888888',
                     rotation: wmRotation ? wmRotation.value : -45,
                     opacity: wmOpacity ? wmOpacity.value : 0.15,
+                    locked: wmLocked ? wmLocked.checked : true,
                     image_data: wmImageData || '',
                     image_width: wmImageWidth ? wmImageWidth.value : 80
                 },
@@ -413,6 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (pnColor && s.page_numbers.color) pnColor.value = s.page_numbers.color;
             if (pnOffset && s.page_numbers.offset) pnOffset.value = s.page_numbers.offset;
             if (pnSkipFirst && s.page_numbers.skip_first !== undefined) pnSkipFirst.checked = s.page_numbers.skip_first;
+            if (pnLocked && s.page_numbers.locked !== undefined) pnLocked.checked = s.page_numbers.locked;
         }
 
         // Header & Footer
@@ -440,6 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (hfDividerThick && s.header_footer.divider_thickness) hfDividerThick.value = s.header_footer.divider_thickness;
             if (hfDividerColor && s.header_footer.divider_color) hfDividerColor.value = s.header_footer.divider_color;
             if (hfSkipFirst && s.header_footer.skip_first !== undefined) hfSkipFirst.checked = s.header_footer.skip_first;
+            if (hfLocked && s.header_footer.locked !== undefined) hfLocked.checked = s.header_footer.locked;
 
             if (s.header_footer.image_data) {
                 hfImageData = s.header_footer.image_data;
@@ -473,6 +481,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 wmOpacity.value = s.watermark.opacity;
                 if (wmOpacityVal) wmOpacityVal.textContent = `${Math.round(parseFloat(wmOpacity.value) * 100)}%`;
             }
+            if (wmLocked && s.watermark.locked !== undefined) wmLocked.checked = s.watermark.locked;
             if (s.watermark.image_data) {
                 wmImageData = s.watermark.image_data;
                 if (wmImageBtnLabel) wmImageBtnLabel.textContent = 'Gambar Terpasang';
@@ -1685,11 +1694,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // 7. LIVE WYSIWYG EVENT LISTENERS
     // =========================================================================
     [marginEnabled, chkGuidesEnabled, mTopInput, mRightInput, mBottomInput, mLeftInput, mBleedInput,
-     pnEnabled, pnStyle, pnFormat, pnCustomText, pnPosition, pnFontFamily, pnFontCustom, pnFontSize, pnColor, pnOffset, pnSkipFirst,
+     pnEnabled, pnStyle, pnFormat, pnCustomText, pnPosition, pnFontFamily, pnFontCustom, pnFontSize, pnColor, pnOffset, pnSkipFirst, pnLocked,
      hfEnabled, hLeft, hCenter, hRight, fLeft, fCenter, fRight, hfOffsetTop, hfOffsetBottom, hfMarginX,
-     hfFontFamily, hfFontCustom, hfFontSize, hfColor, hfDivider, hfDividerThick, hfDividerColor, hfSkipFirst,
+     hfFontFamily, hfFontCustom, hfFontSize, hfColor, hfDivider, hfDividerThick, hfDividerColor, hfSkipFirst, hfLocked,
      hfImagePos, hfImageW, hfImageH,
-     wmEnabled, wmMode, wmText, wmFontFamily, wmFontCustom, wmFontSize, wmImageWidth, wmRotation, wmColor, wmOpacity].forEach(input => {
+     wmEnabled, wmMode, wmText, wmFontFamily, wmFontCustom, wmFontSize, wmImageWidth, wmRotation, wmColor, wmOpacity, wmLocked].forEach(input => {
         if (!input) return;
         const trigger = () => {
             if (input === wmOpacity && wmOpacityVal) {
@@ -1838,6 +1847,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         color: pnColor.value,
                         offset: parseFloat(pnOffset.value) || 10,
                         skip_first: pnSkipFirst.checked,
+                        locked: pnLocked ? pnLocked.checked : true,
                         font_family: getPnFontFamily()
                     },
                     header_footer: {
@@ -1859,6 +1869,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         divider_color: hfDividerColor.value || '#cccccc',
                         divider_offset: 3.0,
                         skip_first: hfSkipFirst.checked,
+                        locked: hfLocked ? hfLocked.checked : true,
                         image_data: hfImageData || '',
                         image_pos: hfImagePos.value || 'footer-left',
                         image_width: parseFloat(hfImageW.value) || 25,
@@ -1873,6 +1884,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         color: wmColor.value,
                         rotation: parseFloat(wmRotation.value) || -45,
                         opacity: parseFloat(wmOpacity.value) || 0.15,
+                        locked: wmLocked ? wmLocked.checked : true,
                         image_data: wmImageData || '',
                         image_width: parseFloat(wmImageWidth ? wmImageWidth.value : 80) || 80
                     }
