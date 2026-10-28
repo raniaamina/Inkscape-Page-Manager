@@ -388,10 +388,10 @@
                         <div class="group-label" data-i18n="groups.status">Status</div>
                     </div>
 
-                    <!-- Blok: Header & Jarak Atas -->
+                    <!-- Blok: Header (Atas) -->
                     <div class="ribbon-group">
                         <div class="group-body">
-                            <div class="group-form-col" style="width: 210px;">
+                            <div class="group-form-col" style="width: 215px;">
                                 <div class="form-row">
                                     <input type="text" id="h-left" class="form-input flex-1" placeholder="Kiri" data-i18n-placeholder="placeholders.header_left" style="min-width: 0; padding: 2px 4px; font-size: 11px;">
                                     <input type="text" id="h-center" class="form-input flex-1" placeholder="Tengah" data-i18n-placeholder="placeholders.header_center" style="min-width: 0; padding: 2px 4px; font-size: 11px;">
@@ -406,13 +406,13 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="group-label" data-i18n="groups.header_offset">Header & Offset Y</div>
+                        <div class="group-label" data-i18n="groups.header_offset">Header (Atas)</div>
                     </div>
 
-                    <!-- Blok: Footer & Jarak Bawah -->
+                    <!-- Blok: Footer (Bawah) -->
                     <div class="ribbon-group">
                         <div class="group-body">
-                            <div class="group-form-col" style="width: 210px;">
+                            <div class="group-form-col" style="width: 215px;">
                                 <div class="form-row">
                                     <input type="text" id="f-left" class="form-input flex-1" placeholder="Kiri" data-i18n-placeholder="placeholders.footer_left" style="min-width: 0; padding: 2px 4px; font-size: 11px;">
                                     <input type="text" id="f-center" class="form-input flex-1" placeholder="{page}" data-i18n-placeholder="placeholders.footer_center" style="min-width: 0; padding: 2px 4px; font-size: 11px;">
@@ -427,24 +427,22 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="group-label" data-i18n="groups.footer_offset">Footer & Offset Y</div>
+                        <div class="group-label" data-i18n="groups.footer_offset">Footer (Bawah)</div>
                     </div>
 
-                    <!-- Blok: Logo / Gambar Header & Footer -->
+                    <!-- Blok: Logo & Gambar -->
                     <div class="ribbon-group">
                         <div class="group-body">
-                            <div class="group-form-col" style="width: 205px;">
+                            <div class="group-form-col" style="width: 185px;">
                                 <div class="form-row">
                                     <button type="button" class="btn-sm-action flex-1" id="btn-pick-hf-image" title="Pilih logo atau berkas gambar PNG/SVG/JPG" style="padding: 2px 6px; font-size: 11px;">
                                         <span class="btn-icon">🖼</span> <span id="hf-image-btn-label" data-i18n="buttons.pick_logo">Logo...</span>
                                     </button>
                                     <input type="file" id="hf-image-file" accept="image/*,.svg,.png,.jpg,.jpeg,.webp" style="display: none;">
-                                    <button type="button" class="ribbon-icon-btn btn-sm" id="btn-clear-hf-image" data-tooltip="Hapus logo terpilih" data-i18n-tooltip="tooltips.clear_logo" style="display: none;">
+                                    <button type="button" class="ribbon-icon-btn btn-sm" id="btn-clear-hf-image" data-tooltip="Hapus logo terpilih" data-i18n-tooltip="tooltips.clear_logo" style="display: none; width: 22px; min-width: 22px; height: 22px;">
                                         <span class="btn-icon">✕</span>
                                     </button>
-                                </div>
-                                <div class="form-row">
-                                    <select id="hf-image-pos" class="form-select flex-1" style="min-width: 0; font-size: 11px; padding: 2px 4px;">
+                                    <select id="hf-image-pos" class="form-select" style="width: 82px; font-size: 11px; padding: 2px 4px;">
                                         <option value="footer-left" selected data-i18n="options.pos_footer_left">Ftr Kiri</option>
                                         <option value="footer-center" data-i18n="options.pos_footer_center">Ftr Tengah</option>
                                         <option value="footer-right" data-i18n="options.pos_footer_right">Ftr Kanan</option>
@@ -452,10 +450,12 @@
                                         <option value="header-center" data-i18n="options.pos_header_center">Hdr Tengah</option>
                                         <option value="header-right" data-i18n="options.pos_header_right">Hdr Kanan</option>
                                     </select>
-                                    <label class="form-label-compact" for="hf-image-w" style="margin-left: 2px;" data-i18n="labels.logo_w">W (mm):</label>
-                                    <input type="number" id="hf-image-w" class="form-input number-input" value="25" min="5" max="200" style="width: 46px; text-align: right;" title="Lebar (mm)">
-                                    <label class="form-label-compact" for="hf-image-h" data-i18n="labels.logo_h">H (mm):</label>
-                                    <input type="number" id="hf-image-h" class="form-input number-input" value="10" min="2" max="100" style="width: 46px; text-align: right;" title="Tinggi (mm)">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label-compact" for="hf-image-w" data-i18n="labels.logo_w">W (mm):</label>
+                                    <input type="number" id="hf-image-w" class="form-input number-input" value="25" min="5" max="200" style="width: 48px; text-align: right;" title="Lebar (mm)">
+                                    <label class="form-label-compact" for="hf-image-h" style="margin-left: 6px;" data-i18n="labels.logo_h">H (mm):</label>
+                                    <input type="number" id="hf-image-h" class="form-input number-input" value="10" min="2" max="100" style="width: 48px; text-align: right;" title="Tinggi (mm)">
                                 </div>
                             </div>
                         </div>
@@ -465,7 +465,7 @@
                     <!-- Blok: Tipografi & Warna Header & Footer -->
                     <div class="ribbon-group">
                         <div class="group-body">
-                            <div class="group-form-col" style="width: 190px;">
+                            <div class="group-form-col" style="width: 180px;">
                                 <div class="form-row">
                                     <label class="form-label-compact" for="hf-font-family" data-i18n="labels.font">Font:</label>
                                     <select id="hf-font-family" class="form-select flex-1" style="min-width: 0; font-size: 11px;">
@@ -486,7 +486,7 @@
                                 <div class="form-row">
                                     <label class="form-label-compact" for="hf-color" data-i18n="labels.color">Warna:</label>
                                     <input type="color" id="hf-color" class="form-color" value="#555555" title="Warna font header & footer" style="width: 24px; height: 22px; padding: 1px;">
-                                    <label class="form-label-compact" for="hf-font-size" style="margin-left: 4px;" data-i18n="labels.size_pt">Ukuran (pt):</label>
+                                    <label class="form-label-compact" for="hf-font-size" style="margin-left: 8px;" data-i18n="labels.size_pt">Ukuran (pt):</label>
                                     <input type="number" id="hf-font-size" class="form-input number-input" value="9" min="6" max="36" style="width: 48px; text-align: right;">
                                 </div>
                             </div>
@@ -494,31 +494,43 @@
                         <div class="group-label" data-i18n="groups.typography_color">Tipografi & Warna</div>
                     </div>
 
-                    <!-- Blok: Pembatas, Margin & Opsi -->
+                    <!-- Blok: Garis Pembatas -->
                     <div class="ribbon-group">
                         <div class="group-body">
-                            <div class="group-form-col" style="width: 255px;">
+                            <div class="group-form-col" style="width: 210px;">
                                 <div class="form-row">
                                     <label class="checkbox-inline" style="font-size: 11px;">
-                                        <input type="checkbox" id="hf-divider"> <span data-i18n="labels.divider">Garis</span>
+                                        <input type="checkbox" id="hf-divider"> <span data-i18n="labels.divider">Aktifkan Garis</span>
                                     </label>
-                                    <label class="form-label-compact" for="hf-divider-thickness" style="margin-left: 2px;" data-i18n="labels.thickness">Tbl (pt):</label>
-                                    <input type="number" id="hf-divider-thickness" class="form-input number-input" value="0.5" step="0.25" min="0.25" max="5" style="width: 46px; text-align: right;">
-                                    <input type="color" id="hf-divider-color" class="form-color" value="#cccccc" title="Warna garis" style="width: 20px; height: 20px; padding: 1px;">
-                                    <label class="checkbox-inline" style="margin-left: 6px; font-size: 11px;">
-                                        <input type="checkbox" id="hf-skip-first"> <span data-i18n="labels.cover">Cover</span>
-                                    </label>
+                                    <label class="form-label-compact" for="hf-divider-color" style="margin-left: auto;" data-i18n="labels.color">Warna:</label>
+                                    <input type="color" id="hf-divider-color" class="form-color" value="#cccccc" title="Warna garis pembatas" style="width: 20px; height: 20px; padding: 1px;">
                                 </div>
                                 <div class="form-row">
-                                    <label class="form-label-compact" for="hf-margin-x" data-i18n="labels.margin_x">Margin X (mm):</label>
-                                    <input type="number" id="hf-margin-x" class="form-input number-input" value="10" min="0" max="100" style="width: 48px; text-align: right;">
-                                    <label class="checkbox-inline" style="margin-left: 8px; font-size: 11px;">
-                                        <input type="checkbox" id="hf-locked" checked> <span data-i18n="labels.lock_object">Kunci Objek</span>
-                                    </label>
+                                    <label class="form-label-compact" for="hf-divider-thickness" data-i18n="labels.thickness">Tebal (pt):</label>
+                                    <input type="number" id="hf-divider-thickness" class="form-input number-input" value="0.5" step="0.25" min="0.25" max="5" style="width: 46px; text-align: right;">
+                                    <label class="form-label-compact" for="hf-margin-x" style="margin-left: 6px;" data-i18n="labels.margin_x">Margin X (mm):</label>
+                                    <input type="number" id="hf-margin-x" class="form-input number-input" value="10" min="0" max="100" style="width: 46px; text-align: right;">
                                 </div>
                             </div>
                         </div>
-                        <div class="group-label" data-i18n="groups.dividers_options">Pembatas & Opsi</div>
+                        <div class="group-label" data-i18n="groups.dividers_options">Garis Pembatas</div>
+                    </div>
+
+                    <!-- Blok: Pengecualian & Proteksi -->
+                    <div class="ribbon-group">
+                        <div class="group-body">
+                            <div class="group-form-col" style="width: 185px;">
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" id="hf-skip-first">
+                                    <span data-i18n="labels.skip_first">Lewati Halaman 1 (Cover)</span>
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" id="hf-locked" checked>
+                                    <span data-i18n="labels.lock_object">Kunci Objek (Lock)</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="group-label" data-i18n="groups.exceptions_protection">Pengecualian & Proteksi</div>
                     </div>
                 </div>
 

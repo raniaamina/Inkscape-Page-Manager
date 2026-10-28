@@ -532,7 +532,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isPn && pos === s.key) {
                 s.el.disabled = true;
                 s.el.classList.add('slot-locked');
-                s.el.placeholder = currentLang === 'en' ? '[Used by Page No.]' : '[Digunakan No. Hal]';
+                s.el.placeholder = currentLang === 'en' ? '[Page No]' : '[No. Hal]';
                 s.el.title = currentLang === 'en' 
                     ? 'This slot is disabled because its position is used by Page Numbers' 
                     : 'Slot ini dinonaktifkan karena posisinya digunakan oleh Nomor Halaman';

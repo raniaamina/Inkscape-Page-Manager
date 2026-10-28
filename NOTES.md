@@ -262,6 +262,25 @@
     - Validasi sintaks JS `node -c ui/app.js` dan Python `python3 -m py_compile ink-pageman.py` lolos tanpa error.
     - Validasi format JSON `ui/id.json` dan `ui/en.json` lolos 100%.
     - Menjalankan `./package.sh` dan memverifikasi `ink-pageman.zip.md5: OK`.
+- **2026-10-28 [REORGANISASI TAB HEADER & FOOTER: ELIMINASI SESAK & PLACEHOLDER RINGKAS]**:
+  - **Identifikasi Masalah (Tampilan Sesak & Teks Terpotong)**:
+    - Pada tab Header & Footer, slot teks sebelumnya memuat 3 input dengan placeholder panjang ("Header kiri", "Header ten...", "Header kar..." dan "[Digunakar...]" saat slot dikunci no. hal) sehingga teks terpotong jelek.
+    - Grup "Pembatas & Opsi" menampung terlalu banyak kontrol sekaligus (garis, tebal, warna, cover, margin x, kunci objek) dalam ruang sempit sehingga terasa sangat sesak dan tidak terorganisir.
+  - **Solusi & Reorganisasi**:
+    1. **Placeholder Ringkas & Tidak Terpotong**:
+       - Mengubah placeholder 3 slot menjadi ringkas: `Kiri`, `Tengah`, `Kanan` (atau `Left`, `Center`, `Right` pada EN).
+       - Mengubah placeholder slot terkunci menjadi `[No. Hal]` (ID) dan `[Page No]` (EN) sehingga muat sempurna tanpa terpotong.
+    2. **Reorganisasi Logis Grup Header & Footer**:
+       - *Header (Atas)*: 3 slot input (`215px`) + Offset Y (mm) (48px) + Tombol Modal Multiline [✎].
+       - *Footer (Bawah)*: 3 slot input (`215px`) + Offset Y (mm) (48px) + Tombol Modal Multiline [✎].
+       - *Logo & Gambar*: Baris 1 memuat Tombol Pilih Logo + Dropdown Posisi (`Ftr Kiri`, `Hdr Kanan`, dll) bersebelahan; Baris 2 memuat `W (mm):` dan `H (mm):` (48px).
+       - *Tipografi & Warna*: Font dropdown di baris 1, Warna picker + Ukuran (pt) (48px) di baris 2.
+       - *Garis Pembatas (Tersendiri)*: Khusus mengelola pembatas: Switch garis + Warna garis di baris 1; Tebal (pt) (46px) + Margin X (mm) (48px) di baris 2.
+       - *Pengecualian & Proteksi (Tersendiri)*: Khusus mengelola proteksi: `[ ] Lewati Halaman 1 (Cover)` di baris 1 dan `[x] Kunci Objek (Lock)` di baris 2 (persis konsisten dengan Tab Nomor Halaman).
+  - **Verifikasi**:
+    - Validasi sintaks JS `node -c ui/app.js` dan Python `python3 -m py_compile ink-pageman.py` lolos tanpa error.
+    - Validasi format JSON `ui/id.json` dan `ui/en.json` lolos 100%.
+    - Menjalankan `./package.sh` dan memverifikasi `ink-pageman.zip.md5: OK`.
 - **2026-10-28 [PERBAIKAN INPUT KEMEPETAN & POSISI SATUAN MENYELURUH]**:
   - **Identifikasi Masalah**:
     - Pada screenshot pengguna di blok "Tipografi, Warna & Offset" (Tab Nomor Halaman) dan tab lainnya, input number berukuran `32px` - `36px` terlalu sempit (*kemepetan*).
@@ -277,6 +296,25 @@
        - Menyesuaikan padding sisi kanan (`padding: 3px 2px 3px 4px;`) agar teks angka rata kanan tidak pernah terpotong atau menempel ketat pada panah spinner.
     3. **Penyelarasan Satuan di Seluruh Label**:
        - Memastikan seluruh satuan berada di dalam teks label (`Ukuran (pt):`, `Offset (mm):`, `W (mm):`, `H (mm):`, `Tbl (pt):`, `Margin X (mm):`, `Bleed (mm):`, `Ukuran (mm):`).
+  - **Verifikasi**:
+    - Validasi sintaks JS `node -c ui/app.js` dan Python `python3 -m py_compile ink-pageman.py` lolos tanpa error.
+    - Validasi format JSON `ui/id.json` dan `ui/en.json` lolos 100%.
+    - Menjalankan `./package.sh` dan memverifikasi `ink-pageman.zip.md5: OK`.
+- **2026-10-28 [REORGANISASI TAB HEADER & FOOTER: ELIMINASI SESAK & PLACEHOLDER RINGKAS]**:
+  - **Identifikasi Masalah (Tampilan Sesak & Teks Terpotong)**:
+    - Pada tab Header & Footer, slot teks sebelumnya memuat 3 input dengan placeholder panjang ("Header kiri", "Header ten...", "Header kar..." dan "[Digunakar...]" saat slot dikunci no. hal) sehingga teks terpotong jelek.
+    - Grup "Pembatas & Opsi" menampung terlalu banyak kontrol sekaligus (garis, tebal, warna, cover, margin x, kunci objek) dalam ruang sempit sehingga terasa sangat sesak dan tidak terorganisir.
+  - **Solusi & Reorganisasi**:
+    1. **Placeholder Ringkas & Tidak Terpotong**:
+       - Mengubah placeholder 3 slot menjadi ringkas: `Kiri`, `Tengah`, `Kanan` (atau `Left`, `Center`, `Right` pada EN).
+       - Mengubah placeholder slot terkunci menjadi `[No. Hal]` (ID) dan `[Page No]` (EN) sehingga muat sempurna tanpa terpotong.
+    2. **Reorganisasi Logis Grup Header & Footer**:
+       - *Header (Atas)*: 3 slot input (`215px`) + Offset Y (mm) (48px) + Tombol Modal Multiline [✎].
+       - *Footer (Bawah)*: 3 slot input (`215px`) + Offset Y (mm) (48px) + Tombol Modal Multiline [✎].
+       - *Logo & Gambar*: Baris 1 memuat Tombol Pilih Logo + Dropdown Posisi (`Ftr Kiri`, `Hdr Kanan`, dll) bersebelahan; Baris 2 memuat `W (mm):` dan `H (mm):` (48px).
+       - *Tipografi & Warna*: Font dropdown di baris 1, Warna picker + Ukuran (pt) (48px) di baris 2.
+       - *Garis Pembatas (Tersendiri)*: Khusus mengelola pembatas: Switch garis + Warna garis di baris 1; Tebal (pt) (46px) + Margin X (mm) (48px) di baris 2.
+       - *Pengecualian & Proteksi (Tersendiri)*: Khusus mengelola proteksi: `[ ] Lewati Halaman 1 (Cover)` di baris 1 dan `[x] Kunci Objek (Lock)` di baris 2 (persis konsisten dengan Tab Nomor Halaman).
   - **Verifikasi**:
     - Validasi sintaks JS `node -c ui/app.js` dan Python `python3 -m py_compile ink-pageman.py` lolos tanpa error.
     - Validasi format JSON `ui/id.json` dan `ui/en.json` lolos 100%.
