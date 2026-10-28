@@ -15,15 +15,15 @@
             "guides": false
         },
         "page_numbers": {
-            "enabled": false,
+            "enabled": true,
             "style": "arabic",
-            "format": "{n}",
-            "custom_text": "",
-            "position": "bottom-center",
+            "format": "{n}/{total}",
+            "custom_text": "| 3qwq",
+            "position": "bottom-right",
             "font_family": "custom",
             "font_custom": "",
-            "font_size": "10",
-            "color": "#333333",
+            "font_size": "6",
+            "color": "#c061cb",
             "offset": "10",
             "skip_first": false
         },

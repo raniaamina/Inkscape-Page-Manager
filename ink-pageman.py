@@ -54,6 +54,22 @@ try:
 except ImportError:
     PYWEBVIEW_AVAILABLE = False
 
+# Try to load PyObjC Cocoa WebKit on macOS
+COCOA_UI_AVAILABLE = False
+if sys.platform == 'darwin':
+    try:
+        import objc
+        from AppKit import (
+            NSApplication, NSApp, NSWindow, NSBackingStoreBuffered, NSMakeRect,
+            NSApplicationActivationPolicyRegular, NSMenu, NSMenuItem
+        )
+        from Foundation import NSURL, NSURLRequest
+        from WebKit import WKWebView, WKWebViewConfiguration
+        from PyObjCTools import AppHelper
+        COCOA_UI_AVAILABLE = True
+    except Exception:
+        COCOA_UI_AVAILABLE = False
+
 # Redirect stderr to a log file
 log_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'extension_debug.log')
 log_file = open(log_path, 'w')
@@ -668,9 +684,12 @@ class PageManagerExtension(inkex.EffectExtension):
 
         use_gtk = False
         use_webview = False
+        use_cocoa = False
 
         if ui_backend == "gtk" and GTK_UI_AVAILABLE:
             use_gtk = True
+        elif ui_backend == "cocoa" and COCOA_UI_AVAILABLE:
+            use_cocoa = True
         elif ui_backend == "pywebview" and PYWEBVIEW_AVAILABLE:
             use_webview = True
         elif ui_backend == "browser":
@@ -678,6 +697,8 @@ class PageManagerExtension(inkex.EffectExtension):
         else:
             if GTK_UI_AVAILABLE:
                 use_gtk = True
+            elif COCOA_UI_AVAILABLE:
+                use_cocoa = True
             elif PYWEBVIEW_AVAILABLE:
                 use_webview = True
 
@@ -687,6 +708,10 @@ class PageManagerExtension(inkex.EffectExtension):
             GLib.idle_add(self._launch_gtk_window, url, server)
             Gtk.main()
             GLib.source_remove(heartbeat_id)
+        elif use_cocoa:
+            self.active_backend = 'cocoa'
+            self._launch_cocoa_window(url, server)
+            self.status_data['status'] = 'closed'
         elif use_webview:
             self.active_backend = 'webview'
             self.webview_window = webview.create_window(
@@ -695,21 +720,20 @@ class PageManagerExtension(inkex.EffectExtension):
             webview.start()
             self.status_data['status'] = 'closed'
         else:
-            # Fallback for Windows / macOS browser
+            # Fallback for Windows / macOS standalone app mode or browser
             import subprocess
             self.last_heartbeat = time.time()
             start_time = time.time()
             app_launched = False
             self.app_process = None
 
-            browser_paths = [
-                r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
-                r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
-                r"C:\Program Files\Google\Chrome\Application\chrome.exe",
-                r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
-            ]
-
             if os.name == 'nt':
+                browser_paths = [
+                    r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+                    r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
+                    r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+                    r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+                ]
                 for b_path in browser_paths:
                     if os.path.exists(b_path):
                         try:
@@ -721,6 +745,51 @@ class PageManagerExtension(inkex.EffectExtension):
                             break
                         except Exception:
                             pass
+
+            elif sys.platform == 'darwin':
+                # macOS standalone app mode via Chromium-based browsers
+                macos_browsers = [
+                    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+                    os.path.expanduser("~/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"),
+                    "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+                    os.path.expanduser("~/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge"),
+                    "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
+                    os.path.expanduser("~/Applications/Brave Browser.app/Contents/MacOS/Brave Browser"),
+                    "/Applications/Chromium.app/Contents/MacOS/Chromium",
+                    os.path.expanduser("~/Applications/Chromium.app/Contents/MacOS/Chromium"),
+                    "/Applications/Vivaldi.app/Contents/MacOS/Vivaldi",
+                    os.path.expanduser("~/Applications/Vivaldi.app/Contents/MacOS/Vivaldi"),
+                    "/Applications/Arc.app/Contents/MacOS/Arc",
+                    os.path.expanduser("~/Applications/Arc.app/Contents/MacOS/Arc"),
+                ]
+                for b_path in macos_browsers:
+                    if os.path.exists(b_path):
+                        try:
+                            self.app_process = subprocess.Popen([
+                                b_path, f"--app={url}", "--window-size=1150,750"
+                            ])
+                            app_launched = True
+                            self.active_backend = 'app'
+                            break
+                        except Exception:
+                            pass
+
+                # If no Chromium browser installed on macOS, spawn dedicated Safari window via AppleScript
+                if not app_launched:
+                    ascript = f'''
+                    tell application "Safari"
+                        activate
+                        set newWin to make new document with properties {{URL:"{url}"}}
+                        set bounds of newWin to {{100, 80, 1250, 830}}
+                    end tell
+                    '''
+                    try:
+                        res = subprocess.run(['osascript', '-e', ascript], capture_output=True, text=True, timeout=5)
+                        if res.returncode == 0:
+                            app_launched = True
+                            self.active_backend = 'safari_window'
+                    except Exception:
+                        pass
 
             if not app_launched:
                 self.active_backend = 'browser'
@@ -740,6 +809,66 @@ class PageManagerExtension(inkex.EffectExtension):
 
         server.shutdown()
         server.server_close()
+
+    def _launch_cocoa_window(self, url, server):
+        """Launches a native Cocoa WKWebView window on macOS using PyObjC."""
+        import objc
+        from AppKit import (
+            NSApplication, NSApp, NSWindow, NSBackingStoreBuffered, NSMakeRect,
+            NSApplicationActivationPolicyRegular, NSMenu, NSMenuItem
+        )
+        from Foundation import NSURL, NSURLRequest
+        from WebKit import WKWebView, WKWebViewConfiguration
+        from PyObjCTools import AppHelper
+
+        with objc.autorelease_pool():
+            app = NSApplication.sharedApplication()
+            NSApp.setActivationPolicy_(NSApplicationActivationPolicyRegular)
+
+            # Minimal Menu
+            menubar = NSMenu.alloc().init().autorelease()
+            app_menu_item = NSMenuItem.alloc().init().autorelease()
+            menubar.addItem_(app_menu_item)
+            NSApp.setMainMenu_(menubar)
+
+            app_menu = NSMenu.alloc().init().autorelease()
+            quit_menu_item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+                "Quit Page Manager", "terminate:", "q"
+            ).autorelease()
+            app_menu.addItem_(quit_menu_item)
+            app_menu_item.setSubmenu_(app_menu)
+
+            # Window: Titled (1) | Closable (2) | Miniaturizable (4) | Resizable (8)
+            style_mask = 1 | 2 | 4 | 8
+            window_rect = NSMakeRect(0, 0, 1150, 750)
+            window = NSWindow.alloc().initWithContentRect_styleMask_backing_defer_(
+                window_rect, style_mask, NSBackingStoreBuffered, False
+            )
+            window.setTitle_("Page Manager - Inkscape")
+            window.center()
+
+            config = WKWebViewConfiguration.alloc().init()
+            webview_el = WKWebView.alloc().initWithFrame_configuration_(
+                window.contentView().bounds(), config
+            )
+            webview_el.setAutoresizingMask_(18)  # NSViewWidthSizable | NSViewHeightSizable
+
+            req = NSURLRequest.requestWithURL_(NSURL.URLWithString_(url))
+            webview_el.loadRequest_(req)
+
+            window.contentView().addSubview_(webview_el)
+            window.makeKeyAndOrderFront_(None)
+            NSApp.activateIgnoringOtherApps_(True)
+
+            def poll_status():
+                while self.status_data.get('status') == 'idle':
+                    time.sleep(0.3)
+                AppHelper.stopEventLoop()
+
+            t = threading.Thread(target=poll_status, daemon=True)
+            t.start()
+
+        AppHelper.runEventLoop()
 
     def _launch_gtk_window(self, url, server):
         window = Gtk.Window(title="Page Manager - Inkscape")

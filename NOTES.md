@@ -150,3 +150,17 @@
   - **Pengujian & Verifikasi**:
     - Pengujian integrasi end-to-end (`test_advanced_features.py`) memverifikasi 5 fitur: nomor halaman kustom, header multiline tspan, logo gambar HF, garis divider terformat, dan gambar watermark dengan rotasi.
     - Pembuatan paket rilis via `./package.sh` berhasil menghasilkan berkas rilis `ink-pageman.zip` dan `ink-pageman.zip.md5` yang valid.
+- **2026-10-28 [MACOS NATIVE WINDOW & STANDALONE APP-MODE RESOLUTION]**:
+  - **Identifikasi Masalah (Root Cause)**:
+    - Di Linux, Inkscape didistribusikan dengan modul GTK+ 3 dan WebKit2GTK (`gi.repository.WebKit2`), sehingga langsung membuka dialog native.
+    - Di macOS, paket Inkscape (`Inkscape.app`) tidak menyertakan modul `WebKit2GTK` untuk Python.
+    - Kode peluncur window sebelumnya hanya memeriksa `if os.name == 'nt'` (Windows), sehingga di macOS (`sys.platform == 'darwin'`) langsung jatuh ke `webbrowser.open(url)` yang memanggil Safari dan membukanya sebagai tab browser biasa.
+  - **Solusi Arsitektur Multi-Tier macOS**:
+    1. **Tingkat 1 - Native Cocoa WKWebView**: Menambahkan deteksi modul `PyObjC` (`AppKit`, `WebKit`, `PyObjCTools.AppHelper`). Jika terpasang di Mac, ekstensi langsung memunculkan jendela dialog native macOS Cocoa murni (`NSWindow` + `WKWebView`).
+    2. **Tingkat 2 - PyWebView**: Jika modul `pywebview` terpasang di Python Inkscape, otomatis menggunakan native WebKit dialog.
+    3. **Tingkat 3 - Standalone App Mode Browser**: Mendeteksi otomatis keberadaan browser berbasis Chromium di macOS (`/Applications/Google Chrome.app`, `Microsoft Edge.app`, `Brave Browser.app`, `Chromium.app`, `Vivaldi.app`, `Arc.app`) dan menjalankannya dengan opsi `--app=http://... --window-size=1150,750`. Hasilnya adalah jendela desktop mandiri tanpa address bar, tanpa tab, dan terisolasi dari Safari.
+    4. **Tingkat 4 - Dedicated Safari Window via AppleScript**: Jika pengguna tidak memiliki browser Chromium dan hanya memiliki Safari, sistem menjalankan skrip `osascript` untuk memaksa Safari membuat jendela dokumen baru terisolasi dengan bounds `{100, 80, 1250, 830}`, bukan membuka tab di jendela yang sudah ada.
+  - **Pengujian & Verifikasi**:
+    - Kompilasi `python3 -m py_compile ink-pageman.py` sukses 100%.
+    - Validasi sintaks `node -c ui/app.js` lolos tanpa galat.
+    - Pemaketan ulang melalui `./package.sh` berhasil memperbarui `ink-pageman.zip` dan `ink-pageman.zip.md5`.

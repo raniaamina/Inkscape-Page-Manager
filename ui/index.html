@@ -673,10 +673,11 @@
                                 <div class="form-row">
                                     <label class="form-label" for="pref-backend">Window:</label>
                                     <select id="pref-backend" class="form-select flex-1">
-                                        <option value="gtk" selected>Native GTK (WebKit2Gtk)</option>
-                                        <option value="browser">Web Browser (App Mode)</option>
+                                        <option value="auto" selected>Otomatis (Rekomendasi)</option>
+                                        <option value="gtk">Native GTK (Linux)</option>
+                                        <option value="cocoa">Native Cocoa WKWebView (macOS)</option>
                                         <option value="pywebview">Native PyWebView</option>
-                                        <option value="auto">Otomatis (Sistem)</option>
+                                        <option value="browser">Standalone App Mode (Chrome/Edge/Safari)</option>
                                     </select>
                                 </div>
                                 <div class="form-row">
