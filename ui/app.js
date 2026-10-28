@@ -213,11 +213,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // =========================================================================
     async function loadDocument() {
         try {
-            statusMsg.textContent = 'Memuat dokumen Inkscape...';
+            await setLanguage(prefLanguage ? prefLanguage.value : 'id');
+            statusMsg.textContent = currentLang === 'en' ? 'Loading Inkscape document...' : 'Memuat dokumen Inkscape...';
             statusIndicator.className = 'status-indicator busy';
 
             const res = await fetch('/api/document');
-            if (!res.ok) throw new Error('Gagal memuat dokumen');
+            if (!res.ok) throw new Error(currentLang === 'en' ? 'Failed to load document' : 'Gagal memuat dokumen');
 
             const data = await res.json();
             docUnit = data.unit || 'mm';
@@ -247,7 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
             fitAllPages();
 
             statusIndicator.className = 'status-indicator';
-            statusMsg.textContent = 'Siap';
+            statusMsg.textContent = currentLang === 'en' ? 'Ready' : 'Siap';
             updateStatusBarMeta();
         } catch (err) {
             statusIndicator.className = 'status-indicator busy';
@@ -517,12 +518,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const pos = pnPosition ? pnPosition.value : 'bottom-center';
 
         const slots = [
-            { el: hLeft, key: 'top-left', defPlaceholder: 'Header kiri' },
-            { el: hCenter, key: 'top-center', defPlaceholder: 'Header tengah' },
-            { el: hRight, key: 'top-right', defPlaceholder: 'Header kanan' },
-            { el: fLeft, key: 'bottom-left', defPlaceholder: 'Footer kiri' },
-            { el: fCenter, key: 'bottom-center', defPlaceholder: '{page}' },
-            { el: fRight, key: 'bottom-right', defPlaceholder: 'Footer kanan' }
+            { el: hLeft, key: 'top-left' },
+            { el: hCenter, key: 'top-center' },
+            { el: hRight, key: 'top-right' },
+            { el: fLeft, key: 'bottom-left' },
+            { el: fCenter, key: 'bottom-center' },
+            { el: fRight, key: 'bottom-right' }
         ];
 
         slots.forEach(s => {
@@ -530,12 +531,24 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isPn && pos === s.key) {
                 s.el.disabled = true;
                 s.el.classList.add('slot-locked');
-                s.el.placeholder = '[Digunakan No. Hal]';
-                s.el.title = 'Slot ini dinonaktifkan karena posisinya digunakan oleh Nomor Halaman';
+                s.el.placeholder = currentLang === 'en' ? '[Used by Page No.]' : '[Digunakan No. Hal]';
+                s.el.title = currentLang === 'en' 
+                    ? 'This slot is disabled because its position is used by Page Numbers' 
+                    : 'Slot ini dinonaktifkan karena posisinya digunakan oleh Nomor Halaman';
             } else {
                 s.el.disabled = false;
                 s.el.classList.remove('slot-locked');
-                s.el.placeholder = s.defPlaceholder;
+                if (s.key === 'bottom-center') {
+                    s.el.placeholder = '{page}';
+                } else if (s.key.startsWith('top')) {
+                    s.el.placeholder = currentLang === 'en' 
+                        ? (s.key === 'top-left' ? 'Left' : (s.key === 'top-center' ? 'Center' : 'Right'))
+                        : (s.key === 'top-left' ? 'Kiri' : (s.key === 'top-center' ? 'Tengah' : 'Kanan'));
+                } else {
+                    s.el.placeholder = currentLang === 'en'
+                        ? (s.key === 'bottom-left' ? 'Left' : 'Right')
+                        : (s.key === 'bottom-left' ? 'Kiri' : 'Kanan');
+                }
                 s.el.title = '';
             }
         });
@@ -566,44 +579,127 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const I18N = {
-        id: {
-            tab_pages: "Halaman",
-            tab_layout: "Tata Letak",
-            tab_margins: "Margin & Panduan",
-            tab_numbers: "Nomor Halaman",
-            tab_headerfooter: "Header & Footer",
-            tab_watermark: "Watermark",
-            tab_settings: "Pengaturan & Info",
-            btn_apply: "✓ Terapkan & Tutup",
-            btn_close: "Tutup"
-        },
-        en: {
-            tab_pages: "Pages",
-            tab_layout: "Layout",
-            tab_margins: "Margins & Guides",
-            tab_numbers: "Page Numbers",
-            tab_headerfooter: "Header & Footer",
-            tab_watermark: "Watermark",
-            tab_settings: "Settings & About",
-            btn_apply: "✓ Apply & Close",
-            btn_close: "Close"
-        }
-    };
+    // Modular Localization Loader (id.json & en.json)
+    let i18nData = {};
+    let currentLang = 'id';
 
-    function setLanguage(lang) {
-        const dict = I18N[lang] || I18N.id;
-        document.querySelectorAll('[data-tab]').forEach(tab => {
-            if (tab.dataset.tab === 'tab-pages') tab.textContent = dict.tab_pages;
-            if (tab.dataset.tab === 'tab-layout') tab.textContent = dict.tab_layout;
-            if (tab.dataset.tab === 'tab-margins') tab.textContent = dict.tab_margins;
-            if (tab.dataset.tab === 'tab-numbers') tab.textContent = dict.tab_numbers;
-            if (tab.dataset.tab === 'tab-headerfooter') tab.textContent = dict.tab_headerfooter;
-            if (tab.dataset.tab === 'tab-watermark') tab.textContent = dict.tab_watermark;
-            if (tab.dataset.tab === 'tab-settings') tab.textContent = dict.tab_settings;
+    function getNestedValue(obj, path) {
+        if (!obj || !path) return undefined;
+        const parts = path.split('.');
+        let curr = obj;
+        for (const p of parts) {
+            if (curr && typeof curr === 'object' && p in curr) {
+                curr = curr[p];
+            } else {
+                return undefined;
+            }
+        }
+        return curr;
+    }
+
+    async function loadLocale(lang) {
+        if (i18nData[lang]) return i18nData[lang];
+        try {
+            const res = await fetch(`./${lang}.json`);
+            if (res.ok) {
+                i18nData[lang] = await res.json();
+                return i18nData[lang];
+            }
+        } catch (err) {
+            console.warn(`Could not load locale ${lang}:`, err);
+        }
+        return null;
+    }
+
+    async function setLanguage(lang) {
+        currentLang = lang || 'id';
+        let dict = await loadLocale(currentLang);
+        if (!dict) return;
+
+        // 1. Tabs
+        if (dict.tabs) {
+            document.querySelectorAll('[data-tab]').forEach(tab => {
+                const key = tab.dataset.tab;
+                if (dict.tabs[key]) tab.textContent = dict.tabs[key];
+            });
+        }
+
+        // 2. Elements with data-i18n
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const path = el.getAttribute('data-i18n');
+            const val = getNestedValue(dict, path);
+            if (val !== undefined) el.textContent = val;
         });
-        if (btnApply) btnApply.innerHTML = `<span class="btn-icon">✓</span> ${dict.btn_apply}`;
-        if (btnClose) btnClose.textContent = dict.btn_close;
+
+        // 3. Optgroup labels
+        document.querySelectorAll('[data-i18n-label]').forEach(el => {
+            const path = el.getAttribute('data-i18n-label');
+            const val = getNestedValue(dict, path);
+            if (val !== undefined) el.label = val;
+        });
+
+        // 4. Placeholders
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            const path = el.getAttribute('data-i18n-placeholder');
+            const val = getNestedValue(dict, path);
+            if (val !== undefined) el.placeholder = val;
+        });
+
+        // 5. Tooltips
+        document.querySelectorAll('[data-i18n-tooltip]').forEach(el => {
+            const path = el.getAttribute('data-i18n-tooltip');
+            const val = getNestedValue(dict, path);
+            if (val !== undefined) el.setAttribute('data-tooltip', val);
+        });
+
+        // 6. Titles
+        document.querySelectorAll('[data-i18n-title]').forEach(el => {
+            const path = el.getAttribute('data-i18n-title');
+            const val = getNestedValue(dict, path);
+            if (val !== undefined) el.title = val;
+        });
+
+        // 7. Modals: Features & Shortcuts in About Modal
+        if (dict.about && dict.about.features) {
+            const featList = document.getElementById('about-features-list');
+            if (featList && Array.isArray(dict.about.features)) {
+                featList.innerHTML = dict.about.features.map(f => `<li>${f}</li>`).join('');
+            }
+        }
+        if (dict.about && dict.about.shortcuts) {
+            const scList = document.getElementById('about-shortcuts-list');
+            if (scList && Array.isArray(dict.about.shortcuts)) {
+                scList.innerHTML = dict.about.shortcuts.map(s => `<li>${s}</li>`).join('');
+            }
+        }
+
+        // 8. Buttons & Dynamic labels
+        if (btnApply && dict.buttons && dict.buttons.apply_close) {
+            const labelSpan = document.getElementById('btn-apply-label');
+            if (labelSpan) labelSpan.textContent = dict.buttons.apply_close;
+            else btnApply.innerHTML = `<span class="btn-icon">✓</span> <span id="btn-apply-label">${dict.buttons.apply_close}</span>`;
+        }
+        if (btnClose && dict.buttons && dict.buttons.close) {
+            btnClose.textContent = dict.buttons.close;
+        }
+
+        if (hfImageBtnLabel && dict.buttons) {
+            if (hfImageData) {
+                hfImageBtnLabel.textContent = dict.buttons.image_attached;
+            } else {
+                hfImageBtnLabel.textContent = dict.buttons.pick_logo;
+            }
+        }
+        if (wmImageBtnLabel && dict.buttons) {
+            if (wmImageData) {
+                wmImageBtnLabel.textContent = dict.buttons.image_attached;
+            } else {
+                wmImageBtnLabel.textContent = dict.buttons.pick_image;
+            }
+        }
+
+        syncPageNumberSlotLock();
+        updateStatusBarMeta();
     }
 
     if (prefLanguage) {
@@ -625,7 +721,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnModalHeader) {
         btnModalHeader.addEventListener('click', () => {
             activeMlTarget = 'header';
-            modalMlTitle.textContent = 'Sunting Teks Header (Multiline)';
+            modalMlTitle.textContent = currentLang === 'en' ? 'Edit Header Text (Multiline)' : 'Sunting Teks Header (Multiline)';
             mlLeft.value = hLeft.value;
             mlCenter.value = hCenter.value;
             mlRight.value = hRight.value;
@@ -637,7 +733,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnModalFooter) {
         btnModalFooter.addEventListener('click', () => {
             activeMlTarget = 'footer';
-            modalMlTitle.textContent = 'Sunting Teks Footer (Multiline)';
+            modalMlTitle.textContent = currentLang === 'en' ? 'Edit Footer Text (Multiline)' : 'Sunting Teks Footer (Multiline)';
             mlLeft.value = fLeft.value;
             mlCenter.value = fCenter.value;
             mlRight.value = fRight.value;
@@ -720,7 +816,8 @@ document.addEventListener('DOMContentLoaded', () => {
         btnClearHfImage.addEventListener('click', () => {
             hfImageData = '';
             if (hfImageFile) hfImageFile.value = '';
-            if (hfImageBtnLabel) hfImageBtnLabel.textContent = 'Pilih Logo...';
+            const dict = i18nData[currentLang];
+            if (hfImageBtnLabel) hfImageBtnLabel.textContent = dict && dict.buttons ? dict.buttons.pick_logo : (currentLang === 'en' ? 'Logo...' : 'Pilih Logo...');
             btnClearHfImage.style.display = 'none';
             renderCanvas();
             saveSettingsDebounced();
@@ -770,7 +867,8 @@ document.addEventListener('DOMContentLoaded', () => {
         btnClearWmImage.addEventListener('click', () => {
             wmImageData = '';
             if (wmImageFile) wmImageFile.value = '';
-            if (wmImageBtnLabel) wmImageBtnLabel.textContent = 'Pilih Gambar...';
+            const dict = i18nData[currentLang];
+            if (wmImageBtnLabel) wmImageBtnLabel.textContent = dict && dict.buttons ? dict.buttons.pick_image : (currentLang === 'en' ? 'Pick Image...' : 'Pilih Gambar...');
             btnClearWmImage.style.display = 'none';
             renderCanvas();
             saveSettingsDebounced();
@@ -880,13 +978,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     renderCustomPresetsOptions();
                     pagePresetSelect.value = `user_${cleanName}`;
                     pagePresetSelect.dispatchEvent(new Event('change'));
-                    statusMsg.textContent = `Template "${cleanName}" tersimpan di config.json!`;
-                    setTimeout(() => { statusMsg.textContent = 'Siap'; }, 2500);
+                    statusMsg.textContent = currentLang === 'en'
+                        ? `Template "${cleanName}" saved to config.json!`
+                        : `Template "${cleanName}" tersimpan di config.json!`;
+                    setTimeout(() => { statusMsg.textContent = currentLang === 'en' ? 'Ready' : 'Siap'; }, 2500);
                 } else {
-                    alert('Gagal menyimpan template ke config.json');
+                    alert(currentLang === 'en' ? 'Failed to save template to config.json' : 'Gagal menyimpan template ke config.json');
                 }
             } catch (err) {
-                alert(`Error saat menyimpan config: ${err.message}`);
+                alert(currentLang === 'en' ? `Error saving config: ${err.message}` : `Error saat menyimpan config: ${err.message}`);
             }
         });
     }
@@ -897,7 +997,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const val = pagePresetSelect.value;
             if (!val.startsWith('user_')) return;
             const name = val.replace('user_', '');
-            if (!confirm(`Hapus template "${name}" dari config.json?`)) return;
+            const confirmMsg = currentLang === 'en'
+                ? `Delete template "${name}" from config.json?`
+                : `Hapus template "${name}" dari config.json?`;
+            if (!confirm(confirmMsg)) return;
 
             delete userCustomPresets[name];
             try {
@@ -910,11 +1013,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     renderCustomPresetsOptions();
                     pagePresetSelect.value = 'A4';
                     pagePresetSelect.dispatchEvent(new Event('change'));
-                    statusMsg.textContent = `Template "${name}" telah dihapus`;
-                    setTimeout(() => { statusMsg.textContent = 'Siap'; }, 2000);
+                    statusMsg.textContent = currentLang === 'en'
+                        ? `Template "${name}" removed`
+                        : `Template "${name}" telah dihapus`;
+                    setTimeout(() => { statusMsg.textContent = currentLang === 'en' ? 'Ready' : 'Siap'; }, 2000);
                 }
             } catch (err) {
-                alert(`Error: ${err.message}`);
+                alert(currentLang === 'en' ? `Error: ${err.message}` : `Error: ${err.message}`);
             }
         });
     }
@@ -924,7 +1029,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let bounds = calculatePagesBoundingBox();
         let totalW = (bounds.maxX - bounds.minX).toFixed(1);
         let totalH = (bounds.maxY - bounds.minY).toFixed(1);
-        statusMeta.textContent = `${total} Halaman • Unit: ${docUnit} • Total Kanvas: ${totalW} × ${totalH} ${docUnit}`;
+        const pagesText = currentLang === 'en' ? 'Pages' : 'Halaman';
+        const canvasText = currentLang === 'en' ? 'Total Canvas' : 'Total Kanvas';
+        statusMeta.textContent = `${total} ${pagesText} • Unit: ${docUnit} • ${canvasText}: ${totalW} × ${totalH} ${docUnit}`;
         sorterCountBadge.textContent = total;
     }
 
@@ -1821,7 +1928,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             btnApply.disabled = true;
             statusIndicator.className = 'status-indicator busy';
-            statusMsg.textContent = 'Menerapkan perubahan ke Inkscape...';
+            statusMsg.textContent = currentLang === 'en' ? 'Applying changes to Inkscape...' : 'Menerapkan perubahan ke Inkscape...';
 
             // Auto-persist latest configuration before applying
             await saveSettingsToConfig();
@@ -1900,17 +2007,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await res.json();
             if (res.ok && result.status === 'success') {
                 statusIndicator.className = 'status-indicator';
-                statusMsg.textContent = 'Sukses! Menerapkan ke Inkscape...';
+                statusMsg.textContent = currentLang === 'en' ? 'Success! Applying to Inkscape...' : 'Sukses! Menerapkan ke Inkscape...';
                 // Auto-close dialog so Inkscape applies changes immediately
                 setTimeout(() => {
                     try { window.close(); } catch (e) {}
                 }, 500);
             } else {
-                throw new Error(result.message || 'Gagal menyimpan');
+                throw new Error(result.message || (currentLang === 'en' ? 'Failed to apply' : 'Gagal menyimpan'));
             }
         } catch (err) {
             statusIndicator.className = 'status-indicator busy';
-            statusMsg.textContent = `Gagal: ${err.message}`;
+            statusMsg.textContent = currentLang === 'en' ? `Failed: ${err.message}` : `Gagal: ${err.message}`;
         } finally {
             btnApply.disabled = false;
         }

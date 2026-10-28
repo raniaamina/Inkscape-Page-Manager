@@ -39,6 +39,8 @@ REQUIRED_FILES=(
     "ui/index.html"
     "ui/style.css"
     "ui/app.js"
+    "ui/id.json"
+    "ui/en.json"
 )
 
 for file in "${REQUIRED_FILES[@]}"; do
@@ -58,7 +60,9 @@ zip -q -9 -r "${ZIP_FILE}" \
     LICENSE \
     ui/index.html \
     ui/style.css \
-    ui/app.js
+    ui/app.js \
+    ui/id.json \
+    ui/en.json
 
 # Hitung MD5 Checksum
 echo "Menghitung MD5 checksum..."

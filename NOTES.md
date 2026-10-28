@@ -227,3 +227,21 @@
     - Menambahkan URL repositori resmi (`https://github.com/raniaamina/Inkscape-Page-Manager.git`) pada dialog Tentang Ekstensi dan `README.md`.
   - **Verifikasi**:
     - Validasi `./package.sh` berhasil memperbarui `ink-pageman.zip` dan `ink-pageman.zip.md5` dengan status checksum OK.
+- **2026-10-28 [MODULAR I18N (ID.JSON & EN.JSON) & CLEAN INPUT ALIGNMENT]**:
+  - **Penjelasan & Jawaban Pertanyaan User**:
+    - Pertanyaan: *"bisa nggak bahasanya dibikin modular, misal di folder ui ada file id.json en.json, lalu baca dari situ, jadi clear semua teks ui-nya"*
+    - Jawaban: **Sangat bisa dan arsitekturnya sudah diterapkan!** Karena ekstensi ini dijalankan dengan server HTTP lokal (`http://127.0.0.1:<port>`), browser/WebKit dapat memuat berkas `ui/id.json` dan `ui/en.json` via asynchronous `fetch()` tanpa kendala CORS maupun pembatasan protokol `file://`.
+  - **Implementasi Bahasa Modular**:
+    - Dibuat 2 berkas bahasa terstruktur di direktori `ui/`: `ui/id.json` (Bahasa Indonesia) dan `ui/en.json` (English) mencakup seluruh kategori teks: `brand`, `tabs`, `groups`, `labels`, `buttons`, `tooltips`, `page_sorter`, `options`, `about`, `modals`, `placeholders`, dan `status_bar`.
+    - Menghubungkan markup HTML di `ui/index.html` dengan atribut deklaratif `data-i18n`, `data-i18n-label`, `data-i18n-placeholder`, `data-i18n-tooltip`, dan `data-i18n-title`.
+    - Di `ui/app.js`: dibuat `loadLocale(lang)` dan `setLanguage(lang)` dinamis yang memetakan seluruh atribut secara instan begitu dropdown bahasa diganti atau saat preferensi dimuat.
+    - Menyelaraskan teks dinamis: teks tombol upload logo/watermark (`Pilih Logo...`, `Logo Terpasang`, `Pilih Gambar...`, `Gambar Terpasang`), status bar (`Pages / Halaman`, `Total Canvas / Total Kanvas`), indikator status (`Siap` / `Ready`, `Memuat...` / `Loading...`, `Sukses...` / `Success...`), dan dialog konfirmasi/alert.
+    - Memperbarui skrip `package.sh` agar `ui/id.json` dan `ui/en.json` otomatis masuk ke arsip `ink-pageman.zip`.
+  - **Perbaikan Perataan Input & Satuan di Label**:
+    - Menyematkan satuan pengukuran langsung ke label teks (misalnya: `Gap (mm):`, `Bleed (mm):`, `Ukuran (pt):`, `Offset (mm):`, `Offset Y (mm):`, `W (mm):`, `H (mm):`, `Lebar (mm):`, `Tbl (pt):`).
+    - Menghapus elemen `<span>` satuan trailing yang sebelumnya menggantung di akhir baris dan membuat lebar input field tidak seragam.
+    - Mengatur styling input number agar rata kanan (`text-align: right;`) dengan lebar seragam dan perataan rata kanan grup (*flush right*).
+  - **Verifikasi**:
+    - Validasi sintaks JSON `ui/id.json` dan `ui/en.json` lolos tanpa error.
+    - Validasi sintaks JS `node -c ui/app.js` dan Python `python3 -m py_compile ink-pageman.py` lolos 100%.
+    - Menjalankan `./package.sh` dan memverifikasi isi `ink-pageman.zip` memuat lengkap 10 berkas dengan checksum MD5 valid.
