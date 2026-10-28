@@ -1,0 +1,100 @@
+# Project Notes & Log: ink-pageman
+
+## 1. Project Overview & Current State (2026-10-28)
+- **Nama Proyek**: Page Manager (`ink-pageman`)
+- **Tipe**: Inkscape Extension (Inkscape 1.2+) dengan Web-based GUI (GTK+ 3 / WebKit2Gtk / pywebview / Browser)
+- **Status Awal**:
+  - Proyek ini tampaknya merupakan turunan / boilerplate dari ekstensi **"Pattern on Shape"** (`id.raniaamina.manager.page`), yang saat ini masih berisi kode untuk menyebarkan pola/objek dalam bentuk kontainer (`PatternFillExtension`).
+  - File `.inx` (`ink-pageman.inx`) sudah dinamai **Page Manager** dengan ID `id.raniaamina.manager.page` di bawah menu `Content Manager`.
+  - Terdapat file `sample-page.svg` yang merupakan dokumen Inkscape 1.4.3 dengan 3 halaman (`inkscape:page`: `page1`, `page2`, `page3` di bawah `sodipodi:namedview`).
+  - Arsitektur ekstensi menggunakan pola **Python Backend + Web UI (HTML/CSS/JS)**:
+    - Backend: `ink-pageman.py` (inkex EffectExtension + SimpleHTTPRequestHandler di thread background).
+    - UI Window: WebKit2Gtk via PyGObject (Linux) atau PyWebView / App mode browser (fallback).
+    - Frontend: `ui/index.html`, `ui/app.js`, `ui/style.css` (saat ini masih UI Pattern on Shape).
+
+## 2. Log Percobaan & Langkah (Trial / Step Log)
+- **2026-10-28 [SUCCESS]**: Inisiasi eksplorasi dan pembacaan seluruh file proyek:
+  - Membaca `README.md`, `config.json`, `ink-pageman.inx`, `ink-pageman.py`, `ui/index.html`, `ui/app.js`, dan struktur XML `sample-page.svg`.
+  - Teridentifikasi bahwa codebase dasar saat ini adalah boilerplate/clone dari ekstensi Pattern on Shape yang disiapkan untuk dikembangkan menjadi **Page Manager** (manajemen halaman Inkscape).
+
+- **2026-10-28 [CONFIRMED]**: Arahan & spesifikasi dari user:
+  1. Base arsitektur dipertahankan sepenuhnya: Core WebUI dengan auto-launch jendela mandiri di Linux (WebKit2Gtk/GTK+ 3) dan mode app/browser di Windows.
+  2. Fungsi utama bertransformasi menjadi **Page Manager**: mengelola halaman Inkscape secara interaktif/realtime.
+  3. Mengacu pada struktur multi-halaman Inkscape (`<sodipodi:namedview>` -> `<inkscape:page>`) sebagaimana ada di `sample-page.svg`.
+  4. Riset API inkex: `inkex` versi 1.2+ memiliki dukungan native class `inkex.Page` dan method `namedview.get_pages()`, `namedview.new_page(x, y, w, h, label)` yang siap dimanfaatkan.
+- **2026-10-28 [FEATURE SPECIFICATION]**: User menentukan 7 fitur utama yang ingin dibangun:
+  - Fitur 0: List Halaman (ID, label, dimensi, orientasi, thumbnail/urutan).
+  - Fitur 1: CRUD Halaman, Multi-select, Template ukuran standar (A-series, US Letter, Social Media, Custom) & Orientasi.
+  - Fitur 2: Sort Auto-layout / Reorder (Grid, Horizontal Row, Vertical Column, Spreads) dengan pengaturan gap/jarak.
+  - Fitur 3: Set Margin Guide (top, right, bottom, left, bleed, dan guides canvas).
+  - Fitur 4: Page Number (format, posisi, offset, font, skip cover, layer otomatis).
+  - Fitur 5: Watermark (teks, rotasi, opasitas, font, layer otomatis).
+  - Fitur 6: Header / Footer (posisi kiri/tengah/kanan, variabel {page}, {total}, divider line, layer otomatis).
+  - Target: Ekstensi multi-page Inkscape yang jauh lebih powerful daripada native tool.
+- **2026-10-28 [UI DESIGN DECISION]**: User meminta antarmuka menggunakan konsep **Ribbon Menu ala Microsoft Office**:
+  - Bagian atas: Tab Ribbon (Pages, Layout & Arrange, Margins & Bleed, Page Numbers, Header/Footer, Watermark).
+  - Di bawah Tab: Ribbon Toolbar dibagi per Command Group dengan divider garis vertikal dan label grup di bawahnya (tombol besar dengan ikon, dropdown preset, toggle switch).
+  - Bagian tengah: Workspace luas dengan dual view:
+    - Sidebar kiri (Page Sorter / Thumbnails): daftar halaman dengan nomor indeks, badge ukuran, checkbox multi-select.
+    - Kanvas utama (Live Canvas): Preview interaktif seluruh halaman dengan live preview layout, nomor halaman, header/footer, watermark, zoom/pan.
+  - Bagian bawah: Status bar dengan info total halaman, dimensi kanvas, zoom controls, dan tombol aksi "Apply to Inkscape".
+- **2026-10-28 [BACKUP & DESIGN PRINCIPLE]**:
+  - Berkas cadangan berhasil dibuat: `ink-pageman.py.bak` dan direktori `ui.bak/`.
+  - Prinsip Desain UI: Anti "AI Slop" style (tanpa gradien neon ungu/cyan, tanpa glow/bubbly/glassmorphism berlebih).
+  - Menggunakan tema pro-tool minimalis & clean (seperti Blender/Figma/VS Code/MS Office Ribbon klasik modern): palet netral (dark slate/charcoal/neutral grey), garis batas tegas 1px presisi, tipografi monospace/sans-serif tajam, satu warna aksen fungsional (biru tenang/steel blue).
+- **2026-10-28 [VERIFIED TESTS]**:
+  - `namedview.get_pages()` membaca semua objek halaman.
+  - `namedview.new_page(str(x), str(y), str(w), str(h), label=...)` menambahkan halaman (parameter harus string/unicode).
+  - `p.move_to(x, y)` memindahkan posisi halaman.
+  - `p.set('width', str(w))` & `p.set('height', str(h))` mengubah dimensi halaman.
+  - `namedview.remove(p)` menghapus halaman.
+  - `p.set('margin', 'top right bottom left')` dan `p.set('bleed', 'val')` mengatur margin dan bleed native Inkscape.
+  - `namedview.add_guide(pos, orient=True/False, name=...)` membuat canvas guide.
+  - `Layer.new('...')` dan `TextElement` membuat layer non-destruktif untuk Page Numbers, Header/Footer, dan Watermark.
+- **2026-10-28 [IMPLEMENTATION COMPLETE & VERIFIED]**:
+  - `ink-pageman.py`: Backend lengkap berhasil dibangun dan teruji.
+    - REST API: `GET /api/document`, `POST /api/apply`, `POST /api/close`, `GET /heartbeat`.
+    - Auto window launcher: Linux GTK+ 3 / WebKit2Gtk, PyWebView, dan App mode browser Windows tetap dipertahankan.
+    - Manipulasi `<inkscape:page>` menggunakan objek `Page()` langsung untuk menghindari duplikasi halaman viewbox.
+    - Layer non-destruktif teruji: `layer_page_numbers`, `layer_header_footer`, `layer_watermark`.
+    - Margin guides `<sodipodi:guide>` teruji.
+  - `ui/index.html`: Ribbon Menu modern (6 Tab: Halaman, Tata Letak, Margin & Bleed, Nomor Halaman, Header & Footer, Watermark) + Workspace (Page Sorter Sidebar di kiri + Interactive Live Canvas di kanan) + Status Bar di bawah.
+  - `ui/style.css`: Clean Pro-tool Dark Theme (Zero AI-slop: tanpa gradien neon berlebih, 1px border presisi, palet netral charcoal/slate, tipografi tajam, aksen biru tunggal).
+  - `ui/app.js`: Logika interaktif realtime lengkap dengan live WYSIWYG preview di kanvas, pan & zoom interaktif, auto-arrange (Grid, Row, Column, Spreads), CRUD halaman, dan integrasi API apply ke Inkscape.
+  - `README.md`: Dokumentasi fitur dan panduan instalasi telah diperbarui.
+- **2026-10-28 [UI/UX REFINEMENT BASED ON USER FEEDBACK]**:
+  1. Penamaan Duplikasi Cerdas:
+     - Mengganti penambahan berantai `(Copy) (Copy)...` dengan fungsi `generateDuplicateLabel()`.
+     - Halaman bertipe `Page X` otomatis meningkat ke nomor urut berikutnya (`Page 2`, `Page 3`, dst).
+     - Label khusus seperti `Cover` otomatis bernomor `Cover (2)`, `Cover (3)`, dst.
+     - Membersihkan label riwayat duplikasi yang panjang saat memuat dokumen awal.
+  2. Perbaikan Visibilitas Elemen `<select>`:
+     - Mengatasi masalah teks putih di atas latar putih pada WebKitGTK Linux dengan `-webkit-appearance: none !important;`, background gelap `#242429 !important;`, teks terang `#f4f4f5 !important;`, dan custom SVG dropdown chevron.
+     - Styling eksplisit pada tag `<option>` dan `<optgroup>` agar warna teks kontras tinggi.
+  3. Tombol Ikonik Ringkas dengan Tooltip:
+     - Mengubah tombol di ribbon (Duplikasi, Hapus, Naik, Turun, Pilih Semua, Batal Pilih, Balik Arah) menjadi tombol ikonik persegi (32px-34px) yang elegan.
+     - Dilengkapi tooltip mengambang instan via CSS attribute selector `[data-tooltip]` sehingga menghemat banyak ruang horizontal dan tampak sangat bersih.
+  4. Perataan Blok Menu yang Rapi & Presisi:
+     - Merombak grid `.group-form-col`, `.form-row`, dan `.form-label` dengan perataan teks rata kanan dan input rata kiri-kanan (flush) yang simetris.
+     - Setiap blok ribbon memiliki tinggi seragam (48px untuk body, 16px untuk label kategori di bawah).
+     - Menghilangkan kesan "asal tampil" dan menghasilkan tampilan rapi berstandar software CAD/desain grafis profesional.
+- **2026-10-28 [EXPLANATION: INKSCAPE APPLY MECHANISM]**:
+  - Pertanyaan User: Apakah perubahan baru ter-apply ke Inkscape saat dialog ditutup?
+  - Analisis Teknis: Ya. Ekstensi Inkscape berjalan sebagai subprocess eksternal yang menerima input SVG via stdin dan hanya menuliskan hasil akhir SVG ke stdout ketika proses python selesai (exit). Selama window GUI masih terbuka (loop Gtk.main() berjalan), Inkscape berada dalam kondisi menunggu (blocking wait on subprocess stdout).
+  - Alur Standar Inkscape UI: Ketika tombol "Terapkan ke Inkscape" diklik, ekstensi menyimpan perubahan ke `self.svg`, menampilkan status sukses sejenak (~0.8 detik), lalu otomatis memanggil `Gtk.main_quit()` / `window.close()` sehingga proses selesai dan kanvas Inkscape langsung terbarui seketika.
+- **2026-10-28 [AUTO-CLOSE ON APPLY IMPLEMENTED]**:
+  - Tombol aksi utama disesuaikan menjadi **"Terapkan & Tutup"** (`btn-apply-inkscape`).
+  - Di `ink-pageman.py`: saat endpoint `POST /api/apply` berhasil, thread background menjalankan penutupan tertunda (~0.6 detik) via `GLib.idle_add(Gtk.main_quit)` / `webview_window.destroy()` / `status = closed`.
+  - Di `ui/app.js`: pesan status menampilkan "Sukses! Menerapkan ke Inkscape..." dan memicu `window.close()` otomatis setelah 500ms.
+  - Alur eksekusi Inkscape: Begitu loop GUI selesai, `inkex` menulis SVG hasil modifikasi ke `stdout`, dan dokumen di kanvas Inkscape seketika langsung ter-update dengan mulus.
+- **2026-10-28 [MARGIN & GUIDES ENABLE/DISABLE TOGGLE]**:
+  - Tab "Margin & Panduan" kini memiliki blok "Status" dengan switch toggle `Aktif` (`#margin-enabled`), persis konsisten dengan tab Nomor Halaman, Header/Footer, dan Watermark.
+  - Default status adalah **NONAKTIF (OFF)** dan checkbox "Buat Canvas Guides" juga default **UNCHECKED**.
+  - Jika dinonaktifkan:
+    - Tidak ada atribut `margin` atau `bleed` yang dipaksakan pada `<inkscape:page>`.
+    - Tidak ada `<sodipodi:guide>` yang dibuat.
+    - Semua margin guide lama yang pernah dibuat otomatis dibersihkan (*clean purge*).
+    - Pada Live Canvas preview, garis putus-putus margin dan bleed tidak digambar.
+  - Jika diaktifkan:
+    - Margin dan bleed diterapkan ke halaman terpilih atau saat tombol "Terapkan" diklik.
+    - Garis canvas guides dibuat pada dokumen Inkscape hanya jika opsi "Buat Canvas Guides" dicentang.
