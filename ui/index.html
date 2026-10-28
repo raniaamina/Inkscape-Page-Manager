@@ -388,52 +388,51 @@
                         <div class="group-label" data-i18n="groups.status">Status</div>
                     </div>
 
-                    <!-- Blok: Header (Atas) -->
+                    <!-- Blok: Teks & Posisi (Header / Footer Sub-toggle) -->
                     <div class="ribbon-group">
                         <div class="group-body">
-                            <div class="group-form-col" style="width: 215px;">
-                                <div class="form-row">
-                                    <input type="text" id="h-left" class="form-input flex-1" placeholder="Kiri" data-i18n-placeholder="placeholders.header_left" style="min-width: 0; padding: 2px 4px; font-size: 11px;">
-                                    <input type="text" id="h-center" class="form-input flex-1" placeholder="Tengah" data-i18n-placeholder="placeholders.header_center" style="min-width: 0; padding: 2px 4px; font-size: 11px;">
-                                    <input type="text" id="h-right" class="form-input flex-1" placeholder="Kanan" data-i18n-placeholder="placeholders.header_right" style="min-width: 0; padding: 2px 4px; font-size: 11px;">
+                            <div class="group-form-col" style="width: 285px;">
+                                <!-- Baris 1: Switcher Header/Footer + Offset Y + Tombol Edit Multiline -->
+                                <div class="form-row" style="align-items: center;">
+                                    <div class="segmented-control">
+                                        <button type="button" class="btn-segmented active" id="btn-toggle-header" data-i18n="labels.header">Header</button>
+                                        <button type="button" class="btn-segmented" id="btn-toggle-footer" data-i18n="labels.footer">Footer</button>
+                                    </div>
+                                    <div id="wrap-hf-offset-header" class="form-row" style="margin-left: auto; gap: 4px; align-items: center;">
+                                        <label class="form-label-compact" for="hf-offset-top" data-i18n="labels.offset_y">Offset Y (mm):</label>
+                                        <input type="number" id="hf-offset-top" class="form-input number-input" value="12" min="1" max="100" style="width: 44px; text-align: right;" title="Jarak dari batas atas halaman">
+                                        <button type="button" class="ribbon-icon-btn btn-sm" id="btn-modal-header" data-tooltip="Sunting teks header multiline / sisipkan tag variabel" data-i18n-tooltip="tooltips.edit_header">
+                                            <span class="btn-icon">✎</span>
+                                        </button>
+                                    </div>
+                                    <div id="wrap-hf-offset-footer" class="form-row" style="margin-left: auto; gap: 4px; align-items: center; display: none;">
+                                        <label class="form-label-compact" for="hf-offset-bottom" data-i18n="labels.offset_y">Offset Y (mm):</label>
+                                        <input type="number" id="hf-offset-bottom" class="form-input number-input" value="12" min="1" max="100" style="width: 44px; text-align: right;" title="Jarak dari batas bawah halaman">
+                                        <button type="button" class="ribbon-icon-btn btn-sm" id="btn-modal-footer" data-tooltip="Sunting teks footer multiline / sisipkan tag variabel" data-i18n-tooltip="tooltips.edit_footer">
+                                            <span class="btn-icon">✎</span>
+                                        </button>
+                                    </div>
                                 </div>
-                                <div class="form-row">
-                                    <label class="form-label-compact" for="hf-offset-top" data-i18n="labels.offset_y">Offset Y (mm):</label>
-                                    <input type="number" id="hf-offset-top" class="form-input number-input" value="12" min="1" max="100" style="width: 48px; text-align: right;" title="Jarak dari batas atas halaman">
-                                    <button type="button" class="ribbon-icon-btn btn-sm" id="btn-modal-header" data-tooltip="Sunting teks header multiline / sisipkan tag variabel" data-i18n-tooltip="tooltips.edit_header" style="margin-left: auto;">
-                                        <span class="btn-icon">✎</span>
-                                    </button>
+                                <!-- Baris 2: Tiga Slot Input Teks -->
+                                <div class="form-row" id="wrap-hf-slots-header">
+                                    <input type="text" id="h-left" class="form-input flex-1" placeholder="Kiri" data-i18n-placeholder="placeholders.header_left" style="min-width: 0; padding: 2px 5px; font-size: 11px;">
+                                    <input type="text" id="h-center" class="form-input flex-1" placeholder="Tengah" data-i18n-placeholder="placeholders.header_center" style="min-width: 0; padding: 2px 5px; font-size: 11px;">
+                                    <input type="text" id="h-right" class="form-input flex-1" placeholder="Kanan" data-i18n-placeholder="placeholders.header_right" style="min-width: 0; padding: 2px 5px; font-size: 11px;">
+                                </div>
+                                <div class="form-row" id="wrap-hf-slots-footer" style="display: none;">
+                                    <input type="text" id="f-left" class="form-input flex-1" placeholder="Kiri" data-i18n-placeholder="placeholders.footer_left" style="min-width: 0; padding: 2px 5px; font-size: 11px;">
+                                    <input type="text" id="f-center" class="form-input flex-1" placeholder="{page}" data-i18n-placeholder="placeholders.footer_center" style="min-width: 0; padding: 2px 5px; font-size: 11px;">
+                                    <input type="text" id="f-right" class="form-input flex-1" placeholder="Kanan" data-i18n-placeholder="placeholders.footer_right" style="min-width: 0; padding: 2px 5px; font-size: 11px;">
                                 </div>
                             </div>
                         </div>
-                        <div class="group-label" data-i18n="groups.header_offset">Header (Atas)</div>
-                    </div>
-
-                    <!-- Blok: Footer (Bawah) -->
-                    <div class="ribbon-group">
-                        <div class="group-body">
-                            <div class="group-form-col" style="width: 215px;">
-                                <div class="form-row">
-                                    <input type="text" id="f-left" class="form-input flex-1" placeholder="Kiri" data-i18n-placeholder="placeholders.footer_left" style="min-width: 0; padding: 2px 4px; font-size: 11px;">
-                                    <input type="text" id="f-center" class="form-input flex-1" placeholder="{page}" data-i18n-placeholder="placeholders.footer_center" style="min-width: 0; padding: 2px 4px; font-size: 11px;">
-                                    <input type="text" id="f-right" class="form-input flex-1" placeholder="Kanan" data-i18n-placeholder="placeholders.footer_right" style="min-width: 0; padding: 2px 4px; font-size: 11px;">
-                                </div>
-                                <div class="form-row">
-                                    <label class="form-label-compact" for="hf-offset-bottom" data-i18n="labels.offset_y">Offset Y (mm):</label>
-                                    <input type="number" id="hf-offset-bottom" class="form-input number-input" value="12" min="1" max="100" style="width: 48px; text-align: right;" title="Jarak dari batas bawah halaman">
-                                    <button type="button" class="ribbon-icon-btn btn-sm" id="btn-modal-footer" data-tooltip="Sunting teks footer multiline / sisipkan tag variabel" data-i18n-tooltip="tooltips.edit_footer" style="margin-left: auto;">
-                                        <span class="btn-icon">✎</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="group-label" data-i18n="groups.footer_offset">Footer (Bawah)</div>
+                        <div class="group-label" data-i18n="groups.header_footer_text">Teks & Posisi</div>
                     </div>
 
                     <!-- Blok: Logo & Gambar -->
                     <div class="ribbon-group">
                         <div class="group-body">
-                            <div class="group-form-col" style="width: 240px;">
+                            <div class="group-form-col" style="width: 230px;">
                                 <div class="form-row">
                                     <button type="button" class="btn-sm-action flex-1" id="btn-pick-hf-image" title="Pilih logo atau berkas gambar PNG/SVG/JPG" style="padding: 2px 6px; font-size: 11px; min-width: 0;">
                                         <span class="btn-icon">🖼</span> <span id="hf-image-btn-label" data-i18n="buttons.pick_logo">Logo...</span>
@@ -442,7 +441,7 @@
                                     <button type="button" class="ribbon-icon-btn btn-sm" id="btn-clear-hf-image" data-tooltip="Hapus logo terpilih" data-i18n-tooltip="tooltips.clear_logo" style="display: none; width: 22px; min-width: 22px; height: 22px; flex-shrink: 0;">
                                         <span class="btn-icon">✕</span>
                                     </button>
-                                    <select id="hf-image-pos" class="form-select" style="width: 82px; font-size: 11px; padding: 2px 4px; flex-shrink: 0;">
+                                    <select id="hf-image-pos" class="form-select" style="width: 86px; font-size: 11px; padding: 2px 4px; flex-shrink: 0;">
                                         <option value="footer-left" selected data-i18n="options.pos_footer_left">Ftr Kiri</option>
                                         <option value="footer-center" data-i18n="options.pos_footer_center">Ftr Tengah</option>
                                         <option value="footer-right" data-i18n="options.pos_footer_right">Ftr Kanan</option>
@@ -453,9 +452,9 @@
                                 </div>
                                 <div class="form-row">
                                     <label class="form-label-compact" for="hf-image-w" data-i18n="labels.logo_w">W (mm):</label>
-                                    <input type="number" id="hf-image-w" class="form-input number-input" value="25" min="5" max="200" style="width: 48px; text-align: right;" title="Lebar (mm)">
+                                    <input type="number" id="hf-image-w" class="form-input number-input" value="25" min="5" max="200" style="width: 44px; text-align: right;" title="Lebar (mm)">
                                     <label class="form-label-compact" for="hf-image-h" style="margin-left: 6px;" data-i18n="labels.logo_h">H (mm):</label>
-                                    <input type="number" id="hf-image-h" class="form-input number-input" value="10" min="2" max="100" style="width: 48px; text-align: right;" title="Tinggi (mm)">
+                                    <input type="number" id="hf-image-h" class="form-input number-input" value="10" min="2" max="100" style="width: 44px; text-align: right;" title="Tinggi (mm)">
                                 </div>
                             </div>
                         </div>
@@ -465,7 +464,7 @@
                     <!-- Blok: Tipografi & Warna Header & Footer -->
                     <div class="ribbon-group">
                         <div class="group-body">
-                            <div class="group-form-col" style="width: 200px;">
+                            <div class="group-form-col" style="width: 195px;">
                                 <div class="form-row">
                                     <label class="form-label-compact" for="hf-font-family" data-i18n="labels.font">Font:</label>
                                     <select id="hf-font-family" class="form-select flex-1" style="min-width: 0; font-size: 11px;">
@@ -486,8 +485,8 @@
                                 <div class="form-row">
                                     <label class="form-label-compact" for="hf-color" data-i18n="labels.color">Warna:</label>
                                     <input type="color" id="hf-color" class="form-color" value="#555555" title="Warna font header & footer" style="width: 24px; height: 22px; padding: 1px;">
-                                    <label class="form-label-compact" for="hf-font-size" style="margin-left: 8px;" data-i18n="labels.size_pt">Ukuran (pt):</label>
-                                    <input type="number" id="hf-font-size" class="form-input number-input" value="9" min="6" max="36" style="width: 48px; text-align: right;">
+                                    <label class="form-label-compact" for="hf-font-size" style="margin-left: 6px;" data-i18n="labels.size_pt">Ukuran (pt):</label>
+                                    <input type="number" id="hf-font-size" class="form-input number-input" value="9" min="6" max="36" style="width: 44px; text-align: right;">
                                 </div>
                             </div>
                         </div>
@@ -497,19 +496,19 @@
                     <!-- Blok: Garis Pembatas -->
                     <div class="ribbon-group">
                         <div class="group-body">
-                            <div class="group-form-col" style="width: 255px;">
-                                <div class="form-row">
+                            <div class="group-form-col" style="width: 245px;">
+                                <div class="form-row" style="align-items: center;">
                                     <label class="checkbox-inline" style="font-size: 11px;">
                                         <input type="checkbox" id="hf-divider"> <span data-i18n="labels.divider">Aktifkan Garis</span>
                                     </label>
                                     <label class="form-label-compact" for="hf-divider-color" style="margin-left: auto;" data-i18n="labels.color">Warna:</label>
                                     <input type="color" id="hf-divider-color" class="form-color" value="#cccccc" title="Warna garis pembatas" style="width: 20px; height: 20px; padding: 1px;">
                                 </div>
-                                <div class="form-row">
+                                <div class="form-row" style="align-items: center;">
                                     <label class="form-label-compact" for="hf-divider-thickness" data-i18n="labels.thickness">Tebal (pt):</label>
-                                    <input type="number" id="hf-divider-thickness" class="form-input number-input" value="0.5" step="0.25" min="0.25" max="5" style="width: 46px; text-align: right;">
+                                    <input type="number" id="hf-divider-thickness" class="form-input number-input" value="0.5" step="0.25" min="0.25" max="5" style="width: 44px; text-align: right;">
                                     <label class="form-label-compact" for="hf-margin-x" style="margin-left: 6px;" data-i18n="labels.margin_x">Margin X (mm):</label>
-                                    <input type="number" id="hf-margin-x" class="form-input number-input" value="10" min="0" max="100" style="width: 46px; text-align: right;">
+                                    <input type="number" id="hf-margin-x" class="form-input number-input" value="10" min="0" max="100" style="width: 44px; text-align: right;">
                                 </div>
                             </div>
                         </div>
@@ -520,11 +519,11 @@
                     <div class="ribbon-group">
                         <div class="group-body">
                             <div class="group-form-col" style="width: 185px;">
-                                <label class="checkbox-inline">
+                                <label class="checkbox-inline" style="font-size: 11px;">
                                     <input type="checkbox" id="hf-skip-first">
                                     <span data-i18n="labels.skip_first">Lewati Halaman 1 (Cover)</span>
                                 </label>
-                                <label class="checkbox-inline">
+                                <label class="checkbox-inline" style="font-size: 11px;">
                                     <input type="checkbox" id="hf-locked" checked>
                                     <span data-i18n="labels.lock_object">Kunci Objek (Lock)</span>
                                 </label>

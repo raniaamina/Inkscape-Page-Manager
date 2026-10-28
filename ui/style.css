@@ -181,21 +181,50 @@ body, html {
     padding: 6px 10px 4px 10px;
     overflow-x: auto;
     overflow-y: hidden;
-    scrollbar-width: thin;
-    scrollbar-color: var(--border-subtle) transparent;
+    scrollbar-width: none; /* Sembunyikan scrollbar agar tidak menimpa teks label */
+    -ms-overflow-style: none;
 }
 
 .ribbon-content::-webkit-scrollbar {
-    height: 4px;
+    display: none; /* Sembunyikan scrollbar WebKitGTK/Chrome */
+    width: 0;
+    height: 0;
 }
 
-.ribbon-content::-webkit-scrollbar-track {
+/* Segmented Control Switcher (misal: Header / Footer) */
+.segmented-control {
+    display: inline-flex;
+    align-items: center;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 1px;
+    gap: 1px;
+    flex-shrink: 0;
+}
+
+.btn-segmented {
     background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    padding: 2px 7px;
+    font-size: 11px;
+    font-weight: 500;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    line-height: 1.2;
 }
 
-.ribbon-content::-webkit-scrollbar-thumb {
-    background: var(--border-subtle);
-    border-radius: 2px;
+.btn-segmented:hover {
+    color: var(--text-primary);
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.btn-segmented.active {
+    background-color: var(--accent-blue);
+    color: #ffffff;
+    font-weight: 600;
 }
 
 .ribbon-panel {

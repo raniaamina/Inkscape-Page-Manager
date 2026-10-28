@@ -791,6 +791,36 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // =========================================================================
+    // HEADER & FOOTER SUB-TOGGLE (HEADER VS FOOTER SLOTS & OFFSET)
+    // =========================================================================
+    const btnToggleHeader = document.getElementById('btn-toggle-header');
+    const btnToggleFooter = document.getElementById('btn-toggle-footer');
+    const wrapHfOffsetHeader = document.getElementById('wrap-hf-offset-header');
+    const wrapHfOffsetFooter = document.getElementById('wrap-hf-offset-footer');
+    const wrapHfSlotsHeader = document.getElementById('wrap-hf-slots-header');
+    const wrapHfSlotsFooter = document.getElementById('wrap-hf-slots-footer');
+
+    if (btnToggleHeader && btnToggleFooter) {
+        btnToggleHeader.addEventListener('click', () => {
+            btnToggleHeader.classList.add('active');
+            btnToggleFooter.classList.remove('active');
+            if (wrapHfOffsetHeader) wrapHfOffsetHeader.style.display = 'flex';
+            if (wrapHfOffsetFooter) wrapHfOffsetFooter.style.display = 'none';
+            if (wrapHfSlotsHeader) wrapHfSlotsHeader.style.display = 'flex';
+            if (wrapHfSlotsFooter) wrapHfSlotsFooter.style.display = 'none';
+        });
+
+        btnToggleFooter.addEventListener('click', () => {
+            btnToggleFooter.classList.add('active');
+            btnToggleHeader.classList.remove('active');
+            if (wrapHfOffsetHeader) wrapHfOffsetHeader.style.display = 'none';
+            if (wrapHfOffsetFooter) wrapHfOffsetFooter.style.display = 'flex';
+            if (wrapHfSlotsHeader) wrapHfSlotsHeader.style.display = 'none';
+            if (wrapHfSlotsFooter) wrapHfSlotsFooter.style.display = 'flex';
+        });
+    }
+
+    // =========================================================================
     // ABOUT MODAL
     // =========================================================================
     const btnAppBrand = document.getElementById('btn-app-brand') || document.querySelector('.app-brand');
@@ -1896,6 +1926,20 @@ document.addEventListener('DOMContentLoaded', () => {
             input.dispatchEvent(new Event('change', { bubbles: true }));
         }, { passive: false });
     });
+
+    // =========================================================================
+    // HORIZONTAL MOUSE WHEEL SCROLLING FOR RIBBON CONTENT
+    // =========================================================================
+    const ribbonContent = document.querySelector('.ribbon-content');
+    if (ribbonContent) {
+        ribbonContent.addEventListener('wheel', (e) => {
+            if (e.target.closest('input, textarea, select')) return;
+            if (e.deltaY !== 0) {
+                e.preventDefault();
+                ribbonContent.scrollLeft += e.deltaY;
+            }
+        }, { passive: false });
+    }
 
     // =========================================================================
     // 8. INTERACTIVE CANVAS: PAN & ZOOM

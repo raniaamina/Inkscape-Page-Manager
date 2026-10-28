@@ -432,3 +432,26 @@
       - Terverifikasi visual: kotak putih panah native 100% hilang di seluruh tab.
       - Input angka tampil menyatu rapi dengan background gelap, teks rata kanan, dan proporsi jarak lega.
     - Menjalankan `./package.sh` dan memverifikasi `ink-pageman.zip.md5: OK`.
+
+- **2026-10-28 [PENYELESAIAN TAMPILAN SCROLL & PELEBARAN PROPORSI TAB HEADER & FOOTER]**:
+  - **Identifikasi Masalah**:
+    1. Scrollbar horizontal tebal muncul melintasi bagian bawah tab ribbon dan menutupi teks label grup (`STATUS`, `HEADER (TOP)`, `FOOTER (BOTTOM)`, dll).
+    2. Saat dilakukan uji penyusutan ekstrem untuk menghilangkan scrollbar, elemen di dalam grup `Teks & Posisi` (220px) dan `Logo & Gambar` (175px) menjadi sangat berdesakan (*sesak sekali*): tombol pensil `[✎]` menabrak garis pembatas, input slot teks tertekan gepeng (~68px), dan teks dropdown posisi terpotong menjadi `"Hdr Cente..."`.
+  - **Solusi & Implementasi**:
+    1. **Eliminasi Batang Scrollbar Fisik (CSS)**:
+       - Mengatur `scrollbar-width: none;` dan `::-webkit-scrollbar { display: none; }` pada `.ribbon-content` di `ui/style.css`.
+       - Menghilangkan sepenuhnya batang abu-abu tebal yang menimpa label grup, sehingga seluruh teks label di bawah ribbon tetap 100% bersih dan terbaca sempurna.
+       - Menambahkan event listener `wheel` pada `.ribbon-content` (`ui/app.js`) agar pengguna tetap dapat menggeser toolbar ribbon secara halus menggunakan roda putar mouse (*horizontal mouse wheel scrolling*) saat ukuran jendela lebih kecil.
+    2. **Pelebaran & Tata Letak Proporsional (*Spacious & Natural*)**:
+       - `Teks & Posisi`: diperlebar menjadi **`285px`**. Segmented button `[ Header | Footer ]` memiliki jeda lega dengan `Offset Y (mm): [ 12 ]` dan tombol edit `[✎]` (+20px buffer dari garis pembatas). Tiga slot input teks di baris 2 masing-masing mendapatkan ruang lega ~88px sehingga placeholder dan isi teks leluasa tanpa terpotong.
+       - `Logo & Gambar`: diperlebar menjadi **`230px`** dengan dropdown posisi 86px sehingga teks opsi `"Hdr Center"` / `"Ftr Left"` tampil utuh tanpa terpotong.
+       - `Tipografi & Warna`: diperlebar menjadi **`195px`** dengan ruang nyaman untuk pilihan font dan warna/ukuran.
+       - `Garis Pembatas` (245px) dan `Pengecualian & Proteksi` (185px) diposisikan secara konsisten dan proporsional.
+  - **Verifikasi**:
+    - Validasi sintaks JS `node -c ui/app.js` dan Python `python3 -m py_compile ink-pageman.py` lolos tanpa error.
+    - Validasi format JSON `ui/id.json` dan `ui/en.json` lolos 100%.
+    - Pengujian visual WebKit2GTK offscreen headless:
+      - Seluruh label grup bawah ribbon bebas dari tumpukan batang scrollbar.
+      - Tidak ada lagi elemen atau tombol yang menabrak garis pembatas.
+      - Tampilan lapang, rapi, dan konsisten di Bahasa Indonesia dan Bahasa Inggris.
+    - Menjalankan `./package.sh` dan memverifikasi `ink-pageman.zip.md5: OK`.
