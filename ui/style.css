@@ -483,6 +483,46 @@ body, html {
     color: #ffffff;
 }
 
+/* ==========================================================================
+   SVG ICONS STYLING (VECTOR SYSTEM FROM ui/icons)
+   ========================================================================== */
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.btn-icon-svg {
+    width: 15px;
+    height: 15px;
+    display: inline-block;
+    vertical-align: middle;
+    fill: currentColor;
+    flex-shrink: 0;
+    pointer-events: none;
+}
+
+.ribbon-icon-btn.btn-sm .btn-icon-svg {
+    width: 13px;
+    height: 13px;
+}
+
+.ribbon-icon-btn.btn-large .btn-icon-svg {
+    width: 20px;
+    height: 20px;
+}
+
+.ribbon-opt-btn .btn-icon-svg {
+    width: 12px;
+    height: 12px;
+}
+
+.btn-opt-booklet .btn-icon-svg {
+    width: 16px;
+    height: 16px;
+}
+
 /* CSS Tooltip on [data-tooltip] */
 .ribbon-icon-btn[data-tooltip]::before {
     content: attr(data-tooltip);
@@ -516,44 +556,10 @@ body, html {
 .layout-grid-modes {
     display: grid;
     grid-template-columns: 102px 115px 95px;
+    grid-template-rows: 22px 22px;
     gap: 4px;
     height: 48px;
     box-sizing: border-box;
-}
-
-.btn-opt-booklet {
-    grid-column: 3;
-    grid-row: 1 / span 2;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    gap: 1px;
-    padding: 2px 4px;
-    box-sizing: border-box;
-}
-
-.btn-opt-booklet .btn-icon {
-    font-size: 15px;
-    line-height: 1.1;
-}
-
-.btn-opt-booklet .btn-title-booklet {
-    font-weight: 600;
-    font-size: 10.5px;
-    line-height: 1.1;
-}
-
-.btn-opt-booklet .btn-sub-booklet {
-    font-size: 8.5px;
-    color: var(--text-muted);
-    line-height: 1;
-}
-
-.btn-opt-booklet.active .btn-sub-booklet {
-    color: rgba(255, 255, 255, 0.85);
 }
 
 .ribbon-opt-btn {
@@ -564,7 +570,9 @@ body, html {
     border: 1px solid var(--border-subtle);
     border-radius: 3px;
     color: var(--text-secondary);
-    padding: 3px 6px;
+    padding: 2px 6px;
+    height: 22px;
+    box-sizing: border-box;
     font-size: 10px;
     cursor: pointer;
     transition: all 0.15s;
@@ -582,6 +590,50 @@ body, html {
     border-color: var(--accent-blue);
     color: #ffffff;
     font-weight: 600;
+}
+
+/* Booklet 2-row button override */
+.ribbon-opt-btn.btn-opt-booklet {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    height: 48px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center;
+    gap: 1px;
+    padding: 2px 4px;
+    box-sizing: border-box;
+}
+
+.btn-opt-booklet .btn-icon {
+    font-size: 15px;
+    line-height: 1.1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-opt-booklet .btn-icon-svg {
+    width: 16px;
+    height: 16px;
+}
+
+.btn-opt-booklet .btn-title-booklet {
+    font-weight: 600;
+    font-size: 10.5px;
+    line-height: 1.1;
+}
+
+.btn-opt-booklet .btn-sub-booklet {
+    font-size: 8.5px;
+    color: var(--text-muted);
+    line-height: 1;
+}
+
+.btn-opt-booklet.active .btn-sub-booklet {
+    color: rgba(255, 255, 255, 0.85);
 }
 
 /* Compact Button */

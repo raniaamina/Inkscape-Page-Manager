@@ -68,7 +68,8 @@ zip -q -9 -r "${ZIP_FILE}" \
     ui/app.js \
     ui/id.json \
     ui/en.json \
-    ui/inkpageman.svg
+    ui/inkpageman.svg \
+    ui/icons
 
 # Hitung MD5 Checksum
 echo "Menghitung MD5 checksum..."

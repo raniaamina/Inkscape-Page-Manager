@@ -911,3 +911,74 @@
     - Pengujian lokalisasi EN (`test_booklet_en.py`) membuktikan translasi grup, dropdown, dan petunjuk dinamis ("Page 1 on Right [8|1]" & "Page 1 on Left [1|8]") tampil sempurna.
     - Uji headless `test_overlap.py` pada seluruh 7 tab dan 2 bahasa membuktikan **0 isu benturan/overflow**.
     - Pemaketan `./package.sh` diperbarui dan checksum MD5 valid.
+
+- **2026-10-29 [INTEGRASI SISTEM IKON VEKTOR KONSISTEN (ui/icons)]**:
+  - **Permintaan Pengguna**:
+    - Menerapkan set ikon SVG profesional dari direktori `ui/icons` untuk konsistensi visual antarmuka menggantikan karakter emoji/unicode yang heterogen.
+  - **Analisis & Arsitektur Ikon**:
+    - Terdapat 11 berkas SVG Stockholm-icons dengan format 2-tone (elemen dasar 100% + aksen 30% transparansi).
+    - Agar warna ikon adaptif secara otomatis terhadap Tema Gelap (*Dark*), Tema Terang (*Light*), tombol aktif (*active* / accent pink), dan status hover/danger, seluruh warna hardcoded `#000000` ditransformasikan menjadi `currentColor` melalui sistem SVG sprite `<symbol>` dan `<use>` yang efisien di `ui/index.html`.
+    - Pemetaan 11 berkas ikon ke tombol UI:
+      1. `Save.svg` $\rightarrow$ `#btn-save-template` (Simpan Template Preset Kustom)
+      2. `Trash.svg` $\rightarrow$ `#btn-del-template` (Hapus Template) & `#btn-delete-page` (Hapus Halaman)
+      3. `dupicate.svg` $\rightarrow$ `#btn-duplicate-page` (Duplikasi Halaman)
+      4. `Arrow-up.svg` $\rightarrow$ `#btn-move-up` (Pindah Urutan Naik)
+      5. `Arrow-down.svg` $\rightarrow$ `#btn-move-down` (Pindah Urutan Turun)
+      6. `Layout-grid.svg` $\rightarrow$ `#opt-layout-grid` (Mode Grid Matrix)
+      7. `Layout-horizontal.svg` $\rightarrow$ `#opt-layout-row` (Mode Baris Horizontal)
+      8. `Layout-vertical.svg` $\rightarrow$ `#opt-layout-col` (Mode Kolom Vertikal)
+      9. `Book.svg` $\rightarrow$ `#opt-layout-spread` (Mode Buku / Spreads)
+      10. `booklet.svg` $\rightarrow$ `#opt-layout-booklet` (Mode Booklet Imposisi)
+      11. `apply-order.svg` $\rightarrow$ `#btn-auto-arrange` (Tombol Eksekusi Tata Ulang)
+  - **Implementasi**:
+    - `ui/index.html`:
+      - Menambahkan elemen `<svg id="svg-icons-sprite" style="display: none;">` berisikan `<symbol id="icon-...">` untuk seluruh 11 ikon.
+      - Memperbarui elemen tombol agar memanggil ikon via `<svg class="btn-icon-svg"><use href="#icon-..." xlink:href="#icon-..."></use></svg>`.
+    - `ui/style.css`:
+      - Menambahkan kelas CSS terpadu `.btn-icon-svg` dengan `fill: currentColor; pointer-events: none;`.
+      - Mengatur ukuran spesifik proporsional: 13px untuk tombol kecil (`btn-sm`), 15px untuk tombol ribbon standar, 20px untuk tombol besar (`btn-large`), dan 12px/16px untuk tombol opsi pola susunan.
+      - Menyesuaikan padding `.ribbon-opt-btn` (`height: 22px; padding: 2px 6px;`) guna menjamin ruang vertikal ribbon tetap presisi 48px tanpa overflow.
+    - `package.sh`:
+      - Menyertakan direktori `ui/icons` ke dalam arsip distribusi `ink-pageman.zip`.
+  - **Verifikasi**:
+    - Pengujian WebKitGTK offscreen (`test_icons_render.py`):
+      - Seluruh 11 ikon terdeteksi dengan dimensi bounding rect yang valid dan proporsional.
+      - Pratinjau visual diuji pada **Tema Gelap** (`ribbon_pages_icons.png` & `ribbon_layout_icons.png`) dan **Tema Terang** (`ribbon_pages_icons_light.png` & `ribbon_layout_icons_light.png`), mengonfirmasi adaptasi warna `currentColor` bekerja sempurna.
+    - Uji headless `test_overlap.py` pada seluruh 7 tab dan 2 bahasa membuktikan **0 isu benturan/overflow**.
+    - Pemaketan `./package.sh` sukses (`ink-pageman.zip` 200K, MD5 checksum terverifikasi).
+
+- **2026-10-29 [PERBAIKAN: OVERRIDE SPESIFISITAS CSS TOMBOL BOOKLET 2-BARIS]**:
+  - **Masalah**:
+    - Tombol `#opt-layout-booklet` pada tangkapan layar pengguna tampak mengecil menjadi tinggi 22px (hanya 1 baris) dengan ikon menyembul keluar ke atas dan subteks melorot ke bawah tombol.
+  - **Penyebab Akar Masalah**:
+    - Selektor `.ribbon-opt-btn` (`height: 22px; flex-direction: row;`) didefinisikan secara berurutan *setelah* `.btn-opt-booklet` di `ui/style.css`.
+    - Karena kedua selektor memiliki spesifisitas kelas yang setara (`0, 1, 0`), aturan tinggi 22px pada `.ribbon-opt-btn` menimpa `height: 100%` dan `flex-direction: column` milik `.btn-opt-booklet`.
+  - **Perbaikan**:
+    - Memindahkan selektor `.ribbon-opt-btn.btn-opt-booklet` ke bawah `.ribbon-opt-btn` dengan spesifisitas ganda (`0, 2, 0`).
+    - Menetapkan deklarasi tinggi eksplisit `height: 48px !important;` serta `flex-direction: column !important;` agar selalu membentang penuh 2 baris grid layout.
+    - Menambahkan `grid-template-rows: 22px 22px;` pada `.layout-grid-modes` untuk kestabilan baris grid.
+  - **Verifikasi**:
+    - Uji evaluasi metrik DOM WebKitGTK membuktikan:
+      - Bounding rect tombol booklet: lebar 95px, tinggi tepat **48px**.
+      - Posisi ikon ($Y = 43.5\text{px}$) dan subteks ($Y = 72.5\text{px}$) berada 100% di dalam batas vertikal tombol ($Y = 38\text{px} \dots 86\text{px}$).
+      - `iconInsideBtn`: **true**, `subInsideBtn`: **true**.
+    - Uji headless `test_overlap.py` pada seluruh 7 tab dan 2 bahasa membuktikan **0 isu benturan/overflow**.
+    - Pemaketan `./package.sh` sukses (`ink-pageman.zip`, checksum MD5 diperbarui).
+
+- **2026-10-29 [PEMBARUAN IKON: DUPLICATE, SELECT ALL, & DESELECT ALL]**:
+  - **Permintaan Pengguna**:
+    - Menerapkan pembaruan ikon untuk operasi duplikasi (`duplicate.svg`), pilih semua (`select.svg`), dan batal pilih (`unselect.svg`).
+  - **Implementasi**:
+    - `ui/index.html`:
+      - Memperbarui `<symbol id="icon-duplicate">` menggunakan path vektor baru dari `ui/icons/duplicate.svg` (persegi bertumpuk 2-tone Stockholm).
+      - Menambahkan `<symbol id="icon-select-all">` dari `ui/icons/select.svg` (lingkaran dengan centang / *Done-circle*).
+      - Menambahkan `<symbol id="icon-deselect-all">` dari `ui/icons/unselect.svg` (lingkaran dengan tanda silang / *Error-circle*).
+      - Memperbarui tombol `#btn-select-all` dan `#btn-deselect-all` pada grup "Seleksi" di Tab Halaman agar menggunakan ikon vektor SVG tersebut menggantikan karakter unicode `☑` dan `☐`.
+  - **Verifikasi**:
+    - Uji evaluasi WebKitGTK offscreen (`test_icons_render.py`):
+      - `#btn-duplicate-page svg`: terdeteksi 15x15px dengan path vektor baru.
+      - `#btn-select-all svg`: terdeteksi 15x15px (`Done-circle`).
+      - `#btn-deselect-all svg`: terdeteksi 15x15px (`Error-circle`).
+      - Snapshot `ribbon_pages_icons_updated.png` memvalidasi rendering bersih dan rapi.
+    - Uji headless `test_overlap.py` pada seluruh 7 tab dan 2 bahasa membuktikan **0 isu benturan/overflow**.
+    - Pemaketan `./package.sh` sukses (`ink-pageman.zip` 204K, MD5 checksum terverifikasi).

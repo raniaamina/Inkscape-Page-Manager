@@ -27,6 +27,88 @@
                 </nav>
             </div>
 
+            <!-- SVG Icon Sprite from ui/icons (Cohesive 2-tone Vector System) -->
+            <svg xmlns="http://www.w3.org/2000/svg" style="display: none;" id="svg-icons-sprite">
+                <defs>
+                    <!-- Save.svg -->
+                    <symbol id="icon-save" viewBox="0 0 24 24">
+                        <path d="M17,4 L6,4 C4.79111111,4 4,4.7 4,6 L4,18 C4,19.3 4.79111111,20 6,20 L18,20 C19.2,20 20,19.3 20,18 L20,7.20710678 C20,7.07449854 19.9473216,6.94732158 19.8535534,6.85355339 L17,4 Z M17,11 L7,11 L7,4 L17,4 L17,11 Z" fill="currentColor" fill-rule="nonzero"/>
+                        <rect fill="currentColor" opacity="0.3" x="12" y="4" width="3" height="5" rx="0.5"/>
+                    </symbol>
+
+                    <!-- Trash.svg -->
+                    <symbol id="icon-trash" viewBox="0 0 24 24">
+                        <path d="M6,8 L6,20.5 C6,21.3284271 6.67157288,22 7.5,22 L16.5,22 C17.3284271,22 18,21.3284271 18,20.5 L18,8 L6,8 Z" fill="currentColor" fill-rule="nonzero"/>
+                        <path d="M14,4.5 L14,4 C14,3.44771525 13.5522847,3 13,3 L11,3 C10.4477153,3 10,3.44771525 10,4 L10,4.5 L5.5,4.5 C5.22385763,4.5 5,4.72385763 5,5 L5,5.5 C5,5.77614237 5.22385763,6 5.5,6 L18.5,6 C18.7761424,6 19,5.77614237 19,5.5 L19,5 C19,4.72385763 18.7761424,4.5 18.5,4.5 L14,4.5 Z" fill="currentColor" opacity="0.3"/>
+                    </symbol>
+
+                    <!-- duplicate.svg -->
+                    <symbol id="icon-duplicate" viewBox="0 0 24 24">
+                        <path d="M15.9956071,6 L9,6 C7.34314575,6 6,7.34314575 6,9 L6,15.9956071 C4.70185442,15.9316381 4,15.1706419 4,13.8181818 L4,6.18181818 C4,4.76751186 4.76751186,4 6.18181818,4 L13.8181818,4 C15.1706419,4 15.9316381,4.70185442 15.9956071,6 Z" fill="currentColor" fill-rule="nonzero" opacity="0.3"/>
+                        <path d="M10.1818182,8 L17.8181818,8 C19.2324881,8 20,8.76751186 20,10.1818182 L20,17.8181818 C20,19.2324881 19.2324881,20 17.8181818,20 L10.1818182,20 C8.76751186,20 8,19.2324881 8,17.8181818 L8,10.1818182 C8,8.76751186 8.76751186,8 10.1818182,8 Z" fill="currentColor"/>
+                    </symbol>
+
+                    <!-- select.svg -->
+                    <symbol id="icon-select-all" viewBox="0 0 24 24">
+                        <circle fill="currentColor" opacity="0.3" cx="12" cy="12" r="10"/>
+                        <path d="M16.7689447,7.81768175 C17.1457787,7.41393107 17.7785676,7.39211077 18.1823183,7.76894473 C18.5860689,8.1457787 18.6078892,8.77856757 18.2310553,9.18231825 L11.2310553,16.6823183 C10.8654446,17.0740439 10.2560456,17.107974 9.84920863,16.7592566 L6.34920863,13.7592566 C5.92988278,13.3998345 5.88132125,12.7685345 6.2407434,12.3492086 C6.60016555,11.9298828 7.23146553,11.8813212 7.65079137,12.2407434 L10.4229928,14.616916 L16.7689447,7.81768175 Z" fill="currentColor" fill-rule="nonzero"/>
+                    </symbol>
+
+                    <!-- unselect.svg -->
+                    <symbol id="icon-deselect-all" viewBox="0 0 24 24">
+                        <circle fill="currentColor" opacity="0.3" cx="12" cy="12" r="10"/>
+                        <path d="M12.0355339,10.6213203 L14.863961,7.79289322 C15.2544853,7.40236893 15.8876503,7.40236893 16.2781746,7.79289322 C16.6686989,8.18341751 16.6686989,8.81658249 16.2781746,9.20710678 L13.4497475,12.0355339 L16.2781746,14.863961 C16.6686989,15.2544853 16.6686989,15.8876503 16.2781746,16.2781746 C15.8876503,16.6686989 15.2544853,16.6686989 14.863961,16.2781746 L12.0355339,13.4497475 L9.20710678,16.2781746 C8.81658249,16.6686989 8.18341751,16.6686989 7.79289322,16.2781746 C7.40236893,15.8876503 7.40236893,15.2544853 7.79289322,14.863961 L10.6213203,12.0355339 L7.79289322,9.20710678 C7.40236893,8.81658249 7.40236893,8.18341751 7.79289322,7.79289322 C8.18341751,7.40236893 8.81658249,7.40236893 9.20710678,7.79289322 L12.0355339,10.6213203 Z" fill="currentColor"/>
+                    </symbol>
+
+                    <!-- Arrow-up.svg -->
+                    <symbol id="icon-arrow-up" viewBox="0 0 24 24">
+                        <rect fill="currentColor" opacity="0.3" x="11" y="5" width="2" height="14" rx="1"/>
+                        <path d="M6.70710678,12.7071068 C6.31658249,13.0976311 5.68341751,13.0976311 5.29289322,12.7071068 C4.90236893,12.3165825 4.90236893,11.6834175 5.29289322,11.2928932 L11.2928932,5.29289322 C11.6714722,4.91431428 12.2810586,4.90106866 12.6757246,5.26284586 L18.6757246,10.7628459 C19.0828436,11.1360383 19.1103465,11.7686056 18.7371541,12.1757246 C18.3639617,12.5828436 17.7313944,12.6103465 17.3242754,12.2371541 L12.0300757,7.38413782 L6.70710678,12.7071068 Z" fill="currentColor" fill-rule="nonzero"/>
+                    </symbol>
+
+                    <!-- Arrow-down.svg -->
+                    <symbol id="icon-arrow-down" viewBox="0 0 24 24">
+                        <rect fill="currentColor" opacity="0.3" x="11" y="4" width="2" height="10" rx="1"/>
+                        <path d="M6.70710678,19.7071068 C6.31658249,20.0976311 5.68341751,20.0976311 5.29289322,19.7071068 C4.90236893,19.3165825 4.90236893,18.6834175 5.29289322,18.2928932 L11.2928932,12.2928932 C11.6714722,11.9143143 12.2810586,11.9010687 12.6757246,12.2628459 L18.6757246,17.7628459 C19.0828436,18.1360383 19.1103465,18.7686056 18.7371541,19.1757246 C18.3639617,19.5828436 17.7313944,19.6103465 17.3242754,19.2371541 L12.0300757,14.3841378 L6.70710678,19.7071068 Z" fill="currentColor" fill-rule="nonzero" transform="translate(12.000003, 15.999999) scale(1, -1) translate(-12.000003, -15.999999)"/>
+                    </symbol>
+
+                    <!-- Layout-grid.svg -->
+                    <symbol id="icon-layout-grid" viewBox="0 0 24 24">
+                        <rect fill="currentColor" opacity="0.3" x="4" y="4" width="4" height="4" rx="1"/>
+                        <path d="M5,10 L7,10 C7.55228475,10 8,10.4477153 8,11 L8,13 C8,13.5522847 7.55228475,14 7,14 L5,14 C4.44771525,14 4,13.5522847 4,13 L4,11 C4,10.4477153 4.44771525,10 5,10 Z M11,4 L13,4 C13.5522847,4 14,4.44771525 14,5 L14,7 C14,7.55228475 13.5522847,8 13,8 L11,8 C10.4477153,8 10,7.55228475 10,7 L10,5 C10,4.44771525 10.4477153,4 11,4 Z M11,10 L13,10 C13.5522847,10 14,10.4477153 14,11 L14,13 C14,13.5522847 13.5522847,14 13,14 L11,14 C10.4477153,14 10,13.5522847 10,13 L10,11 C10,10.4477153 10.4477153,10 11,10 Z M17,4 L19,4 C19.5522847,4 20,4.44771525 20,5 L20,7 C20,7.55228475 19.5522847,8 19,8 L17,8 C16.4477153,8 16,7.55228475 16,7 L16,5 C16,4.44771525 16.4477153,4 17,4 Z M17,10 L19,10 C19.5522847,10 20,10.4477153 20,11 L20,13 C20,13.5522847 19.5522847,14 19,14 L17,14 C16.4477153,14 16,13.5522847 16,13 L16,11 C16,10.4477153 16.4477153,10 17,10 Z M5,16 L7,16 C7.55228475,16 8,16.4477153 8,17 L8,19 C8,19.5522847 7.55228475,20 7,20 L5,20 C4.44771525,20 4,19.5522847 4,19 L4,17 C4,16.4477153 4.44771525,16 5,16 Z M11,16 L13,16 C13.5522847,16 14,16.4477153 14,17 L14,19 C14,19.5522847 13.5522847,20 13,20 L11,20 C10.4477153,20 10,19.5522847 10,19 L10,17 C10,16.4477153 10.4477153,16 11,16 Z M17,16 L19,16 C19.5522847,16 20,16.4477153 20,17 L20,19 C20,19.5522847 19.5522847,20 19,20 L17,20 C16.4477153,20 16,19.5522847 16,19 L16,17 C16,16.4477153 16.4477153,16 17,16 Z" fill="currentColor"/>
+                    </symbol>
+
+                    <!-- Layout-horizontal.svg -->
+                    <symbol id="icon-layout-row" viewBox="0 0 24 24">
+                        <rect fill="currentColor" opacity="0.3" x="4" y="5" width="16" height="6" rx="1.5"/>
+                        <rect fill="currentColor" x="4" y="13" width="16" height="6" rx="1.5"/>
+                    </symbol>
+
+                    <!-- Layout-vertical.svg -->
+                    <symbol id="icon-layout-col" viewBox="0 0 24 24">
+                        <rect fill="currentColor" x="5" y="4" width="6" height="16" rx="1.5"/>
+                        <rect fill="currentColor" opacity="0.3" x="13" y="4" width="6" height="16" rx="1.5"/>
+                    </symbol>
+
+                    <!-- Book.svg -->
+                    <symbol id="icon-book" viewBox="0 0 24 24">
+                        <path d="M20,18 L8,18 C7.44771525,18 7,18.4477153 7,19 C7,19.5522847 7.44771525,20 8,20 L20,20 L20,21 C20,21.626904 19.6418278,22 19,22 L7,22 C5.2536027,22 4,20.6941639 4,19 L4,5 C4,3.30583615 5.2536027,2 7,2 L19,2 C19.6418278,2 20,2.37309604 20,3 L20,18 Z" fill="currentColor" fill-rule="nonzero"/>
+                    </symbol>
+
+                    <!-- booklet.svg -->
+                    <symbol id="icon-booklet" viewBox="0 0 24 24">
+                        <path d="M13.6855025,18.7082217 C15.9113859,17.8189707 18.682885,17.2495635 22,17 C22,16.9325178 22,13.1012863 22,5.50630526 L21.9999762,5.50630526 C21.9999762,5.23017604 21.7761292,5.00632908 21.5,5.00632908 C21.4957817,5.00632908 21.4915635,5.00638247 21.4873465,5.00648922 C18.658231,5.07811173 15.8291155,5.74261533 13,7 C13,7.04449645 13,10.79246 13,18.2438906 L12.9999854,18.2438906 C12.9999854,18.520041 13.2238496,18.7439052 13.5,18.7439052 C13.5635398,18.7439052 13.6264972,18.7317946 13.6855025,18.7082217 Z" fill="currentColor"/>
+                        <path d="M10.3144829,18.7082217 C8.08859955,17.8189707 5.31710038,17.2495635 1.99998542,17 C1.99998542,16.9325178 1.99998542,13.1012863 1.99998542,5.50630526 L2.00000925,5.50630526 C2.00000925,5.23017604 2.22385621,5.00632908 2.49998542,5.00632908 C2.50420375,5.00632908 2.5084219,5.00638247 2.51263888,5.00648922 C5.34175439,5.07811173 8.17086991,5.74261533 10.9999854,7 C10.9999854,7.04449645 10.9999854,10.79246 10.9999854,18.2438906 L11,18.2438906 C11,18.520041 10.7761358,18.7439052 10.4999854,18.7439052 C10.4364457,18.7439052 10.3734882,18.7317946 10.3144829,18.7082217 Z" fill="currentColor" opacity="0.3"/>
+                    </symbol>
+
+                    <!-- apply-order.svg -->
+                    <symbol id="icon-apply-order" viewBox="0 0 24 24">
+                        <path d="M16.3740377,19.9389434 L22.2226499,11.1660251 C22.4524142,10.8213786 22.3592838,10.3557266 22.0146373,10.1259623 C21.8914367,10.0438285 21.7466809,10 21.5986122,10 L17,10 L17,4.47708173 C17,4.06286817 16.6642136,3.72708173 16.25,3.72708173 C15.9992351,3.72708173 15.7650616,3.85240758 15.6259623,4.06105658 L9.7773501,12.8339749 C9.54758575,13.1786214 9.64071616,13.6442734 9.98536267,13.8740377 C10.1085633,13.9561715 10.2533191,14 10.4013878,14 L15,14 L15,19.5229183 C15,19.9371318 15.3357864,20.2729183 15.75,20.2729183 C16.0007649,20.2729183 16.2349384,20.1475924 16.3740377,19.9389434 Z" fill="currentColor"/>
+                        <path d="M4.5,5 L9.5,5 C10.3284271,5 11,5.67157288 11,6.5 C11,7.32842712 10.3284271,8 9.5,8 L4.5,8 C3.67157288,8 3,7.32842712 3,6.5 C3,5.67157288 3.67157288,5 4.5,5 Z M4.5,17 L9.5,17 C10.3284271,17 11,17.6715729 11,18.5 C11,19.3284271 10.3284271,20 9.5,20 L4.5,20 C3.67157288,20 3,19.3284271 3,18.5 C3,17.6715729 3.67157288,17 4.5,17 Z M2.5,11 L6.5,11 C7.32842712,11 8,11.6715729 8,12.5 C8,13.3284271 7.32842712,14 6.5,14 L2.5,14 C1.67157288,14 1,13.3284271 1,12.5 C1,11.6715729 1.67157288,11 2.5,11 Z" fill="currentColor" opacity="0.3"/>
+                    </symbol>
+                </defs>
+            </svg>
+
             <!-- Ribbon Command Panels -->
             <div class="ribbon-content">
                 <!-- PANEL 1: HALAMAN -->
@@ -65,10 +147,10 @@
                                         <option value="custom" data-i18n="options.opt_custom">Kustom...</option>
                                     </select>
                                     <button type="button" class="ribbon-icon-btn btn-sm" id="btn-save-template" data-tooltip="Simpan ukuran ini sebagai Template baru ke config.json" data-i18n-tooltip="tooltips.save_template" style="margin-left: 2px;">
-                                        <span class="btn-icon">💾</span>
+                                        <span class="btn-icon"><svg class="btn-icon-svg"><use href="#icon-save" xlink:href="#icon-save"></use></svg></span>
                                     </button>
                                     <button type="button" class="ribbon-icon-btn btn-sm" id="btn-del-template" data-tooltip="Hapus template kustom terpilih dari config.json" data-i18n-tooltip="tooltips.delete_template" style="margin-left: 2px; display: none;">
-                                        <span class="btn-icon">🗑</span>
+                                        <span class="btn-icon"><svg class="btn-icon-svg"><use href="#icon-trash" xlink:href="#icon-trash"></use></svg></span>
                                     </button>
                                 </div>
                                 <!-- Baris Standard Preset -->
@@ -100,17 +182,17 @@
                     <div class="ribbon-group">
                         <div class="group-body">
                             <button type="button" class="ribbon-icon-btn" id="btn-duplicate-page" data-tooltip="Duplikasi Halaman Terpilih" data-i18n-tooltip="tooltips.duplicate_page">
-                                <span class="btn-icon">⎘</span>
+                                <span class="btn-icon"><svg class="btn-icon-svg"><use href="#icon-duplicate" xlink:href="#icon-duplicate"></use></svg></span>
                             </button>
                             <button type="button" class="ribbon-icon-btn btn-danger" id="btn-delete-page" data-tooltip="Hapus Halaman Terpilih (Del)" data-i18n-tooltip="tooltips.delete_page">
-                                <span class="btn-icon">🗑</span>
+                                <span class="btn-icon"><svg class="btn-icon-svg"><use href="#icon-trash" xlink:href="#icon-trash"></use></svg></span>
                             </button>
                             <div class="group-divider-v"></div>
                             <button type="button" class="ribbon-icon-btn" id="btn-move-up" data-tooltip="Pindah Urutan Naik (Alt+↑)" data-i18n-tooltip="tooltips.move_up">
-                                <span class="btn-icon">↑</span>
+                                <span class="btn-icon"><svg class="btn-icon-svg"><use href="#icon-arrow-up" xlink:href="#icon-arrow-up"></use></svg></span>
                             </button>
                             <button type="button" class="ribbon-icon-btn" id="btn-move-down" data-tooltip="Pindah Urutan Turun (Alt+↓)" data-i18n-tooltip="tooltips.move_down">
-                                <span class="btn-icon">↓</span>
+                                <span class="btn-icon"><svg class="btn-icon-svg"><use href="#icon-arrow-down" xlink:href="#icon-arrow-down"></use></svg></span>
                             </button>
                         </div>
                         <div class="group-label" data-i18n="groups.manage_pages">Kelola Halaman</div>
@@ -120,10 +202,10 @@
                     <div class="ribbon-group">
                         <div class="group-body">
                             <button type="button" class="ribbon-icon-btn" id="btn-select-all" data-tooltip="Pilih Semua Halaman (Ctrl+A)" data-i18n-tooltip="tooltips.select_all">
-                                <span class="btn-icon">☑</span>
+                                <span class="btn-icon"><svg class="btn-icon-svg"><use href="#icon-select-all" xlink:href="#icon-select-all"></use></svg></span>
                             </button>
                             <button type="button" class="ribbon-icon-btn" id="btn-deselect-all" data-tooltip="Batal Pilih / Kosongkan Seleksi" data-i18n-tooltip="tooltips.deselect_all">
-                                <span class="btn-icon">☐</span>
+                                <span class="btn-icon"><svg class="btn-icon-svg"><use href="#icon-deselect-all" xlink:href="#icon-deselect-all"></use></svg></span>
                             </button>
                         </div>
                         <div class="group-label" data-i18n="groups.selection">Seleksi</div>
@@ -184,19 +266,19 @@
                         <div class="group-body">
                             <div class="layout-grid-modes">
                                 <button type="button" class="ribbon-opt-btn active" data-layout="grid" id="opt-layout-grid" title="Susun dalam kotak matriks" data-i18n-title="tooltips.layout_grid">
-                                    <span class="btn-icon">⊞</span> <span data-i18n="buttons.layout_grid">Grid Matrix</span>
+                                    <span class="btn-icon"><svg class="btn-icon-svg"><use href="#icon-layout-grid" xlink:href="#icon-layout-grid"></use></svg></span> <span data-i18n="buttons.layout_grid">Grid Matrix</span>
                                 </button>
                                 <button type="button" class="ribbon-opt-btn" data-layout="row" id="opt-layout-row" title="Susun mendatar dalam satu baris" data-i18n-title="tooltips.layout_row">
-                                    <span class="btn-icon">↔</span> <span data-i18n="buttons.layout_row">Baris Horizontal</span>
+                                    <span class="btn-icon"><svg class="btn-icon-svg"><use href="#icon-layout-row" xlink:href="#icon-layout-row"></use></svg></span> <span data-i18n="buttons.layout_row">Baris Horizontal</span>
                                 </button>
                                 <button type="button" class="ribbon-opt-btn" data-layout="col" id="opt-layout-col" title="Susun tegak dalam satu kolom" data-i18n-title="tooltips.layout_col">
-                                    <span class="btn-icon">↕</span> <span data-i18n="buttons.layout_col">Kolom Vertikal</span>
+                                    <span class="btn-icon"><svg class="btn-icon-svg"><use href="#icon-layout-col" xlink:href="#icon-layout-col"></use></svg></span> <span data-i18n="buttons.layout_col">Kolom Vertikal</span>
                                 </button>
                                 <button type="button" class="ribbon-opt-btn" data-layout="spread" id="opt-layout-spread" title="Susun halaman bersebelahan ala buku" data-i18n-title="tooltips.layout_spread">
-                                    <span class="btn-icon">📖</span> <span data-i18n="buttons.layout_spread">Buku / Spreads</span>
+                                    <span class="btn-icon"><svg class="btn-icon-svg"><use href="#icon-book" xlink:href="#icon-book"></use></svg></span> <span data-i18n="buttons.layout_spread">Buku / Spreads</span>
                                 </button>
                                 <button type="button" class="ribbon-opt-btn btn-opt-booklet" data-layout="booklet" id="opt-layout-booklet" title="Susun halaman dalam pola booklet / imposisi jilid tengah (kelipatan 4)" data-i18n-title="tooltips.layout_booklet">
-                                    <span class="btn-icon">📑</span>
+                                    <span class="btn-icon"><svg class="btn-icon-svg"><use href="#icon-booklet" xlink:href="#icon-booklet"></use></svg></span>
                                     <span class="btn-title-booklet" data-i18n="buttons.layout_booklet">Booklet</span>
                                     <span class="btn-sub-booklet" data-i18n="labels.booklet_sub">(Jilid Tengah)</span>
                                 </button>
@@ -264,7 +346,7 @@
                     <div class="ribbon-group">
                         <div class="group-body">
                             <button type="button" class="ribbon-icon-btn btn-large btn-accent" id="btn-auto-arrange" data-tooltip="Tata Ulang Seluruh Halaman Sekarang" data-i18n-tooltip="tooltips.auto_arrange">
-                                <span class="btn-icon">⚡</span>
+                                <span class="btn-icon"><svg class="btn-icon-svg"><use href="#icon-apply-order" xlink:href="#icon-apply-order"></use></svg></span>
                             </button>
                         </div>
                         <div class="group-label" data-i18n="groups.rearrange">Tata Ulang</div>
