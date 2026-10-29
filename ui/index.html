@@ -183,17 +183,22 @@
                     <div class="ribbon-group">
                         <div class="group-body">
                             <div class="layout-grid-modes">
-                                <button type="button" class="ribbon-opt-btn active" data-layout="grid" id="opt-layout-grid" title="Susun dalam kotak matriks">
+                                <button type="button" class="ribbon-opt-btn active" data-layout="grid" id="opt-layout-grid" title="Susun dalam kotak matriks" data-i18n-title="tooltips.layout_grid">
                                     <span class="btn-icon">⊞</span> <span data-i18n="buttons.layout_grid">Grid Matrix</span>
                                 </button>
-                                <button type="button" class="ribbon-opt-btn" data-layout="row" id="opt-layout-row" title="Susun mendatar dalam satu baris">
+                                <button type="button" class="ribbon-opt-btn" data-layout="row" id="opt-layout-row" title="Susun mendatar dalam satu baris" data-i18n-title="tooltips.layout_row">
                                     <span class="btn-icon">↔</span> <span data-i18n="buttons.layout_row">Baris Horizontal</span>
                                 </button>
-                                <button type="button" class="ribbon-opt-btn" data-layout="col" id="opt-layout-col" title="Susun tegak dalam satu kolom">
+                                <button type="button" class="ribbon-opt-btn" data-layout="col" id="opt-layout-col" title="Susun tegak dalam satu kolom" data-i18n-title="tooltips.layout_col">
                                     <span class="btn-icon">↕</span> <span data-i18n="buttons.layout_col">Kolom Vertikal</span>
                                 </button>
-                                <button type="button" class="ribbon-opt-btn" data-layout="spread" id="opt-layout-spread" title="Susun halaman bersebelahan ala buku">
+                                <button type="button" class="ribbon-opt-btn" data-layout="spread" id="opt-layout-spread" title="Susun halaman bersebelahan ala buku" data-i18n-title="tooltips.layout_spread">
                                     <span class="btn-icon">📖</span> <span data-i18n="buttons.layout_spread">Buku / Spreads</span>
+                                </button>
+                                <button type="button" class="ribbon-opt-btn btn-opt-booklet" data-layout="booklet" id="opt-layout-booklet" title="Susun halaman dalam pola booklet / imposisi jilid tengah (kelipatan 4)" data-i18n-title="tooltips.layout_booklet">
+                                    <span class="btn-icon">📑</span>
+                                    <span class="btn-title-booklet" data-i18n="buttons.layout_booklet">Booklet</span>
+                                    <span class="btn-sub-booklet" data-i18n="labels.booklet_sub">(Jilid Tengah)</span>
                                 </button>
                             </div>
                         </div>
@@ -215,6 +220,26 @@
                             </div>
                         </div>
                         <div class="group-label" data-i18n="groups.spacing">Parameter Jarak</div>
+                    </div>
+
+                    <!-- Blok: Arah Booklet -->
+                    <div class="ribbon-group" id="group-booklet-options">
+                        <div class="group-body">
+                            <div class="group-form-col">
+                                <div class="form-row">
+                                    <label class="form-label form-label-w44" for="booklet-binding" data-i18n="labels.booklet_start">Mulai:</label>
+                                    <select id="booklet-binding" class="form-select" style="min-width: 140px;">
+                                        <option value="ltr" data-i18n="options.binding_ltr">Kanan (LTR Standar)</option>
+                                        <option value="rtl" data-i18n="options.binding_rtl">Kiri (RTL / Manga)</option>
+                                    </select>
+                                </div>
+                                <div class="form-row" style="margin-top: 2px;">
+                                    <span class="form-label-w44" aria-hidden="true"></span>
+                                    <span id="booklet-binding-hint" class="unit-label" style="font-size: 10px; color: var(--text-muted);" data-i18n="labels.binding_hint_ltr">Hal 1 di Kanan</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="group-label" data-i18n="groups.booklet_options">Arah Booklet</div>
                     </div>
 
                     <!-- Blok: Opsi Konten (Feature 1) -->

@@ -828,3 +828,86 @@
     - Uji visual offscreen (`ribbon_hints_aligned.png` & `ribbon_hints_en.png`) mengonfirmasi teks sejajar sempurna dengan batas kiri select.
     - Uji headless `test_overlap.py` pada seluruh 7 tab dan 2 bahasa membuktikan 0 isu benturan.
     - Pemaketan `./package.sh` diperbarui dan checksum MD5 valid.
+
+- **2026-10-29 [FITUR BARU: TATA LETAK BOOKLET IMPOSISI JILID TENGAH (SADDLE STITCH)]**:
+  - **Permintaan Pengguna**:
+    - Menambahkan opsi pola susunan booklet pada tab Tata Letak untuk kebutuhan jilid tengah (saddle-stitch).
+    - Halaman harus kelipatan 4, di mana halaman berpasangan per baris/spread: misal 20 halaman maka halaman 1 bersandingan dengan 20, 2 dengan 19, 18 dengan 3, dst.
+  - **Analisis & Algoritma Imposisi**:
+    - Pada saddle-stitch booklet, setiap lembar fisik cetak (*sheet*) dilipat dua menghasilkan 4 halaman. Total halaman wajib kelipatan 4 ($N = 4n$).
+    - Rumus pasangan spread ke-$s$ ($s = 1, 2, \dots, N/2$):
+      - Spread ganjil ($s=1, 3, 5, \dots$ - sisi luar lembar cetak):
+        - Halaman Kiri = $N - s + 1$
+        - Halaman Kanan = $s$
+      - Spread genap ($s=2, 4, 6, \dots$ - sisi dalam lembar cetak):
+        - Halaman Kiri = $s$
+        - Halaman Kanan = $N - s + 1$
+      - Jumlah kedua nomor halaman pada setiap spread selalu bernilai konstan $N + 1$.
+  - **Implementasi**:
+    - `ui/index.html`:
+      - Menambahkan tombol pilihan tata letak ke-5 `#opt-layout-booklet` pada grup "Pola Susunan" di tab Tata Letak.
+      - Menampilkan ikon `📑`, teks judul `Booklet`, dan subteks `(Jilid Tengah)` / `(Saddle Stitch)` via `data-i18n`.
+    - `ui/style.css`:
+      - Memperbarui grid `.layout-grid-modes` menjadi 3 kolom terukur (`102px 115px 95px`) dengan tinggi tepat 48px.
+      - Menata `.btn-opt-booklet` membentang 2 baris (`grid-row: 1 / span 2; height: 100%;`) sehingga simetris dan mengisi ruang ribbon secara estetis tanpa menambah baris ke bawah.
+    - `ui/app.js`:
+      - Mengintegrasikan logika tata ulang booklet ke dalam `btnAutoArrange`:
+        1. Memeriksa kelipatan 4 (`pages.length % 4`). Jika belum kelipatan 4, memunculkan konfirmasi untuk otomatis menambahkan halaman kosong di bagian akhir hingga kelipatan 4 terdekat.
+        2. Menyusun koordinat `(x, y)` halaman kiri dan kanan untuk setiap spread sesuai rumus imposisi jilid tengah.
+        3. Menjaga kompatibilitas penuh dengan fitur *Artwork Shift* (`move_content`): artwork dan objek pada tiap halaman otomatis ikut berpindah ke posisi barunya di kanvas Inkscape.
+      - Menyimpan dan memulihkan preferensi `currentLayoutMode` dari `config.json`.
+    - `ui/id.json` & `ui/en.json`:
+      - Menambahkan translasi untuk `buttons.layout_booklet`, `labels.booklet_sub`, dan `tooltips.layout_booklet`.
+  - **Verifikasi**:
+    - Pengujian matematis dan DOM WebKitGTK memvalidasi 20 halaman terbagi presisi ke 10 spread:
+      - Spread 1: Halaman 20 & Halaman 1
+      - Spread 2: Halaman 2 & Halaman 19
+      - Spread 3: Halaman 18 & Halaman 3
+      - Spread 10 (centerfold): Halaman 10 & Halaman 11.
+    - Pengujian penambahan halaman kosong otomatis berhasil mengonversi dokumen 1 halaman menjadi 4 halaman saat dikonfirmasi.
+    - Tangkapan layar visual `ribbon_layout_booklet.png` dan `ribbon_layout_booklet_en.png` mengonfirmasi tombol tampil presisi, rapi, dan responsif.
+    - Uji headless `test_overlap.py` pada seluruh 7 tab dan 2 bahasa membuktikan **0 isu benturan/overflow**.
+    - Pemaketan `./package.sh` sukses dengan checksum MD5 valid.
+
+- **2026-10-29 [FITUR BARU: ARAH BACA BOOKLET (START DARI KANAN / LTR VS START DARI KIRI / RTL)]**:
+  - **Permintaan Pengguna**:
+    - Menyempurnakan fitur booklet dengan menyediakan 2 opsi arah mulai halaman: start page dari kanan atau dari kiri, karena perbedaan posisi halaman saat mulai membaca buku (standar Barat/Indonesia LTR vs buku Arab/Manga Jepang RTL).
+  - **Analisis & Algoritma Arah Baca Booklet**:
+    - **Mulai dari Kanan (Standar LTR / Barat / Indonesia)**:
+      - Cover depan (Halaman 1) berada di sisi KANAN pada lembar luar pertama (`[ Halaman N | Halaman 1 ]`) dengan punggung (*spine*) di sisi kiri saat dilipat.
+      - Spread ganjil ($s=1, 3, \dots$): Kiri = $N - s + 1$, Kanan = $s$
+      - Spread genap ($s=2, 4, \dots$): Kiri = $s$, Kanan = $N - s + 1$
+    - **Mulai dari Kiri (RTL / Manga / Arab)**:
+      - Cover depan (Halaman 1) berada di sisi KIRI pada lembar luar pertama (`[ Halaman 1 | Halaman N ]`) dengan punggung (*spine*) di sisi kanan saat dilipat.
+      - Spread ganjil ($s=1, 3, \dots$): Kiri = $s$, Kanan = $N - s + 1$
+      - Spread genap ($s=2, 4, \dots$): Kiri = $N - s + 1$, Kanan = $s$
+      - Pada dasarnya, seluruh spread pada mode RTL membalik posisi Kiri dan Kanan (`swap(leftNum, rightNum)`).
+  - **Implementasi**:
+    - `ui/index.html`:
+      - Menambahkan blok ribbon baru `#group-booklet-options` ("Arah Booklet" / "Booklet Binding") di samping "Parameter Jarak".
+      - Menyediakan `<select id="booklet-binding">` dengan dua opsi:
+        1. `ltr`: "Kanan (LTR Standar)" / "Right (LTR Standard)"
+        2. `rtl`: "Kiri (RTL / Manga)" / "Left (RTL / Manga)"
+      - Menambahkan teks keterangan dinamis `#booklet-binding-hint` yang rata kiri presisi dengan dropdown via spacer `.form-label-w44`.
+    - `ui/id.json` & `ui/en.json`:
+      - Menambahkan lokalisasi lengkap untuk `groups.booklet_options`, `labels.booklet_start`, `labels.binding_hint_ltr`, `labels.binding_hint_rtl`, `options.binding_ltr`, dan `options.binding_rtl`.
+    - `ui/app.js`:
+      - Menghubungkan dropdown `#booklet-binding` ke logika `btnAutoArrange`: saat mode `rtl` aktif, nomor halaman kiri dan kanan ditukar.
+      - Menambahkan fungsi `updateBookletHint()` yang memperbarui teks bantuan secara dinamis sesuai jumlah total halaman yang ada (contoh: `Hal 1 di Kiri [1|8]` atau `Hal 1 di Kanan [8|1]`).
+      - Menambahkan interaksi intuitif: jika pengguna memfokuskan atau mengganti dropdown arah booklet, mode booklet otomatis diaktifkan.
+      - Menyimpan dan memulihkan preferensi `booklet_binding` ke dalam `config.json`.
+  - **Verifikasi**:
+    - Pengujian WebKitGTK offscreen (`test_booklet_reading_direction.py`) menguji dokumen 8 halaman:
+      - LTR:
+        - Spread 1: `[ Page 8 (Left) | Page 1 (Right) ]`
+        - Spread 2: `[ Page 2 (Left) | Page 7 (Right) ]`
+        - Spread 3: `[ Page 6 (Left) | Page 3 (Right) ]`
+        - Spread 4: `[ Page 4 (Left) | Page 5 (Right) ]`
+      - RTL:
+        - Spread 1: `[ Page 1 (Left) | Page 8 (Right) ]`
+        - Spread 2: `[ Page 7 (Left) | Page 2 (Right) ]`
+        - Spread 3: `[ Page 3 (Left) | Page 6 (Right) ]`
+        - Spread 4: `[ Page 5 (Left) | Page 4 (Right) ]`
+    - Pengujian lokalisasi EN (`test_booklet_en.py`) membuktikan translasi grup, dropdown, dan petunjuk dinamis ("Page 1 on Right [8|1]" & "Page 1 on Left [1|8]") tampil sempurna.
+    - Uji headless `test_overlap.py` pada seluruh 7 tab dan 2 bahasa membuktikan **0 isu benturan/overflow**.
+    - Pemaketan `./package.sh` diperbarui dan checksum MD5 valid.

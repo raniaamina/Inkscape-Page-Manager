@@ -153,6 +153,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const layoutGapUnit = document.getElementById('layout-gap-unit');
     const layoutMoveContent = document.getElementById('layout-move-content');
     const btnAutoArrange = document.getElementById('btn-auto-arrange');
+    const bookletBindingSelect = document.getElementById('booklet-binding');
+    const bookletBindingHint = document.getElementById('booklet-binding-hint');
     let currentLayoutMode = 'grid';
 
     // Margins & Guides
@@ -445,7 +447,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     mode: currentLayoutMode,
                     cols: layoutColsInput ? layoutColsInput.value : 3,
                     gap: layoutGapInput ? layoutGapInput.value : 20,
-                    move_content: layoutMoveContent ? layoutMoveContent.checked : true
+                    move_content: layoutMoveContent ? layoutMoveContent.checked : true,
+                    booklet_binding: bookletBindingSelect ? bookletBindingSelect.value : 'ltr'
                 },
                 master_page: {
                     source: masterSource ? masterSource.value : 'none',
@@ -610,9 +613,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Layout
         if (s.layout) {
+            if (s.layout.mode) {
+                currentLayoutMode = s.layout.mode;
+                layoutOptBtns.forEach(b => {
+                    b.classList.toggle('active', b.dataset.layout === currentLayoutMode);
+                });
+            }
             if (layoutMoveContent && s.layout.move_content !== undefined) {
                 layoutMoveContent.checked = s.layout.move_content;
             }
+            if (bookletBindingSelect && s.layout.booklet_binding) {
+                bookletBindingSelect.value = s.layout.booklet_binding;
+            }
+            updateBookletGroupState();
         }
 
         // Master Page
@@ -810,6 +823,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         syncPageNumberSlotLock();
         updateStatusBarMeta();
+        updateBookletHint();
     }
 
     if (prefUnit) {
@@ -1269,6 +1283,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderSorter();
         renderCanvas();
         updateStatusBarMeta();
+        updateBookletHint();
     }
 
     function renderSorter() {
@@ -1992,11 +2007,50 @@ document.addEventListener('DOMContentLoaded', () => {
     // =========================================================================
     // 6. AUTO-LAYOUT ARRANGE
     // =========================================================================
+    function updateBookletHint() {
+        if (!bookletBindingHint) return;
+        const isRtl = bookletBindingSelect ? bookletBindingSelect.value === 'rtl' : false;
+        const total = Math.max(4, Math.ceil((pages.length || 4) / 4) * 4);
+        if (currentLang === 'en') {
+            bookletBindingHint.textContent = isRtl
+                ? `Page 1 on Left [1|${total}]`
+                : `Page 1 on Right [${total}|1]`;
+        } else {
+            bookletBindingHint.textContent = isRtl
+                ? `Hal 1 di Kiri [1|${total}]`
+                : `Hal 1 di Kanan [${total}|1]`;
+        }
+    }
+
+    function updateBookletGroupState() {
+        const groupBooklet = document.getElementById('group-booklet-options');
+        if (groupBooklet) {
+            const isBooklet = currentLayoutMode === 'booklet';
+            groupBooklet.style.opacity = isBooklet ? '1' : '0.55';
+            groupBooklet.style.transition = 'opacity 0.2s ease';
+        }
+    }
+
+    if (bookletBindingSelect) {
+        bookletBindingSelect.addEventListener('change', () => {
+            updateBookletHint();
+            saveSettingsDebounced();
+        });
+        bookletBindingSelect.addEventListener('focus', () => {
+            if (currentLayoutMode !== 'booklet') {
+                const bBtn = document.getElementById('opt-layout-booklet');
+                if (bBtn) bBtn.click();
+            }
+        });
+    }
+
     layoutOptBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             layoutOptBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentLayoutMode = btn.dataset.layout;
+            updateBookletGroupState();
+            saveSettingsDebounced();
         });
     });
 
@@ -2038,6 +2092,71 @@ document.addEventListener('DOMContentLoaded', () => {
                     curY += leftP.height + gap;
                 }
             }
+        } else if (currentLayoutMode === 'booklet') {
+            // Booklet Imposition (Saddle-stitch / Jilid Tengah - kelipatan 4)
+            const rem = pages.length % 4;
+            if (rem !== 0) {
+                const needed = 4 - rem;
+                const total = pages.length + needed;
+                const confirmMsg = currentLang === 'en'
+                    ? `Booklet imposition requires a multiple of 4 pages (currently ${pages.length}).\n\nAutomatically add ${needed} blank page(s) at the end to make ${total} pages?`
+                    : `Tata letak booklet memerlukan jumlah halaman kelipatan 4 (saat ini ${pages.length} halaman).\n\nTambahkan ${needed} halaman kosong otomatis di akhir agar menjadi ${total} halaman?`;
+                if (!confirm(confirmMsg)) return;
+
+                const baseP = pages[pages.length - 1];
+                const baseW = baseP ? baseP.width : docWidth;
+                const baseH = baseP ? baseP.height : docHeight;
+                const baseOrient = baseW > baseH ? 'landscape' : 'portrait';
+
+                for (let k = 0; k < needed; k++) {
+                    const newPageNum = pages.length + 1;
+                    pages.push({
+                        id: `page_${Date.now()}_${k}`,
+                        label: currentLang === 'en' ? `Page ${newPageNum}` : `Halaman ${newPageNum}`,
+                        x: 0,
+                        y: 0,
+                        width: baseW,
+                        height: baseH,
+                        orientation: baseOrient,
+                        margin: '0',
+                        bleed: '0'
+                    });
+                }
+            }
+
+            const isRtl = bookletBindingSelect ? bookletBindingSelect.value === 'rtl' : false;
+            const total = pages.length;
+            const spreads = total / 2;
+            let curY = 0;
+
+            for (let s = 1; s <= spreads; s++) {
+                // Odd spread (s=1, 3, 5...): Left = total - s + 1, Right = s
+                // Even spread (s=2, 4, 6...): Left = s, Right = total - s + 1
+                let leftNum = (s % 2 === 1) ? (total - s + 1) : s;
+                let rightNum = (s % 2 === 1) ? s : (total - s + 1);
+
+                if (isRtl) {
+                    const tmp = leftNum;
+                    leftNum = rightNum;
+                    rightNum = tmp;
+                }
+
+                const leftP = pages[leftNum - 1];
+                const rightP = pages[rightNum - 1];
+
+                leftP.x = 0;
+                leftP.y = curY;
+
+                rightP.x = leftP.width + gap;
+                rightP.y = curY;
+
+                curY += Math.max(leftP.height, rightP.height) + gap;
+            }
+
+            statusMsg.textContent = currentLang === 'en'
+                ? `Booklet layout applied (${total} pages, ${spreads} spreads, ${isRtl ? 'RTL' : 'LTR'})`
+                : `Tata letak booklet diterapkan (${total} halaman, ${spreads} spread, ${isRtl ? 'RTL' : 'LTR'})`;
+            setTimeout(() => { statusMsg.textContent = currentLang === 'en' ? 'Ready' : 'Siap'; }, 3000);
         } else {
             // Grid Matrix mode
             let colIndex = 0;

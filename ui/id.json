@@ -39,6 +39,7 @@
     "protection": "Proteksi",
     "master_page": "Master Page",
     "content_options": "Opsi Konten",
+    "booklet_options": "Arah Booklet",
     "display_preferences": "Tampilan, Bahasa & Satuan",
     "dialog_engine": "Mesin Dialog",
     "about_help": "Tentang & Bantuan"
@@ -102,7 +103,11 @@
     "facing_pages": "Mode Buku (Ganjil-Genap)",
     "facing_hf": "Tukar Halaman Genap",
     "lock_short": "Kunci",
-    "offset_y_short": "Offset:"
+    "offset_y_short": "Offset:",
+    "booklet_sub": "(Jilid Tengah)",
+    "booklet_start": "Mulai:",
+    "binding_hint_ltr": "Hal 1 di Kanan",
+    "binding_hint_rtl": "Hal 1 di Kiri"
   },
   "buttons": {
     "apply": "Terapkan",
@@ -120,7 +125,8 @@
     "layout_grid": "Grid Matrix",
     "layout_row": "Baris Horizontal",
     "layout_col": "Kolom Vertikal",
-    "layout_spread": "Buku / Spreads"
+    "layout_spread": "Buku / Spreads",
+    "layout_booklet": "Booklet"
   },
   "tooltips": {
     "add_page": "Tambah Halaman Baru (Enter)",
@@ -135,6 +141,11 @@
     "toggle_orient": "Balik Arah (Portrait ↔ Landscape)",
     "auto_arrange": "Tata Ulang Seluruh Halaman Sekarang",
     "link_margins": "Kaitkan semua margin (Sinkron)",
+    "layout_grid": "Susun dalam kotak matriks",
+    "layout_row": "Susun mendatar dalam satu baris",
+    "layout_col": "Susun tegak dalam satu kolom",
+    "layout_spread": "Susun halaman bersebelahan ala buku",
+    "layout_booklet": "Susun halaman dalam pola booklet / imposisi jilid tengah (kelipatan 4)",
     "edit_header": "Sunting teks header multiline / sisipkan tag variabel",
     "edit_footer": "Sunting teks footer multiline / sisipkan tag variabel",
     "clear_logo": "Hapus logo terpilih",
@@ -188,7 +199,9 @@
     "backend_gtk": "GTK+ 3 Native (Linux)",
     "backend_browser": "Browser Standar (Web Mode)",
     "backend_pywebview": "PyWebView Window",
-    "font_custom": "Font Kustom..."
+    "font_custom": "Font Kustom...",
+    "binding_ltr": "Kanan (LTR Standar)",
+    "binding_rtl": "Kiri (RTL / Manga)"
   },
   "about": {
     "title": "Page Manager for Inkscape",

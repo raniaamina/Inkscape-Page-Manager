@@ -39,6 +39,7 @@
     "protection": "Protection",
     "master_page": "Master Page",
     "content_options": "Content Options",
+    "booklet_options": "Booklet Binding",
     "display_preferences": "Display, Language & Units",
     "dialog_engine": "Dialog Engine",
     "about_help": "About & Help"
@@ -100,7 +101,11 @@
     "facing_pages": "Facing Pages (Odd-Even)",
     "facing_hf": "Swap Even Pages",
     "lock_short": "Lock",
-    "offset_y_short": "Offset:"
+    "offset_y_short": "Offset:",
+    "booklet_sub": "(Saddle Stitch)",
+    "booklet_start": "Start:",
+    "binding_hint_ltr": "Page 1 on Right",
+    "binding_hint_rtl": "Page 1 on Left"
   },
   "buttons": {
     "apply": "Apply",
@@ -118,7 +123,8 @@
     "layout_grid": "Grid Matrix",
     "layout_row": "Horizontal Row",
     "layout_col": "Vertical Column",
-    "layout_spread": "Book / Spreads"
+    "layout_spread": "Book / Spreads",
+    "layout_booklet": "Booklet"
   },
   "tooltips": {
     "add_page": "Add New Page (Enter)",
@@ -133,6 +139,11 @@
     "toggle_orient": "Flip Orientation (Portrait ↔ Landscape)",
     "auto_arrange": "Rearrange All Pages Now",
     "link_margins": "Link all margins (Sync)",
+    "layout_grid": "Arrange in matrix grid",
+    "layout_row": "Arrange horizontally in one row",
+    "layout_col": "Arrange vertically in one column",
+    "layout_spread": "Arrange side-by-side as book spreads",
+    "layout_booklet": "Arrange pages in saddle-stitch booklet imposition layout (multiples of 4)",
     "edit_header": "Edit multiline header text / insert variable tags",
     "edit_footer": "Edit multiline footer text / insert variable tags",
     "clear_logo": "Clear selected logo",
@@ -186,7 +197,9 @@
     "backend_gtk": "GTK+ 3 Native (Linux)",
     "backend_browser": "Default Browser (Web Mode)",
     "backend_pywebview": "PyWebView Window",
-    "font_custom": "Custom Font..."
+    "font_custom": "Custom Font...",
+    "binding_ltr": "Right (LTR Standard)",
+    "binding_rtl": "Left (RTL / Manga)"
   },
   "about": {
     "title": "Page Manager for Inkscape",
