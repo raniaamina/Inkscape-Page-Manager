@@ -748,6 +748,20 @@
     - Uji headless WebKitGTK (`test_overlap.py`) membuktikan 0 isu tabrakan/overflow di semua 7 tab dan 2 bahasa.
     - Pemaketan `./package.sh` dijalankan ulang dan checksum MD5 terverifikasi valid.
 
+- **2026-10-29 [STANDARDISASI BAHASA INGGRIS LENGKAP PADA README.MD]**:
+  - **Permintaan Pengguna**:
+    - Memperbarui `README.md` secara menyeluruh menggunakan bahasa Inggris (EN) agar seragam, profesional, dan tidak tercampur bahasa Indonesia.
+  - **Implementasi**:
+    - `README.md`: Menerjemahkan dan menstandarkan seluruh bagian:
+      - Deskripsi pembuka dan arsitektur desktop Ribbon UI.
+      - 7 poin fitur utama: Page List & Sorter, CRUD & Presets, Auto-Layout, Artwork Shift & Master Pages, Margins & Bleed, Smart Page Numbering, Header & Footer, dan Watermarks.
+      - Persyaratan sistem (Linux, Windows, macOS).
+      - Tautan repositori, disclaimer, donasi/dukungan developer, dan lisensi GPLv3.
+  - **Verifikasi**:
+    - Berkas `README.md` dibaca ulang dan diverifikasi bersih 100% berbahasa Inggris konsisten.
+    - Pemaketan `./package.sh` diperbarui dan checksum MD5 valid.
+
+
 
 
 
