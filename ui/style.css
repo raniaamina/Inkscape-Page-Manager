@@ -13,14 +13,14 @@
 
     --border-subtle: #2b2b31;
     --border-strong: #383842;
-    --border-focus: #3b82f6;
+    --border-focus: #b42b6f;
 
     --text-primary: #f4f4f5;
     --text-secondary: #a1a1aa;
     --text-muted: #71717a;
 
-    --accent-blue: #2563eb;
-    --accent-blue-hover: #1d4ed8;
+    --accent-blue: #b42b6f;
+    --accent-blue-hover: #98225c;
     --accent-danger: #dc2626;
     --accent-danger-hover: #b91c1c;
 
@@ -40,14 +40,14 @@ body.theme-light {
 
     --border-subtle: #d0d7de;
     --border-strong: #bbc4ce;
-    --border-focus: #0969da;
+    --border-focus: #b42b6f;
 
     --text-primary: #1f2328;
     --text-secondary: #57606a;
     --text-muted: #8c959f;
 
-    --accent-blue: #0969da;
-    --accent-blue-hover: #085cc0;
+    --accent-blue: #b42b6f;
+    --accent-blue-hover: #98225c;
 }
 
 * {
@@ -201,6 +201,21 @@ body, html {
     padding: 1px;
     gap: 1px;
     flex-shrink: 0;
+    width: auto;
+}
+
+#wrap-hf-slots-header,
+#wrap-hf-slots-footer {
+    display: flex;
+    gap: 4px;
+    width: 100%;
+}
+
+#wrap-hf-slots-header input,
+#wrap-hf-slots-footer input {
+    width: 78px;
+    min-width: 65px;
+    box-sizing: border-box;
 }
 
 .btn-segmented {
@@ -243,10 +258,13 @@ body, html {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 0 8px 3px 8px;
+    padding: 0 10px 3px 10px;
     border-right: 1px solid var(--border-subtle);
     position: relative;
     flex-shrink: 0;
+    width: max-content;
+    min-width: max-content;
+    box-sizing: border-box;
 }
 
 .ribbon-group:last-child {
@@ -256,8 +274,10 @@ body, html {
 .group-body {
     display: flex;
     align-items: center;
-    gap: 7px;
+    gap: 8px;
     height: 48px;
+    width: max-content;
+    box-sizing: border-box;
 }
 
 .group-label {
@@ -268,6 +288,7 @@ body, html {
     letter-spacing: 0.5px;
     padding-top: 2px;
     border-top: 1px solid rgba(255, 255, 255, 0.03);
+    white-space: nowrap;
 }
 
 .group-form-col {
@@ -275,6 +296,9 @@ body, html {
     flex-direction: column;
     gap: 5px;
     justify-content: center;
+    width: max-content;
+    min-width: max-content;
+    box-sizing: border-box;
 }
 
 .form-row {
@@ -282,6 +306,8 @@ body, html {
     align-items: center;
     gap: 6px;
     width: 100%;
+    box-sizing: border-box;
+    white-space: nowrap;
 }
 
 .form-label {
@@ -328,7 +354,7 @@ body, html {
 }
 
 #btn-link-margins.active {
-    background-color: #1e3a8a;
+    background-color: #701a44;
     border-color: var(--accent-blue);
     color: #ffffff;
 }
@@ -402,7 +428,7 @@ body, html {
 }
 
 .ribbon-icon-btn.btn-accent {
-    background-color: #1e3a8a;
+    background-color: #701a44;
     border-color: var(--accent-blue);
     color: #ffffff;
 }
@@ -475,7 +501,7 @@ body, html {
 }
 
 .ribbon-opt-btn.active {
-    background-color: #1e3a8a;
+    background-color: #701a44;
     border-color: var(--accent-blue);
     color: #ffffff;
     font-weight: 600;
@@ -1002,7 +1028,7 @@ select.form-select optgroup {
 }
 
 .svg-guide-line {
-    stroke: #3b82f6;
+    stroke: #b42b6f;
     stroke-width: 0.8px;
     stroke-dasharray: 4, 3;
     opacity: 0.7;
@@ -1110,7 +1136,8 @@ select.form-select optgroup {
 }
 
 .modal-about-dialog {
-    width: 580px;
+    width: 480px;
+    max-width: 90vw;
 }
 
 .modal-header {

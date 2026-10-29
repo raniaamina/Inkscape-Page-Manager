@@ -1,8 +1,16 @@
+<p align="center">
+  <img src="inkpageman.svg" alt="Page Manager for Inkscape" width="320">
+</p>
+
 # Page Manager for Inkscape
 
-Sebuah ekstensi canggih untuk mengelola dokumen multi-halaman di Inkscape (versi 1.2+) secara visual, interaktif, dan realtime.
+Ekstensi manajeman halaman Inkscape untuk meningkatkan fungsionalitas fitur Halaman. Dibuat untuk memudahkan pengguna mengelola dan menyusun banyak halaman sekaligus secara cepat dan praktis, termasuk memberikan penomoran halaman, watermark, serta penataan layout margin.
 
 Dibangun dengan arsitektur **Python Backend + Web-based GUI (WebKit2Gtk / Native Window / App-mode Browser)** dengan desain **antarmuka menu yang intuitif, visual, dan modern** ala software produktivitas desktop profesional.
+
+<p align="center">
+  <img src="screenshoot.png" alt="Tangkapan Layar Page Manager" width="100%">
+</p>
 
 ---
 

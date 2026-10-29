@@ -385,7 +385,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 master_page: {
                     source: masterSource ? masterSource.value : 'none',
-                    target: masterTarget ? masterTarget.value : 'all_except_first'
+                    target: masterTarget ? masterTarget.value : 'all_except_first',
+                    selected_pages: Array.from(selectedPageIds)
                 },
                 app_prefs: {
                     language: prefLanguage ? prefLanguage.value : 'id',
@@ -672,54 +673,45 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+        const formatText = (val) => {
+            if (typeof val !== 'string') return val;
+            return val.replace(/\{unit\}/g, docUnit || 'mm');
+        };
+
         // 2. Elements with data-i18n
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const path = el.getAttribute('data-i18n');
             const val = getNestedValue(dict, path);
-            if (val !== undefined) el.textContent = val;
+            if (val !== undefined) el.textContent = formatText(val);
         });
 
         // 3. Optgroup labels
         document.querySelectorAll('[data-i18n-label]').forEach(el => {
             const path = el.getAttribute('data-i18n-label');
             const val = getNestedValue(dict, path);
-            if (val !== undefined) el.label = val;
+            if (val !== undefined) el.label = formatText(val);
         });
 
         // 4. Placeholders
         document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
             const path = el.getAttribute('data-i18n-placeholder');
             const val = getNestedValue(dict, path);
-            if (val !== undefined) el.placeholder = val;
+            if (val !== undefined) el.placeholder = formatText(val);
         });
 
         // 5. Tooltips
         document.querySelectorAll('[data-i18n-tooltip]').forEach(el => {
             const path = el.getAttribute('data-i18n-tooltip');
             const val = getNestedValue(dict, path);
-            if (val !== undefined) el.setAttribute('data-tooltip', val);
+            if (val !== undefined) el.setAttribute('data-tooltip', formatText(val));
         });
 
         // 6. Titles
         document.querySelectorAll('[data-i18n-title]').forEach(el => {
             const path = el.getAttribute('data-i18n-title');
             const val = getNestedValue(dict, path);
-            if (val !== undefined) el.title = val;
+            if (val !== undefined) el.title = formatText(val);
         });
-
-        // 7. Modals: Features & Shortcuts in About Modal
-        if (dict.about && dict.about.features) {
-            const featList = document.getElementById('about-features-list');
-            if (featList && Array.isArray(dict.about.features)) {
-                featList.innerHTML = dict.about.features.map(f => `<li>${f}</li>`).join('');
-            }
-        }
-        if (dict.about && dict.about.shortcuts) {
-            const scList = document.getElementById('about-shortcuts-list');
-            if (scList && Array.isArray(dict.about.shortcuts)) {
-                scList.innerHTML = dict.about.shortcuts.map(s => `<li>${s}</li>`).join('');
-            }
-        }
 
         // 8. Buttons & Dynamic labels
         if (btnApply && dict.buttons && dict.buttons.apply_close) {
@@ -1307,10 +1299,22 @@ document.addEventListener('DOMContentLoaded', () => {
             badgeText.setAttribute('x', p.x + 6);
             badgeText.setAttribute('y', p.y - 6);
             const isMasterPage = masterSource && masterSource.value === p.id;
+            const targetMode = masterTarget ? masterTarget.value : 'all_except_first';
+            let receivesMaster = false;
+            if (masterSource && masterSource.value !== 'none' && !isMasterPage) {
+                if (targetMode === 'all') receivesMaster = true;
+                else if (targetMode === 'all_except_first' && idx > 0) receivesMaster = true;
+                else if (targetMode === 'even' && idx % 2 === 1) receivesMaster = true;
+                else if (targetMode === 'odd' && idx % 2 === 0) receivesMaster = true;
+                else if (targetMode === 'selected' && selectedPageIds.has(p.id)) receivesMaster = true;
+            }
             if (isMasterPage) {
                 badgeText.textContent = `#${idx + 1} (${p.label || `Page ${idx + 1}`}) ★ MASTER`;
-                badgeText.setAttribute('fill', '#3b82f6');
+                badgeText.setAttribute('fill', '#b42b6f');
                 badgeText.setAttribute('font-weight', '700');
+            } else if (receivesMaster) {
+                badgeText.textContent = `#${idx + 1} (${p.label || `Page ${idx + 1}`}) [Master]`;
+                badgeText.setAttribute('fill', '#d84e93');
             } else {
                 badgeText.textContent = `#${idx + 1} (${p.label || `Page ${idx + 1}`})`;
             }
@@ -1870,16 +1874,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 curY += p.height + gap;
             });
         } else if (currentLayoutMode === 'spread') {
-            // Book spreads (Page 1 right, Page 2-3 pair, 4-5 pair...)
+            // Book spreads (2 halaman bersandingan per baris, mulai Page 1 di x=0)
             let curY = 0;
-            if (pages.length > 0) {
-                // Page 1 on the right
-                const p1 = pages[0];
-                p1.x = p1.width + gap;
-                p1.y = curY;
-                curY += p1.height + gap;
-            }
-            for (let i = 1; i < pages.length; i += 2) {
+            for (let i = 0; i < pages.length; i += 2) {
                 const leftP = pages[i];
                 const rightP = pages[i + 1];
                 leftP.x = 0;
@@ -2200,7 +2197,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     },
                     master_page: {
                         source: masterSource ? masterSource.value : 'none',
-                        target: masterTarget ? masterTarget.value : 'all_except_first'
+                        target: masterTarget ? masterTarget.value : 'all_except_first',
+                        selected_pages: Array.from(selectedPageIds)
                     }
                 }
             };

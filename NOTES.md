@@ -489,3 +489,267 @@
       - Facing pages cermin nomor halaman dan header/footer terpasang sempurna.
     - Render visual headless WebKit2GTK offscreen 1150px mengonfirmasi seluruh 7 tab tampil rapi, solid, rata kanan-kiri, dan tanpa clipping.
     - Pemaketan `./package.sh` berhasil dan checksum `md5sum -c ink-pageman.zip.md5` terverifikasi `OK`.
+
+- **2026-10-29 [PERBAIKAN TOTAL: PAGE TIDAK TERKUNCI, RESCUE ARTWORK SISTEM, & ELIMINASI TABRAKAN UI HEADER/FOOTER]**:
+  - **Identifikasi Masalah & Laporan Pengguna**:
+    1. Pengguna melaporkan: *"btw, page jangan ikutan di lock dong, jadi ga bisa diisi dalamnya, yang di lock itu konten generatednya, header, footer, page number, watermark, dll"*.
+       - *Penyebab Root*: Atribut `sodipodi:insensitive="true"` sebelumnya dipasang langsung pada node layer (`<g inkscape:groupmode="layer">`). Akibatnya, seluruh layer di Inkscape tergembok total, dan jika layer tersebut aktif atau menutupi halaman, pengguna tidak dapat menggambar atau mengisi objek di dalam halaman.
+    2. Pengguna mengirim screenshot dengan kotak merah: *"nabrak ini ui-nya"* pada grup **Garis Pembatas** dan **Pengecualian**:
+       - *Penyebab Root*: Di Bahasa Indonesia, label `Tebal (pt):` dan `Margin X (mm):` membutuhkan lebar 220px, tetapi kontainer dipatok `180px` sehingga input `[ 10 ]` menabrak border vertikal kanan. Ditambah lagi teks `Lewati Halaman 1 (Cover)` dan `Tukar Kiri/Kanan Genap` meluber keluar melewati batas kanan jendela 1150px (total lebar mencapai 1270px).
+  - **Solusi & Implementasi**:
+    1. **Pemisahan Penguncian Elemen Mandiri (Halaman & Layer Tetap 100% Bebas/Terbuka)**:
+       - Menghapus pemasangan `sodipodi:insensitive="true"` dari seluruh node layer (`layer_page_numbers`, `layer_header_footer`, `layer_watermark`, `layer_master_page`, `layer1`). Seluruh layer kini selalu dalam keadaan **TERBUKA (UNLOCKED)**.
+       - Atribut gembok `sodipodi:insensitive="true"` **hanya** dipasang pada elemen grafis individual buatan sistem (`<text>`, `<image>`, `<path>` pembatas, `<use>` master page) jika opsi kunci diaktifkan.
+       - Setiap elemen buatan ekstensi ditandai secara presisi dengan `data-pageman-gen="true"` dan `class="ink-pageman-gen"`.
+    2. **Penyelamatan Artwork Pengguna (*Safe Layer Rescue*)**:
+       - Pada fungsi `safe_clean_layer()`, sistem hanya membersihkan elemen ber-tag `data-pageman-gen="true"`.
+       - Jika terdapat objek buatan pengguna (misalnya kotak, path, atau teks yang digambar pengguna saat layer sistem sempat aktif), sistem otomatis menyelamatkan dan memindahkannya (*rescue*) ke `Layer 1` (Artwork Utama), sehingga tidak akan pernah ada artwork yang musnah saat apply.
+       - Di akhir `apply_changes()`, atribut `inkscape:current-layer` selalu dikembalikan secara eksplisit ke `layer1`.
+       - Jendela dialog Linux GTK disetel `window.set_modal(True)` dan `window.set_keep_above(True)`.
+    3. **Eliminasi Tabrakan & Penyelarasan Presisi Ribbon Header & Footer**:
+       - Di `ui/id.json` dan `ui/en.json`: merampingkan label menjadi `"thickness": "Tbl (pt):"`, `"margin_x": "Margin (mm):"`, `"skip_cover": "Lewati Cover"` / `"Skip Cover"`, dan `"facing_hf": "Tukar Kiri/Kanan (Genap)"`.
+       - Menyesuaikan lebar kontainer form secara matematis:
+         - `Teks & Posisi`: `width: 245px;` (label ringkas `Offset:` menghasilkan sisa jeda lega 54px di baris 1, dan 3 slot input 79px di baris 2).
+         - `Logo & Gambar`: `width: 175px;` (dropdown 74px, tombol logo lega).
+         - `Tipografi & Warna`: `width: 165px;`.
+         - `Garis Pembatas`: `width: 195px;` (baris kedua `Tbl (pt): [ 0,5 ]` dan `Margin (mm): [ 10 ]` kini memiliki buffer aman 15px dari border kanan, 100% bebas tabrakan!).
+         - `Pengecualian & Proteksi`: `width: 155px;` (seluruh teks checkbox muat sempurna tanpa terpotong).
+       - Total lebar seluruh grup adalah **1145px** di dalam batas jendela **1150px**, dengan DOM `scrollWidth: 1150` dan `containerWidth: 1150` (tanpa horizontal scrollbar).
+  - **Verifikasi**:
+    1. Pengujian integrasi otomatis Python lolos 100%:
+       - Seluruh layer SVG terverifikasi `locked=False`.
+       - Elemen buatan sistem terverifikasi `sodipodi:insensitive="true"`.
+       - Objek pengguna `accidental_user_rect` berhasil diselamatkan ke `layer1`.
+       - Atribut `inkscape:current-layer` terverifikasi `layer1`.
+    2. Render visual offscreen WebKit2GTK (`header_footer_id_verified3_crop.png` dan `header_footer_en_verified_crop.png`) mengonfirmasi tampilan rapi, proporsional, dan 0 tabrakan di Bahasa Indonesia dan Inggris.
+    3. Validasi sintaks `node -c ui/app.js` dan kompilasi Python `python3 -m py_compile ink-pageman.py` lolos tanpa error.
+    4. Pemaketan rilis `./package.sh` berhasil dan checksum `md5sum -c ink-pageman.zip.md5` valid (`OK`).
+
+- **2026-10-29 [PERBAIKAN PERPINDAHAN ARTWORK REARRANGE & PENYEMPURNAAN TAB HEADER & FOOTER]**:
+  - **Identifikasi Masalah**:
+    1. Pengguna melaporkan bahwa saat halaman di-rearrange atau ekstensi di-apply, halaman yang memiliki konten tampak blank/kembali kosong.
+       - *Penyebab Root*: Keterbatasan `bounding_box()` inkex pada tipe elemen tertentu (misalnya `TextElement` yang menghitung bounding box ke titik `(0, 0)` saat tspan tidak memiliki x/y eksplisit sehingga anchor `cx` meleset ke halaman lain) dan elemen di dalam sublayer tidak terkumpul secara individual melainkan sebagai satu sublayer utuh.
+    2. Tab Header & Footer sebelumnya memiliki potensi scrollbar jika dipecah terpisah. Desain yang tepat adalah menggunakan segmented toggle `[ Header | Footer ]` dalam satu kolom `TEXT & POSITION` terpadu dengan proporsi ruang yang leluasa (`Offset Y (mm): [ 12 ]` dan slot input teks).
+    3. Peringatan console Inkscape `Unimplemented style property 399` muncul karena atribut CSS `pointer-events: none` yang tidak dikenali mesin render SVG Inkscape.
+  - **Solusi & Implementasi**:
+    1. **Robust Element Center & Recursive Graphic Collection (`ink-pageman.py`)**:
+       - Mengimplementasikan `_get_element_center(elem)` yang secara cerdas mendeteksi koordinat tengah objek SVG:
+         - Untuk `TextElement`: menghitung koordinat asli `x, y` dari atribut teks dan mengalikannya dengan `elem.transform` sehingga posisi teks tidak pernah meleset.
+         - Untuk shapes (`Rectangle`, `Circle`, `Ellipse`, `Line`, `Image`, `Use`): fallback berlapis dari `bounding_box()`, `(cx, cy)`, hingga bounding box atribut geometri asli dengan matriks transform.
+       - Mengimplementasikan `_collect_graphic_elements(node, ignored_layer_ids)` secara rekursif sehingga seluruh elemen grafis di dalam layer dan sublayer terdalam terkumpul satu per satu tanpa salah memindahkan satu layer utuh lintas halaman.
+       - Master Page cloning juga mengadopsi `_collect_graphic_elements` dan `_get_element_center` agar seluruh jenis elemen artwork di halaman master terkloning secara presisi.
+    2. **Penyempurnaan Tab Header & Footer (`ui/index.html`)**:
+       - Menyesuaikan lebar kolom `Teks & Posisi` menjadi `260px` dengan label `Offset Y (mm):` yang jelas dan nyaman.
+       - Menyesuaikan lebar grup pendamping: `Logo & Gambar` (195px), `Tipografi & Warna` (175px), `Garis Pembatas` (180px), dan `Pengecualian & Proteksi` (175px).
+       - Total lebar tab Header & Footer adalah 1040px, pas dan sangat lega di dalam resolusi default 1150px tanpa ada scrollbar horizontal dan tanpa elemen bertabrakan.
+    3. **Eliminasi Warning CSS Inkscape**:
+       - Menghapus seluruh penugasan `pointer-events: none` pada elemen SVG, dan mengandalkan `sodipodi:insensitive="true"` native Inkscape untuk penguncian objek proteksi non-destruktif.
+  - **Verifikasi**:
+    1. Uji skrip otomatis pergeseran artwork multi-elemen (`Rectangle`, `Circle`, `TextElement`, `PathElement`, sublayer `Rectangle`) saat halaman berpindah dari $(233.94, 0)$ ke $(0, 320)$ terbukti berhasil 100%: seluruh elemen mendapatkan `translate(-233.945, 320)` dan elemen di halaman lain tidak terpengaruh (`transform: None`).
+    2. Uji render visual offscreen headless WebKit2GTK pada resolusi 1150px mengonfirmasi tab Header & Footer tampil solid, rapi, proporsional, dan 100% bebas dari scrollbar horizontal.
+    3. Validasi sintaks `node -c ui/app.js` dan kompilasi Python `python3 -m py_compile ink-pageman.py` lolos tanpa error.
+    4. Pemaketan `./package.sh` berhasil dan checksum `md5sum -c ink-pageman.zip.md5` terverifikasi `OK`.
+
+- **2026-10-29 [EKSEKUSI PENUH & INTEGRASI TOTAL: LAYER RESCUE & MIGRATION SYSTEM]**:
+  - **Identifikasi Masalah & Latar Belakang**:
+    1. Pengguna menginstruksikan: *"sekalian juga eksekusi perbaikan layer migration"*.
+    2. Sebelumnya, proses pembersihan elemen buatan sistem dan penyelamatan artwork pengguna hanya dieksekusi secara lokal di dalam fungsi `get_or_create_layer()`.
+    3. Ini menyebabkan kelemahan kritis:
+       - **Timing Issue**: Jika pengguna menggambar artwork di atas salah satu layer sistem (`layer_watermark`, `layer_header_footer`, dll.) dan kemudian mengubah posisi/rearrange halaman (misal memindahkan Halaman 2 ke baris baru), artwork tersebut baru diselamatkan *setelah* logika pergeseran artwork (`page_shifts`) selesai berjalan. Akibatnya, artwork tersebut tertinggal di posisi lama dan tidak ikut bergeser bersama halamannya.
+       - **Disabled Features Issue**: Jika suatu fitur dinonaktifkan (misal Watermark dimatikan / tidak dicentang), layer sistem yang sudah ada sebelumnya tidak diproses oleh `get_or_create_layer()`, sehingga artwork pengguna yang terjebak di dalamnya tidak terselamatkan.
+       - **Legacy Elements**: Elemen yang digenerate oleh versi ekstensi lama (sebelum penambahan `data-pageman-gen`) belum memiliki atribut pendeteksi spesifik.
+  - **Solusi & Implementasi Komprehensif (`ink-pageman.py`)**:
+    1. **Pre-Migration Sweep di Tahap Awal (Step 0)**:
+       - Memindahkan seluruh inisialisasi layer helper (`get_main_artwork_layer`, `is_extension_generated`, `safe_clean_layer`) ke **Step 0** sebelum `page_shifts` / pergeseran halaman berjalan.
+       - Melakukan penyisiran aktif (*pre-migration sweep*) pada seluruh layer sistem (`layer_page_numbers`, `layer_header_footer`, `layer_watermark`, `layer_master_page`):
+         - Setiap elemen buatan pengguna (shapes, paths, text, images, groups) langsung dipindahkan (*rescued*) ke `Layer 1` (Artwork Utama).
+         - Atribut gembok `sodipodi:insensitive` pada elemen yang diselamatkan langsung dibersihkan agar dapat diedit secara normal.
+       - Dengan demikian, saat logika `move_content` berjalan di Step 1, seluruh elemen yang diselamatkan sudah berada di `Layer 1` dan **otomatis ikut bergeser secara presisi mengikuti pergerakan halamannya**!
+    2. **Pendeteksian Cerdas Elemen Sistem vs Artwork Pengguna (`is_extension_generated`)**:
+       - Memeriksa atribut `data-pageman-gen="true"` dan kelas `ink-pageman-gen`.
+       - Memeriksa prefix ID sistem (`pn_`, `hf_`, `wm_`, `pageman_`, `master_page_`).
+       - Memeriksa link template master page (`#master_page_template`).
+       - Mendeteksi elemen legacy sistem: elemen `<text>` di `layer_page_numbers` dan `<use>` di `layer_master_page` dikenali sebagai item sistem yang dibersihkan, sedangkan bentuk grafis (`rect`, `circle`, `path`, `g`, dll.) 100% dipastikan sebagai artwork pengguna yang diselamatkan.
+    3. **Pembersihan Bersih saat Fitur Dinonaktifkan**:
+       - Ketika suatu fitur dinonaktifkan (misalnya Watermark atau Header/Footer), layer sistem tersebut dibersihkan dari seluruh elemen buatan sistem dan dihapus dari dokumen secara rapi, tanpa ada artwork pengguna yang hilang.
+    4. **Jaminan Dokumen Bebas Gembok & Active Layer Siap Pakai**:
+       - Di akhir `apply_changes()`, seluruh layer di dokumen SVG disisir untuk memastikan tidak ada tag layer (`<g inkscape:groupmode="layer">`) yang memiliki `sodipodi:insensitive`.
+       - Atribut `inkscape:current-layer` selalu diarahkan kembali ke `layer1` sehingga kanvas Inkscape langsung aktif dan siap digambar.
+  - **Verifikasi**:
+    1. **Uji Kasus 1 (Pergeseran Artwork Rescued saat Rearrange)**:
+       - Kotak buatan pengguna `accidental_rect_on_wm` di Halaman 2 yang sengaja ditaruh di `layer_watermark` terbukti berhasil diselamatkan ke `layer1` DAN otomatis berpindah koordinat dengan transform `translate(-220, 320)` mengikuti Halaman 2.
+    2. **Uji Kasus 2 (Multi-Layer Rescue & Disabled Cleanup)**:
+       - Circle di `layer_page_numbers`, path di `layer_header_footer`, dan rect di `layer_watermark` semuanya berhasil diselamatkan ke `layer1`.
+       - Layer sistem yang dinonaktifkan terbukti terhapus bersih dari dokumen.
+       - Teks nomor halaman versi legacy tidak terduplikasi ke `layer1`.
+    3. Validasi sintaks `python3 -m py_compile ink-pageman.py` lolos tanpa error.
+    4. Pemaketan rilis `./package.sh` diperbarui dan checksum `md5sum -c ink-pageman.zip.md5` terverifikasi `OK`.
+
+
+- **2026-10-29 [PERBAIKAN SINKRONISASI TATA LETAK SPREADS & VIEWBOX DOKUMEN]**:
+  - **Identifikasi Masalah**:
+    - Pengguna melaporkan *"ada yang mleset"* pada tangkapan layar setelah menerapkan mode tata letak **Buku / Spreads**.
+    - Di tangkapan layar, Halaman 1 tampak kosong di posisi kiri `(0, 0)`, sedangkan artwork kotak abu-abu Halaman 1 melayang sendirian di sebelah kanan `(230, 0)` tanpa halaman di belakangnya. Halaman 2–7 berpasangan rapi.
+    - *Penyebab Teknis*:
+      1. Di `ui/app.js`, mode Spreads sebelumnya menggeser Halaman 1 ke kanan secara manual (`p1.x = p1.width + gap = 230`).
+      2. Inkscape GUI (1.2–1.4) mengunci halaman pertama dokumen (`Page 1`) ke origin kanvas dokumen `(0, 0)`. Memindahkan Page 1 ke `x = 230` merusak rendering kanvas Inkscape dan ekspor PDF karena Page 1 tetap digambar di `(0, 0)`, sementara artworknya dipindah ke `x = 230`.
+      3. Tag root `<svg viewBox="...">` sebelumnya tidak disinkronkan saat menerapkan perubahan halaman.
+  - **Solusi & Implementasi**:
+    1. **Spreads Rapi 2-by-2 Mulai dari `(0, 0)` (`ui/app.js`)**:
+       - Mengubah algoritma Spreads agar menyusun halaman berpasangan dua-dua mulai dari `pages[0]` di `x = 0, y = 0`, `pages[1]` di `x = p1.width + gap, y = 0`, `pages[2]` di `x = 0, y = curY`, dan seterusnya.
+       - Dengan demikian, Halaman 1 selalu berada pada origin alami dokumen `(0, 0)`, bebas dari desinkronisasi visual di Inkscape.
+    2. **Sinkronisasi Otomatis `viewBox` Root SVG (`ink-pageman.py`)**:
+       - Di `apply_changes()`, atribut `<svg viewBox="...">`, `width`, dan `height` selalu disinkronkan secara presisi dengan ukuran Halaman 1 (`p1_w`, `p1_h`).
+  - **Verifikasi**:
+    1. Pengujian integrasi otomatis Python pada 7 halaman mode Spread:
+       - Halaman 1 terverifikasi di `(0.0, 0.0)` dan artwork `rect1` tetap di tempatnya (`transform: None`).
+       - Root `viewBox` terverifikasi `0 0 210.0 297.0`.
+       - Ekspor PDF dan render multi-halaman Inkscape 1.4 terverifikasi 100% utuh tanpa elemen mengambang.
+    2. Validasi sintaks Python `py_compile` dan JavaScript `node -c` lolos tanpa error.
+    3. Pemaketan rilis `./package.sh` sukses dan checksum MD5 valid.
+
+
+- **2026-10-29 [PERBAIKAN TUNTAS: UI OFFSIDE, KEBOCORAN {unit}, & MASTER PAGE LIVE CLONES]**:
+  - **Identifikasi & Penyebab Masalah**:
+    1. **UI Offside / Terpotong**:
+       - Pada tab Header & Footer, lebar tiap kolom (`group-form-col`) sebelumnya berukuran fixed terlalu lebar (`width: 245px`, `195px`, dll.) sehingga total lebar ribbon mencapai ~1100px.
+       - Jika jendela berada di bawah ~1100px, blok di sebelah kanan (`Pengecualian & Proteksi`) terdorong keluar layar (*clipped*).
+       - Di dalam blok `Logo & Gambar`, `<select>` posisi berukuran 74px memotong teks `"Hdr Tengah"` menjadi `"Hdr Tenç..."`.
+       - Di blok `Garis Pembatas`, kombinasi teks label `"Tbl (pt):"` dan `"Margin (mm):"` memakan ruang sehingga input `[ 10 ]` menabrak border kanan.
+    2. **Kebocoran String `{unit}` ke UI**:
+       - Pada file translasi (`id.json` & `en.json`), terdapat placeholder mentah seperti `"gap": "Gap ({unit}):"` dan `"bleed": "Bleed ({unit}):"`.
+       - Fungsi `applyTranslations()` di `app.js` langsung menyalin string mentah tersebut ke elemen DOM tanpa regex replace `{unit}` menjadi unit dokumen (`mm`).
+    3. **Mekanisme Master Page**:
+       - Sebelumnya, objek di halaman master disalin mati (`copy.deepcopy()`) ke dalam `<defs id="master_page_template">`.
+       - Akibatnya, ketika pengguna mengubah objek di halaman master (warna, bentuk, teks), objek di halaman lain tidak ikut ter-update.
+  - **Solusi & Implementasi**:
+    1. **Penataan Ulang Ribbon Header & Footer Bebas Offside**:
+       - Merampingkan lebar form: Teks & Posisi (`215px`), Logo & Gambar (`155px`), Tipografi & Warna (`145px`), Garis Pembatas (`155px`), Pengecualian & Proteksi (`140px`).
+       - Memperlebar select posisi logo menjadi `76px` dan menggunakan singkatan profesional `"Hdr Tgh"` / `"Ftr Tgh"` sehingga pas dan tidak terpotong.
+       - Merampingkan label menjadi `"L:"`, `"T:"`, `"Tbl:"`, `"Mgn:"` dengan pembagian `flex: 1` simetris.
+       - Total lebar seluruh grup turun menjadi **1030px** (aman di jendela 1050px–1150px tanpa ada elemen yang terdorong keluar).
+    2. **Eliminasi Total Kebocoran `{unit}`**:
+       - Menghapus string `{unit}` mentah dari key translasi `id.json` dan `en.json`.
+       - Menambahkan fungsi pembantu `formatText()` dengan regex replace `val.replace(/\{unit\}/g, docUnit || 'mm')` di `applyTranslations()`.
+       - Verifikasi DOM scan: **0 kebocoran `{unit}`**.
+    3. **Master Page Mode Live Clone Inkscape (`<use href="#id">`)**:
+       - Menghapus pembuatan template tiruan di `<defs>`.
+       - Master Page kini mengambil ID elemen asli di halaman master dan membuat Inkscape Native Clone `<use href="#{eid}">` dengan pergeseran `Transform(translate=(dx, dy))`.
+       - Karena clone menaut langsung ke ID objek asli di kanvas Inkscape, **setiap perubahan pada objek di halaman master (warna, bentuk path, teks, ukuran) akan langsung ter-update secara otomatis di semua halaman target**!
+  - **Verifikasi**:
+    - Uji WebKitGTK offscreen: Header & Footer muat sempurna di 1030px tanpa scrollbar dan tanpa teks terpotong.
+    - Uji DOM search: 0 string `{unit}` ditemukan.
+    - Uji integrasi Python: Live `<use>` clone terverifikasi 100% menaut ke `#rect1` dengan koordinat translate yang tepat.
+    - Kompilasi `py_compile` dan `node -c` sukses.
+    - Paket rilis `./package.sh` diperbarui dan checksum MD5 valid.
+
+
+- **2026-10-29 [PERBAIKAN FUNDAMENTAL: SISTEM TAMPILAN ADAPTIF & RESPONSIF MURNI (ELIMINASI TOTAL TABRAKAN KONTROL RIBBON)]**:
+  - **Masalah & Gejala**:
+    - Terjadi tabrakan (overlap/collision) visual yang berulang pada Ribbon Toolbar (khususnya tab Header & Footer):
+      1. Teks dan input `GARIS PEMBATAS` (`Tbl: [ 0,5 ]`) tertumpuk langsung di atas input `TIPOGRAFI & WARNA` (`Ukuran (pt): [ 9 ]`).
+      2. Tombol `Footer` pada kontrol segmented menabrak dan menempel rapat pada label `Offset: [12]`.
+      3. Tiga kotak slot input teks Header/Footer terhimpit dan placeholder `[No. Hal]` terpotong oleh batas grup.
+  - **Investigasi & Akar Masalah (Root Cause)**:
+    - Selama ini perbaikan hanya bersifat "tambal sulam" dengan mematok angka piksel manual inline (`style="width: 145px;"`, `style="width: 215px;"`, dsb) pada elemen `.group-form-col` di HTML.
+    - Ketika kontrol di dalamnya (label translasi bahasa, color picker, input angka) memerlukan ruang alami lebih lebar (misal row 2 Tipografi & Warna butuh 178px namun dibatasi 145px), konten meluap (*overflow*) keluar dari batas koordinat grup.
+    - Karena CSS default-nya `overflow: visible`, konten yang meluap itu mencuat keluar garis pembatas (`border-right`) dan menabrak elemen di blok sebelah kanan.
+    - Pendekatan hardcoded pixel width ini rentan rusak saat ukuran font sistem GTK/Pango/Freetype berbeda atau saat berpindah bahasa ID ↔ EN.
+  - **Solusi Permanen & Arsitektur Responsif-Adaptif Murni**:
+    1. **Eliminasi 21 Atribut Fixed Width Inline**:
+       - Menghapus seluruh 21 atribut inline `style="width: ...px"` pada `.group-form-col` di seluruh panel `ui/index.html`.
+       - Menghapus inline `style="width: 82px;"` pada `.segmented-control` yang sebelumnya mencekik tombol "Header" dan "Footer".
+    2. **Layout Konten Fleksibel Dinamis (`width: max-content`)**:
+       - `.ribbon-group`: Dikonfigurasi dengan `width: max-content; min-width: max-content; flex-shrink: 0; box-sizing: border-box; padding: 0 10px 3px 10px;`.
+       - `.group-body`: `width: max-content; box-sizing: border-box; gap: 8px;`.
+       - `.group-form-col`: `width: max-content; min-width: max-content; box-sizing: border-box;`.
+       - `.form-row`: `width: 100%; white-space: nowrap; box-sizing: border-box; gap: 6px;`.
+       - `.segmented-control`: Menjadi `width: auto; display: inline-flex; gap: 1px;` sehingga tombol Header/Footer membesar sesuai teksnya secara natural.
+       - Slot input Header/Footer: Diberikan ukuran proporsional `width: 78px; min-width: 65px;` sehingga tiga slot terbentang rapi tanpa terhimpit atau terpotong.
+    3. **Ketahanan Scrolling Horizontal Terhadap Perubahan Resolusi Jendela**:
+       - Kontainer `.ribbon-content` dengan `overflow-x: auto` dan pendengar mouse wheel di `ui/app.js` memastikan bahwa jika ukuran jendela diperkecil, toolbar dapat digulir horizontal dengan mulus tanpa pernah terjadi tabrakan atau distorsi elemen antar grup.
+  - **Verifikasi Mendalam (Deep Verification)**:
+    - Pengujian otomatis headless WebKitGTK (`scratch/test_overlap.py`):
+      - Memeriksa batas koordinat (`getBoundingClientRect()`) seluruh grup dan elemen anak in-flow.
+      - Hasil pengujian pada 7 tab (`pages`, `layout`, `margins`, `numbers`, `headerfooter`, `watermark`, `settings`) dalam 2 bahasa (`id` dan `en`):
+        - **Total Group Overlap: 0**
+        - **Total Child Bleed: 0**
+    - Verifikasi visual: Pengambilan tangkapan layar WebKitGTK offscreen membuktikan semua teks, tombol, dan kotak isian berada di dalam batas grup masing-masing dengan padding dan margin yang lega dan presisi.
+    - Pengemasan rilis `./package.sh` diperbarui dan checksum MD5 valid.
+
+- **2026-10-29 [PENYEMPURNAAN LABEL OPSI POSISI LOGO / GAMBAR]**:
+  - **Permintaan Pengguna**:
+    - Mengubah opsi posisi gambar/logo dari singkatan `Hdr/Ftr` (`Ftr Kiri`, `Ftr Tgh`, `Hdr Kanan`, dll) menjadi deskriptif yang jelas sesuai urutan:
+      1. Atas Kanan (`header-right`)
+      2. Atas Tengah (`header-center`)
+      3. Atas Kiri (`header-left`)
+      4. Bawah Kanan (`footer-right`)
+      5. Bawah Tengah (`footer-center`)
+      6. Bawah Kiri (`footer-left`)
+  - **Implementasi**:
+    - `ui/index.html`: Mengurutkan 6 `<option>` sesuai instruksi pengguna, dengan `min-width: 95px` dan padding proporsional.
+    - `ui/id.json`: Memperbarui string translasi menjadi `"Atas Kanan"`, `"Atas Tengah"`, `"Atas Kiri"`, `"Bawah Kanan"`, `"Bawah Tengah"`, `"Bawah Kiri"`.
+    - `ui/en.json`: Memperbarui string translasi menjadi `"Top Right"`, `"Top Center"`, `"Top Left"`, `"Bottom Right"`, `"Bottom Center"`, `"Bottom Left"`.
+  - **Verifikasi**:
+    - Evaluasi DOM WebKitGTK offscreen mengonfirmasi opsi dirender tepat dengan teks yang diminta.
+    - Uji benturan koordinat (`test_overlap.py`) memastikan 0 overlap dan 0 bleed.
+    - Kompilasi `package.sh` sukses dan checksum MD5 valid.
+
+- **2026-10-29 [PENERAPAN WARNA AKSEN MAGENTA/BERRY `#b42b6f`, LOGO DI ABOUT & SCREENSHOT DI README]**:
+  - **Permintaan Pengguna**:
+    1. Mengganti seluruh aksen biru dengan warna `#b42b6f` (warna brand identitas Page Manager).
+    2. Menambahkan logo `inkpageman.svg` ke dialog About dan README.md.
+    3. Menambahkan tangkapan layar `screenshoot.png` ke README.md.
+  - **Implementasi**:
+    - **Warna Aksen `#b42b6f`**:
+      - `ui/style.css`: Memperbarui variabel `--accent-blue: #b42b6f;`, `--accent-blue-hover: #98225c;`, `--border-focus: #b42b6f;` pada tema Gelap dan Terang.
+      - Memperbarui background aktif kontrol (`.btn-accent`, `#btn-link-margins.active`, `.ribbon-opt-btn.active`) dari navy `#1e3a8a` menjadi dark berry wine `#701a44`.
+      - Memperbarui outline panduan kanvas dan seleksi ke `#b42b6f`.
+      - `ui/app.js`: Memperbarui warna badge status kanvas `★ MASTER` dan `[Master]` ke `#b42b6f` dan `#d84e93`.
+    - **Logo & Screenshot**:
+      - Menyalin `inkpageman.svg` ke `ui/inkpageman.svg`.
+      - `ui/index.html`: Menampilkan logo `inkpageman.svg` di bagian hero About modal di atas teks deskripsi.
+      - `README.md`: Menambahkan logo `inkpageman.svg` (tengah) di bagian atas judul dan tangkapan layar `screenshoot.png` di bawah ringkasan deskripsi.
+      - `package.sh`: Menyertakan `inkpageman.svg`, `screenshoot.png`, dan `ui/inkpageman.svg` ke dalam paket ZIP produksi.
+  - **Verifikasi**:
+    - Tangkapan layar visual WebKitGTK (`about_modal_logo.png`) memverifikasi logo dan warna aksen `#b42b6f` tampil proporsional dan selaras.
+    - Uji headless WebKitGTK (`test_overlap.py`) membuktikan 0 isu benturan kontrol pada semua tab.
+    - Pemaketan `./package.sh` sukses dan checksum MD5 valid.
+
+- **2026-10-29 [OPTIMASI LEBAR FORM PROPERTI HALAMAN AKTIF]**:
+  - **Masalah**:
+    - Kontrol pada blok "Properti Halaman Aktif" (`ACTIVE PAGE PROPERTIES`) membentang terlalu panjang (lebar grup mencapai 443px), kotak nama halaman meregang 368px dan input dimensi W/H meregang 158px dengan ruang kosong yang tidak wajar.
+  - **Penyebab**:
+    - Input angka `edit-w` dan `edit-h` menggunakan class `flex-1` tanpa ukuran batas (`width`), sehingga browser default intrinsic sizing-nya membesar dan menaikkan lebar natural row menjadi >400px.
+  - **Perbaikan**:
+    - `ui/index.html`: Mengunci input dimensi `#edit-w` dan `#edit-h` ke lebar proporsional `width: 56px;` (cukup untuk angka dimensi 4 digit desimal seperti `1920.0`), serta merapikan `#custom-w` & `#custom-h` ke `52px`.
+    - Input `#edit-label` kini otomatis mengisi row 1 secara proporsional (~164px).
+    - Lebar total grup turun dari 443px menjadi **239px** yang kompak dan rapi.
+  - **Verifikasi**:
+    - Evaluasi DOM WebKitGTK offscreen memvalidasi `groupWidth: 239px`, `labelWidth: 164px`, `editW: 56px`, `editH: 56px`.
+    - Tangkapan layar `crop_active_props_fixed.png` mengonfirmasi tampilan presisi dan proporsional.
+    - Uji `test_overlap.py` pada 7 tab mengonfirmasi 0 overlap dan 0 bleed.
+    - Pemaketan `./package.sh` diperbarui dan checksum MD5 valid.
+
+- **2026-10-29 [PEMBARUAN DESKRIPSI RESMI & PENGHAPUSAN EMAIL PADA ABOUT/INFO]**:
+  - **Permintaan Pengguna**:
+    1. Mengganti deskripsi ekstensi menjadi:
+       *"Ekstensi manajeman halaman Inkscape untuk meningkatkan fungsionalitas fitur Halaman. Dibuat untuk memudahkan pengguna mengelola dan menyusun banyak halaman sekaligus secara cepat dan praktis, termasuk memberikan penomoran halaman, watermark, serta penataan layout margin."*
+    2. Menghapus tampilan alamat email pengembang dari UI / modal info.
+  - **Implementasi**:
+    - `ui/index.html`:
+      - Mengganti teks elemen `<p class="about-desc">` dengan deskripsi resmi yang baru.
+      - Menghapus elemen email `me@raniaamina.id` dari bagian `.about-meta` (hanya menampilkan nama pengembang `Rania Amina`).
+    - `ui/id.json`: Memperbarui kunci `about.desc` sesuai teks bahasa Indonesia yang diminta.
+    - `ui/en.json`: Memperbarui kunci `about.desc` dengan terjemahan bahasa Inggris yang akurat dan padat.
+    - `README.md`: Memperbarui paragraf pembuka deskripsi ekstensi agar sinkron dan konsisten.
+  - **Verifikasi**:
+    - Tangkapan layar visual WebKitGTK (`about_modal_updated.png` dan `about_modal_en_crop.png`) mengonfirmasi deskripsi baru tampil presisi, rapi, dan email tidak lagi ditampilkan di UI.
+    - Uji headless WebKitGTK (`test_overlap.py`) membuktikan 0 isu tabrakan/overflow di semua 7 tab dan 2 bahasa.
+    - Pemaketan `./package.sh` dijalankan ulang dan checksum MD5 terverifikasi valid.
+
+
+
+
+
+

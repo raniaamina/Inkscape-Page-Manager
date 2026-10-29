@@ -36,11 +36,14 @@ REQUIRED_FILES=(
     "config.json"
     "README.md"
     "LICENSE"
+    "inkpageman.svg"
+    "screenshoot.png"
     "ui/index.html"
     "ui/style.css"
     "ui/app.js"
     "ui/id.json"
     "ui/en.json"
+    "ui/inkpageman.svg"
 )
 
 for file in "${REQUIRED_FILES[@]}"; do
@@ -58,11 +61,14 @@ zip -q -9 -r "${ZIP_FILE}" \
     config.json \
     README.md \
     LICENSE \
+    inkpageman.svg \
+    screenshoot.png \
     ui/index.html \
     ui/style.css \
     ui/app.js \
     ui/id.json \
-    ui/en.json
+    ui/en.json \
+    ui/inkpageman.svg
 
 # Hitung MD5 Checksum
 echo "Menghitung MD5 checksum..."
