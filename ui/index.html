@@ -39,7 +39,7 @@
                             </button>
                             <div class="group-form-col">
                                 <div class="form-row">
-                                    <label class="form-label-compact" for="page-preset" data-i18n="labels.preset">Preset:</label>
+                                    <label class="form-label-compact form-label-w44" for="page-preset" data-i18n="labels.preset">Preset:</label>
                                     <select id="page-preset" class="form-select flex-1" style="min-width: 140px;">
                                         <optgroup label="Template Saya" id="optgroup-custom-presets" data-i18n-label="options.opt_my_templates">
                                             <!-- Dynamically loaded from config.json -->
@@ -73,7 +73,7 @@
                                 </div>
                                 <!-- Baris Standard Preset -->
                                 <div class="form-row" id="row-standard-preset">
-                                    <label class="form-label-compact" for="page-orientation" data-i18n="labels.orientation">Arah:</label>
+                                    <label class="form-label-compact form-label-w44" for="page-orientation" data-i18n="labels.orientation">Arah:</label>
                                     <select id="page-orientation" class="form-select flex-1">
                                         <option value="portrait" selected data-i18n="labels.portrait">Portrait</option>
                                         <option value="landscape" data-i18n="labels.landscape">Landscape</option>
@@ -83,10 +83,11 @@
                                 </div>
                                 <!-- Baris Custom Preset (muncul saat Kustom... dipilih) -->
                                 <div class="form-row" id="row-custom-preset" style="display: none;">
-                                    <label class="form-label-compact" for="custom-w"><span data-i18n="labels.size">Ukuran</span> (<span id="custom-unit-label">mm</span>):</label>
-                                    <input type="number" id="custom-w" class="form-input number-input" value="210" step="0.1" style="width: 52px; text-align: right;" title="Lebar (W)">
+                                    <label class="form-label-compact form-label-w44" for="custom-w" data-i18n="labels.size">Ukuran:</label>
+                                    <span id="custom-unit-label" style="display: none;">mm</span>
+                                    <input type="text" id="custom-w" class="form-input number-input unit-field" value="210" inputmode="decimal" data-unit-input="true" style="width: 52px; text-align: right;" title="Lebar (W)">
                                     <span class="cross-sep">×</span>
-                                    <input type="number" id="custom-h" class="form-input number-input" value="297" step="0.1" style="width: 52px; text-align: right;" title="Tinggi (H)">
+                                    <input type="text" id="custom-h" class="form-input number-input unit-field" value="297" inputmode="decimal" data-unit-input="true" style="width: 52px; text-align: right;" title="Tinggi (H)">
                                     <label class="form-label-compact" for="add-count-custom" style="margin-left: 4px;" data-i18n="labels.qty">Jml:</label>
                                     <input type="number" id="add-count-custom" class="form-input number-input" value="1" min="1" max="100" style="width: 46px; text-align: right;">
                                 </div>
@@ -133,14 +134,14 @@
                         <div class="group-body">
                             <div class="group-form-col">
                                 <div class="form-row">
-                                    <label class="form-label" for="edit-label" data-i18n="labels.name">Nama:</label>
+                                    <label class="form-label form-label-w68" for="edit-label" data-i18n="labels.name">Nama:</label>
                                     <input type="text" id="edit-label" class="form-input flex-1" placeholder="Nama halaman" data-i18n-placeholder="placeholders.page_name">
                                 </div>
                                 <div class="form-row">
-                                    <label class="form-label" for="edit-w" data-i18n="labels.dimensions">Dimensi:</label>
-                                    <input type="number" id="edit-w" class="form-input number-input" step="0.1" style="width: 56px; text-align: right;" title="Lebar (W)">
+                                    <label class="form-label form-label-w68" for="edit-w" data-i18n="labels.dimensions">Dimensi:</label>
+                                    <input type="text" id="edit-w" class="form-input number-input unit-field" inputmode="decimal" data-unit-input="true" style="width: 56px; text-align: right;" title="Lebar (W)">
                                     <span class="cross-sep">×</span>
-                                    <input type="number" id="edit-h" class="form-input number-input" step="0.1" style="width: 56px; text-align: right;" title="Tinggi (H)">
+                                    <input type="text" id="edit-h" class="form-input number-input unit-field" inputmode="decimal" data-unit-input="true" style="width: 56px; text-align: right;" title="Tinggi (H)">
                                     <button type="button" class="ribbon-icon-btn btn-sm" id="btn-toggle-orient" data-tooltip="Balik Arah (Portrait ↔ Landscape)" data-i18n-tooltip="tooltips.toggle_orient" style="margin-left: 4px; flex-shrink: 0;">
                                         <span class="btn-icon">⤾</span>
                                     </button>
@@ -155,13 +156,13 @@
                         <div class="group-body">
                             <div class="group-form-col">
                                 <div class="form-row">
-                                    <label class="form-label-compact" for="master-source" data-i18n="labels.master_source">Master:</label>
+                                    <label class="form-label-compact form-label-w44" for="master-source" data-i18n="labels.master_source">Master:</label>
                                     <select id="master-source" class="form-select flex-1" style="min-width: 130px;">
                                         <option value="none" selected data-i18n="options.master_none">Tanpa Master</option>
                                     </select>
                                 </div>
                                 <div class="form-row">
-                                    <label class="form-label-compact" for="master-target" data-i18n="labels.master_target">Target:</label>
+                                    <label class="form-label-compact form-label-w44" for="master-target" data-i18n="labels.master_target">Target:</label>
                                     <select id="master-target" class="form-select flex-1">
                                         <option value="all_except_first" selected data-i18n="options.master_all_except_first">Semua (Kecuali Cover)</option>
                                         <option value="all" data-i18n="options.master_all">Semua Halaman</option>
@@ -209,7 +210,7 @@
                                 </div>
                                 <div class="form-row" style="justify-content: space-between;">
                                     <label class="form-label" for="layout-gap"><span data-i18n="labels.gap">Gap</span> (<span id="layout-gap-unit">mm</span>):</label>
-                                    <input type="number" id="layout-gap" class="form-input number-input" value="20" min="0" step="1" style="width: 55px; text-align: right;">
+                                    <input type="text" id="layout-gap" class="form-input number-input unit-field" value="20" inputmode="decimal" data-unit-input="true" style="width: 55px; text-align: right;">
                                 </div>
                             </div>
                         </div>
@@ -264,19 +265,19 @@
                         <div class="group-body">
                             <div class="margin-inputs-grid">
                                 <label class="form-label-grid" for="m-top" data-i18n="labels.top">Atas:</label>
-                                <input type="number" id="m-top" class="form-input number-input" value="10" min="0" step="0.5" style="width: 48px; text-align: right;">
+                                <input type="text" id="m-top" class="form-input number-input unit-field" value="10" inputmode="decimal" data-unit-input="true" style="width: 48px; text-align: right;">
                                 <label class="form-label-grid" for="m-bottom" data-i18n="labels.bottom">Bawah:</label>
-                                <input type="number" id="m-bottom" class="form-input number-input" value="10" min="0" step="0.5" style="width: 48px; text-align: right;">
+                                <input type="text" id="m-bottom" class="form-input number-input unit-field" value="10" inputmode="decimal" data-unit-input="true" style="width: 48px; text-align: right;">
                                 <button type="button" class="ribbon-icon-btn btn-sm" id="btn-link-margins" data-tooltip="Kaitkan semua margin (Sinkron)" data-i18n-tooltip="tooltips.link_margins">
                                     <span class="btn-icon" style="font-size: 11px;">🔗</span>
                                 </button>
                                 <label class="form-label-grid" for="m-left" data-i18n="labels.left">Kiri:</label>
-                                <input type="number" id="m-left" class="form-input number-input" value="10" min="0" step="0.5" style="width: 48px; text-align: right;">
+                                <input type="text" id="m-left" class="form-input number-input unit-field" value="10" inputmode="decimal" data-unit-input="true" style="width: 48px; text-align: right;">
                                 <label class="form-label-grid" for="m-right" data-i18n="labels.right">Kanan:</label>
-                                <input type="number" id="m-right" class="form-input number-input" value="10" min="0" step="0.5" style="width: 48px; text-align: right;">
+                                <input type="text" id="m-right" class="form-input number-input unit-field" value="10" inputmode="decimal" data-unit-input="true" style="width: 48px; text-align: right;">
                             </div>
                         </div>
-                        <div class="group-label" data-i18n="groups.page_margins">Margin Halaman (mm)</div>
+                        <div class="group-label" data-i18n="groups.page_margins">Margin Halaman ({unit})</div>
                     </div>
 
                     <!-- Blok: Bleed & Panduan -->
@@ -284,8 +285,8 @@
                         <div class="group-body">
                             <div class="group-form-col">
                                 <div class="form-row" style="justify-content: space-between;">
-                                    <label class="form-label-compact" for="m-bleed" data-i18n="labels.bleed">Bleed (mm):</label>
-                                    <input type="number" id="m-bleed" class="form-input number-input" value="3" min="0" step="0.5" style="width: 48px; text-align: right;">
+                                    <label class="form-label-compact" for="m-bleed" data-i18n="labels.bleed">Bleed ({unit}):</label>
+                                    <input type="text" id="m-bleed" class="form-input number-input unit-field" value="3" inputmode="decimal" data-unit-input="true" style="width: 48px; text-align: right;">
                                     <label class="checkbox-inline" style="font-size: 11px; margin-left: auto;">
                                         <input type="checkbox" id="margin-facing">
                                         <span data-i18n="labels.facing_margins">Mode Buku</span>
@@ -400,8 +401,8 @@
                                         <input type="number" id="pn-font-size" class="form-input number-input" value="10" min="6" max="72" style="width: 44px; text-align: right;">
                                     </div>
                                     <div style="display: flex; align-items: center; gap: 4px; margin-left: 8px;">
-                                        <label class="form-label-compact" for="pn-offset" data-i18n="labels.offset_mm">Offset (mm):</label>
-                                        <input type="number" id="pn-offset" class="form-input number-input" value="10" min="0" step="1" style="width: 44px; text-align: right;">
+                                        <label class="form-label-compact" for="pn-offset" data-i18n="labels.offset_mm">Offset ({unit}):</label>
+                                        <input type="text" id="pn-offset" class="form-input number-input unit-field" value="10" inputmode="decimal" data-unit-input="true" style="width: 44px; text-align: right;">
                                     </div>
                                 </div>
                             </div>
@@ -460,12 +461,12 @@
                                         <button type="button" class="btn-segmented" id="btn-toggle-footer" data-i18n="labels.footer">Footer</button>
                                     </div>
                                     <div id="wrap-hf-offset-header" class="form-inline" style="display: flex; align-items: center; gap: 4px; margin-left: 6px;">
-                                        <label class="form-label-compact" for="hf-offset-top" data-i18n="labels.offset_y_short" title="Jarak vertikal dari batas halaman (mm)">Offset:</label>
-                                        <input type="number" id="hf-offset-top" class="form-input number-input" value="12" min="1" max="100" style="width: 34px; text-align: right;" title="Jarak dari batas atas halaman (mm)">
+                                        <label class="form-label-compact" for="hf-offset-top" data-i18n="labels.offset_y_short" title="Jarak vertikal dari batas halaman">Offset:</label>
+                                        <input type="text" id="hf-offset-top" class="form-input number-input unit-field" value="12" inputmode="decimal" data-unit-input="true" style="width: 34px; text-align: right;" title="Jarak dari batas atas halaman">
                                     </div>
                                     <div id="wrap-hf-offset-footer" class="form-inline" style="display: none; align-items: center; gap: 4px; margin-left: 6px;">
-                                        <label class="form-label-compact" for="hf-offset-bottom" data-i18n="labels.offset_y_short" title="Jarak vertikal dari batas halaman (mm)">Offset:</label>
-                                        <input type="number" id="hf-offset-bottom" class="form-input number-input" value="12" min="1" max="100" style="width: 34px; text-align: right;" title="Jarak dari batas bawah halaman (mm)">
+                                        <label class="form-label-compact" for="hf-offset-bottom" data-i18n="labels.offset_y_short" title="Jarak vertikal dari batas halaman">Offset:</label>
+                                        <input type="text" id="hf-offset-bottom" class="form-input number-input unit-field" value="12" inputmode="decimal" data-unit-input="true" style="width: 34px; text-align: right;" title="Jarak dari batas bawah halaman">
                                     </div>
                                     <button type="button" class="ribbon-icon-btn btn-sm" id="btn-modal-header" data-tooltip="Sunting teks header multiline / sisipkan tag variabel" data-i18n-tooltip="tooltips.edit_header" style="width: 22px; min-width: 22px; height: 22px; flex-shrink: 0; margin-left: 4px;">
                                         <span class="btn-icon">✎</span>
@@ -514,11 +515,11 @@
                                 <div class="form-row">
                                     <div style="display: flex; align-items: center; gap: 3px; flex: 1;">
                                         <label class="form-label-compact" for="hf-image-w" data-i18n="labels.logo_w">L:</label>
-                                        <input type="number" id="hf-image-w" class="form-input number-input flex-1" value="25" min="5" max="200" style="text-align: right; min-width: 0;" title="Lebar (mm)">
+                                        <input type="text" id="hf-image-w" class="form-input number-input unit-field flex-1" value="25" inputmode="decimal" data-unit-input="true" style="text-align: right; min-width: 0;" title="Lebar">
                                     </div>
                                     <div style="display: flex; align-items: center; gap: 3px; flex: 1; margin-left: 4px;">
                                         <label class="form-label-compact" for="hf-image-h" data-i18n="labels.logo_h">T:</label>
-                                        <input type="number" id="hf-image-h" class="form-input number-input flex-1" value="10" min="2" max="100" style="text-align: right; min-width: 0;" title="Tinggi (mm)">
+                                        <input type="text" id="hf-image-h" class="form-input number-input unit-field flex-1" value="10" inputmode="decimal" data-unit-input="true" style="text-align: right; min-width: 0;" title="Tinggi">
                                     </div>
                                 </div>
                             </div>
@@ -582,7 +583,7 @@
                                     </div>
                                     <div style="display: flex; align-items: center; gap: 3px; flex: 1; margin-left: 6px;">
                                         <label class="form-label-compact" for="hf-margin-x" data-i18n="labels.margin_x">Mgn:</label>
-                                        <input type="number" id="hf-margin-x" class="form-input number-input flex-1" value="10" min="0" max="100" style="text-align: right; min-width: 34px;">
+                                        <input type="text" id="hf-margin-x" class="form-input number-input unit-field flex-1" value="10" inputmode="decimal" data-unit-input="true" style="text-align: right; min-width: 34px;">
                                     </div>
                                 </div>
                             </div>
@@ -677,8 +678,8 @@
                                     </div>
                                     <!-- Addon Mode Gambar: Baris 2 -->
                                     <div id="wm-addon-image-r2" class="form-inline flex-1" style="display: none; align-items: center; gap: 6px; min-width: 0;">
-                                        <label class="form-label-compact" for="wm-image-width" data-i18n="labels.image_width">Lebar (mm):</label>
-                                        <input type="number" id="wm-image-width" class="form-input number-input" value="80" min="10" max="500" style="width: 52px; text-align: right;">
+                                        <label class="form-label-compact" for="wm-image-width" data-i18n="labels.image_width">Lebar ({unit}):</label>
+                                        <input type="text" id="wm-image-width" class="form-input number-input unit-field" value="80" inputmode="decimal" data-unit-input="true" style="width: 52px; text-align: right;">
                                         <span class="unit-label" style="color: var(--text-muted); font-size: 11px; margin-left: auto;" data-i18n="labels.proportional">(Proporsional)</span>
                                     </div>
                                 </div>
@@ -743,23 +744,41 @@
                         <div class="group-body">
                             <div class="group-form-col">
                                 <div class="form-row">
-                                    <label class="form-label" for="pref-language" data-i18n="labels.language">Bahasa:</label>
-                                    <select id="pref-language" class="form-select flex-1" style="min-width: 130px;">
+                                    <label class="form-label-compact form-label-w48" for="pref-language" data-i18n="labels.language">Bahasa:</label>
+                                    <select id="pref-language" class="form-select" style="min-width: 125px;">
                                         <option value="id" selected>Bahasa Indonesia</option>
                                         <option value="en">English (US)</option>
                                     </select>
                                 </div>
                                 <div class="form-row">
-                                    <label class="form-label" for="pref-theme" data-i18n="labels.theme">Tema:</label>
-                                    <select id="pref-theme" class="form-select flex-1" style="min-width: 130px;">
+                                    <label class="form-label-compact form-label-w48" for="pref-theme" data-i18n="labels.theme">Tema:</label>
+                                    <select id="pref-theme" class="form-select" style="min-width: 125px;">
                                         <option value="dark" selected data-i18n="options.theme_dark">Gelap (Dark)</option>
                                         <option value="light" data-i18n="options.theme_light">Terang (Light)</option>
                                         <option value="system" data-i18n="options.theme_system">Ikut Sistem OS</option>
                                     </select>
                                 </div>
                             </div>
+                            <div class="group-divider-v"></div>
+                            <div class="group-form-col">
+                                <div class="form-row">
+                                    <label class="form-label-compact form-label-w44" for="pref-unit" data-i18n="labels.default_unit">Satuan:</label>
+                                    <select id="pref-unit" class="form-select" style="min-width: 130px;">
+                                        <option value="doc" selected data-i18n="options.unit_doc">Ikut Dokumen (Otomatis)</option>
+                                        <option value="mm">Milimeter (mm)</option>
+                                        <option value="cm">Sentimeter (cm)</option>
+                                        <option value="in">Inci / Inch (in)</option>
+                                        <option value="px">Piksel / Pixel (px)</option>
+                                        <option value="pt">Poin / Point (pt)</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <span class="form-label-w44" aria-hidden="true"></span>
+                                    <span class="unit-label" style="font-size: 10px; color: var(--text-muted);" data-i18n="labels.unit_hint">Konversi otomatis saat input</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="group-label" data-i18n="groups.display_preferences">Tampilan & Bahasa</div>
+                        <div class="group-label" data-i18n="groups.display_preferences">Tampilan, Bahasa & Satuan</div>
                     </div>
 
                     <!-- Blok: Jendela Dialog (Backend) -->
@@ -767,7 +786,7 @@
                         <div class="group-body">
                             <div class="group-form-col">
                                 <div class="form-row">
-                                    <label class="form-label" for="pref-backend" data-i18n="labels.window_engine">Window:</label>
+                                    <label class="form-label form-label-w48" for="pref-backend" data-i18n="labels.window_engine">Window:</label>
                                     <select id="pref-backend" class="form-select flex-1" style="min-width: 140px;">
                                         <option value="auto" selected data-i18n="options.backend_auto">Otomatis (Rekomendasi)</option>
                                         <option value="gtk" data-i18n="options.backend_gtk">Native GTK (Linux)</option>
@@ -777,7 +796,8 @@
                                     </select>
                                 </div>
                                 <div class="form-row">
-                                    <span class="unit-label" style="font-size: 10px; margin-left: 48px;">Berlaku saat dialog dibuka berikutnya</span>
+                                    <span class="form-label-w48" aria-hidden="true"></span>
+                                    <span class="unit-label" style="font-size: 10px; color: var(--text-muted);" data-i18n="labels.backend_hint">Berlaku saat dialog dibuka berikutnya</span>
                                 </div>
                             </div>
                         </div>

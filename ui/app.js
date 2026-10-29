@@ -11,6 +11,70 @@ document.addEventListener('DOMContentLoaded', () => {
     let docUnit = 'mm';
     let docWidth = 210;
     let docHeight = 297;
+    let activeUnit = 'mm';
+
+    // =========================================================================
+    // UNIT CONVERSION & SIZING ENGINE
+    // =========================================================================
+    const MM_PER_UNIT = {
+        'mm': 1.0,
+        'cm': 10.0,
+        'in': 25.4,
+        'inch': 25.4,
+        'inches': 25.4,
+        'pt': 25.4 / 72,
+        'px': 25.4 / 96,
+        'pc': (25.4 / 72) * 12
+    };
+
+    function convertUnit(val, fromUnit, toUnit) {
+        const num = parseFloat(val);
+        if (isNaN(num)) return 0;
+        const from = (fromUnit || 'mm').toLowerCase();
+        const to = (toUnit || 'mm').toLowerCase();
+        if (!MM_PER_UNIT[from] || !MM_PER_UNIT[to] || from === to) return num;
+        const mm = num * MM_PER_UNIT[from];
+        return mm / MM_PER_UNIT[to];
+    }
+
+    function ptToDocUnits(ptVal, unit) {
+        return convertUnit(parseFloat(ptVal) || 0, 'pt', unit || docUnit || 'mm');
+    }
+
+    function formatNumber(val) {
+        const num = Math.round(val * 100) / 100;
+        return Number.isInteger(num) ? num.toString() : num.toFixed(2).replace(/\.?0+$/, '');
+    }
+
+    function parseUnitInput(inputStr, targetUnit) {
+        if (typeof inputStr !== 'string') inputStr = String(inputStr != null ? inputStr : '');
+        let str = inputStr.trim().replace(',', '.');
+        const match = str.match(/^([+-]?\d+(?:\.\d+)?)\s*([a-zA-Z]+)?$/);
+        if (!match) {
+            const num = parseFloat(str);
+            return isNaN(num) ? null : num;
+        }
+        const val = parseFloat(match[1]);
+        const unit = match[2] ? match[2].toLowerCase() : null;
+        if (isNaN(val)) return null;
+
+        if (!unit || !MM_PER_UNIT[unit]) {
+            return val;
+        }
+        const converted = convertUnit(val, unit, targetUnit);
+        return Math.round(converted * 100) / 100;
+    }
+
+    function getActiveUnit() {
+        if (!prefUnit || prefUnit.value === 'doc') {
+            return docUnit || 'mm';
+        }
+        return prefUnit.value || 'mm';
+    }
+
+    function toDocUnit(val) {
+        return convertUnit(parseFloat(val) || 0, activeUnit, docUnit);
+    }
 
     // Viewport & Pan/Zoom
     let zoom = 1.0;
@@ -179,6 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Settings & About
     const prefLanguage = document.getElementById('pref-language');
     const prefTheme = document.getElementById('pref-theme');
+    const prefUnit = document.getElementById('pref-unit');
     const prefBackend = document.getElementById('pref-backend');
     const btnShowAbout = document.getElementById('btn-show-about');
     const modalAbout = document.getElementById('modal-about');
@@ -237,9 +302,8 @@ document.addEventListener('DOMContentLoaded', () => {
             docWidth = data.doc_width || 210;
             docHeight = data.doc_height || 297;
             pages = data.pages || [];
-
-            if (layoutGapUnit) layoutGapUnit.textContent = docUnit;
-            if (customUnitLabel) customUnitLabel.textContent = docUnit;
+            activeUnit = getActiveUnit();
+            updateUnitLabels();
 
             // Clean up any historical chained "(Copy) (Copy)" if present
             pages.forEach((p, idx) => {
@@ -391,6 +455,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 app_prefs: {
                     language: prefLanguage ? prefLanguage.value : 'id',
                     theme: prefTheme ? prefTheme.value : 'dark',
+                    default_unit: prefUnit ? prefUnit.value : 'doc',
                     ui_backend: prefBackend ? prefBackend.value : 'gtk'
                 }
             };
@@ -533,6 +598,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 prefTheme.value = s.app_prefs.theme;
                 setTheme(prefTheme.value);
             }
+            if (prefUnit && s.app_prefs.default_unit) {
+                prefUnit.value = s.app_prefs.default_unit;
+                activeUnit = getActiveUnit();
+                updateUnitLabels();
+            }
             if (prefBackend && s.app_prefs.ui_backend) {
                 prefBackend.value = s.app_prefs.ui_backend;
             }
@@ -650,7 +720,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (i18nData[lang]) return i18nData[lang];
         try {
             const res = await fetch(`./${lang}.json`);
-            if (res.ok) {
+            if (res.ok || res.status === 0) {
                 i18nData[lang] = await res.json();
                 return i18nData[lang];
             }
@@ -675,7 +745,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const formatText = (val) => {
             if (typeof val !== 'string') return val;
-            return val.replace(/\{unit\}/g, docUnit || 'mm');
+            return val.replace(/\{unit\}/g, activeUnit || docUnit || 'mm');
         };
 
         // 2. Elements with data-i18n
@@ -740,6 +810,66 @@ document.addEventListener('DOMContentLoaded', () => {
 
         syncPageNumberSlotLock();
         updateStatusBarMeta();
+    }
+
+    if (prefUnit) {
+        prefUnit.addEventListener('change', () => {
+            const oldUnit = activeUnit;
+            activeUnit = getActiveUnit();
+            onActiveUnitChanged(oldUnit, activeUnit);
+            saveSettingsDebounced();
+        });
+    }
+
+    function onActiveUnitChanged(oldUnit, newUnit) {
+        if (oldUnit === newUnit) return;
+        document.querySelectorAll('.unit-field').forEach(input => {
+            if (input.id === 'edit-w' || input.id === 'edit-h') return;
+            const val = parseFloat(input.value);
+            if (!isNaN(val) && val !== 0) {
+                const converted = convertUnit(val, oldUnit, newUnit);
+                input.value = formatNumber(converted);
+            }
+        });
+        const activePage = pages.find(p => p.id === activePageId);
+        if (activePage) populateQuickEdit(activePage);
+        updateUnitLabels();
+        renderAll();
+    }
+
+    function updateUnitLabels() {
+        const layoutGapUnit = document.getElementById('layout-gap-unit');
+        if (layoutGapUnit) layoutGapUnit.textContent = activeUnit;
+        const customUnitLabel = document.getElementById('custom-unit-label');
+        if (customUnitLabel) customUnitLabel.textContent = activeUnit;
+
+        if (i18nData[currentLang]) {
+            setLanguage(currentLang);
+        }
+        updateStatusBarMeta();
+    }
+
+    function setupAllUnitInputs() {
+        document.querySelectorAll('.unit-field').forEach(input => {
+            const handleConvert = () => {
+                const raw = input.value;
+                if (!raw || raw.trim() === '') return;
+                const parsed = parseUnitInput(raw, activeUnit);
+                if (parsed !== null && !isNaN(parsed)) {
+                    input.value = formatNumber(parsed);
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            };
+
+            input.addEventListener('blur', handleConvert);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    handleConvert();
+                    input.blur();
+                }
+            });
+        });
     }
 
     if (prefLanguage) {
@@ -1092,11 +1222,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateStatusBarMeta() {
         const total = pages.length;
         let bounds = calculatePagesBoundingBox();
-        let totalW = (bounds.maxX - bounds.minX).toFixed(1);
-        let totalH = (bounds.maxY - bounds.minY).toFixed(1);
+        let totalW = formatNumber(convertUnit(bounds.maxX - bounds.minX, docUnit, activeUnit));
+        let totalH = formatNumber(convertUnit(bounds.maxY - bounds.minY, docUnit, activeUnit));
         const pagesText = currentLang === 'en' ? 'Pages' : 'Halaman';
         const canvasText = currentLang === 'en' ? 'Total Canvas' : 'Total Kanvas';
-        statusMeta.textContent = `${total} ${pagesText} • Unit: ${docUnit} • ${canvasText}: ${totalW} × ${totalH} ${docUnit}`;
+        const unitDisplay = activeUnit === docUnit ? activeUnit : `${activeUnit} (Doc: ${docUnit})`;
+        statusMeta.textContent = `${total} ${pagesText} • Unit: ${unitDisplay} • ${canvasText}: ${totalW} × ${totalH} ${activeUnit}`;
         sorterCountBadge.textContent = total;
     }
 
@@ -1150,12 +1281,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const isChecked = selectedPageIds.has(p.id);
 
+            const pW = formatNumber(convertUnit(p.width, docUnit, activeUnit));
+            const pH = formatNumber(convertUnit(p.height, docUnit, activeUnit));
+
             card.innerHTML = `
                 <input type="checkbox" class="page-card-chk" ${isChecked ? 'checked' : ''} data-id="${p.id}">
                 <span class="page-card-badge">#${idx + 1}</span>
                 <div class="page-card-info">
                     <span class="page-card-title">${escapeHtml(p.label || `Page ${idx + 1}`)}</span>
-                    <span class="page-card-meta">${p.width.toFixed(1)} × ${p.height.toFixed(1)} ${docUnit} • ${p.orientation}</span>
+                    <span class="page-card-meta">${pW} × ${pH} ${activeUnit} • ${p.orientation}</span>
                 </div>
             `;
 
@@ -1201,11 +1335,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const isMargin = marginEnabled ? marginEnabled.checked : false;
         const isFacingMargin = marginFacing ? marginFacing.checked : false;
         const showGuides = isMargin && chkGuidesEnabled && chkGuidesEnabled.checked;
-        const mTop = parseFloat(mTopInput.value) || 10;
-        const mRight = parseFloat(mRightInput.value) || 10;
-        const mBottom = parseFloat(mBottomInput.value) || 10;
-        const mLeft = parseFloat(mLeftInput.value) || 10;
-        const bleed = parseFloat(mBleedInput.value) || 0;
+        const mTop = toDocUnit(mTopInput.value);
+        const mRight = toDocUnit(mRightInput.value);
+        const mBottom = toDocUnit(mBottomInput.value);
+        const mLeft = toDocUnit(mLeftInput.value);
+        const bleed = toDocUnit(mBleedInput.value);
 
         const isPn = pnEnabled.checked;
         const isPnFacing = pnFacingPages ? pnFacingPages.checked : false;
@@ -1216,7 +1350,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const pnFontFam = getPnFontFamily();
         const pnSize = parseFloat(pnFontSize.value) || 10;
         const pnClr = pnColor.value;
-        const pnOff = parseFloat(pnOffset.value) || 10;
+        const pnOff = toDocUnit(pnOffset.value);
         const pnSkip = pnSkipFirst.checked;
 
         const isHf = hfEnabled.checked;
@@ -1229,17 +1363,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const fl = fLeft.value.trim();
         const fc = fCenter.value.trim();
         const fr = fRight.value.trim();
-        const hfOffTop = parseFloat(hfOffsetTop.value) || 12;
-        const hfOffBot = parseFloat(hfOffsetBottom.value) || 12;
-        const hfPadX = parseFloat(hfMarginX.value) || 10;
+        const hfOffTop = toDocUnit(hfOffsetTop.value);
+        const hfOffBot = toDocUnit(hfOffsetBottom.value);
+        const hfPadX = toDocUnit(hfMarginX.value);
         const hfFontFam = getHfFontFamily();
         const hfSize = parseFloat(hfFontSize.value) || 9;
         const hfClr = hfColor.value || '#555555';
         const hfLineThick = parseFloat(hfDividerThick.value) || 0.5;
         const hfLineClr = hfDividerColor.value || '#d1d5db';
         const hfImgPos = hfImagePos.value || 'footer-left';
-        const hfImgW = parseFloat(hfImageW.value) || 25;
-        const hfImgH = parseFloat(hfImageH.value) || 10;
+        const hfImgW = toDocUnit(hfImageW.value);
+        const hfImgH = toDocUnit(hfImageH.value);
 
         const isWm = wmEnabled.checked;
         const wmTxt = wmText.value.trim();
@@ -1346,7 +1480,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const wmModeVal = wmMode ? wmMode.value : 'text';
 
                 if (wmModeVal === 'image' && wmImageData) {
-                    const wmImgW = parseFloat(wmImageWidth ? wmImageWidth.value : 80) || 80;
+                    const wmImgW = toDocUnit(wmImageWidth ? wmImageWidth.value : 80);
                     const imgElem = document.createElementNS('http://www.w3.org/2000/svg', 'image');
                     imgElem.setAttribute('href', wmImageData);
                     imgElem.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', wmImageData);
@@ -1363,13 +1497,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (wmTxt) {
                     const wmFontFam = getWmFontFamily();
                     const wmSizeVal = parseFloat(wmFontSize ? wmFontSize.value : 44) || 44;
+                    const wmSizeDoc = ptToDocUnits(wmSizeVal, docUnit);
                     const wmElem = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                     wmElem.setAttribute('x', cx);
                     wmElem.setAttribute('y', cy);
                     wmElem.setAttribute('transform', `rotate(${wmRot}, ${cx}, ${cy})`);
                     wmElem.setAttribute('fill', wmClr);
                     wmElem.setAttribute('opacity', wmOp);
-                    wmElem.setAttribute('font-size', `${wmSizeVal}px`);
+                    wmElem.setAttribute('font-size', wmSizeDoc);
                     wmElem.setAttribute('font-weight', '700');
                     wmElem.setAttribute('font-family', wmFontFam);
                     wmElem.setAttribute('text-anchor', 'middle');
@@ -1434,25 +1569,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 if (hfLine) {
+                    const lineThickDoc = ptToDocUnits(hfLineThick, docUnit);
+                    const divOffDoc = convertUnit(3, 'mm', docUnit);
+                    const hfSizeDoc = ptToDocUnits(hfSize, docUnit);
+                    const divBotOffDoc = convertUnit(2, 'mm', docUnit);
+
                     if (curHl || hc || curHr) {
                         const lineH = document.createElementNS('http://www.w3.org/2000/svg', 'line');
                         lineH.setAttribute('x1', p.x + hfPadX);
-                        lineH.setAttribute('y1', hTopY + 3);
+                        lineH.setAttribute('y1', hTopY + divOffDoc);
                         lineH.setAttribute('x2', p.x + p.width - hfPadX);
-                        lineH.setAttribute('y2', hTopY + 3);
+                        lineH.setAttribute('y2', hTopY + divOffDoc);
                         lineH.setAttribute('stroke', hfLineClr);
-                        lineH.setAttribute('stroke-width', hfLineThick);
+                        lineH.setAttribute('stroke-width', lineThickDoc);
                         pageG.appendChild(lineH);
                     }
 
                     if (curFl || fc || curFr) {
                         const lineF = document.createElementNS('http://www.w3.org/2000/svg', 'line');
                         lineF.setAttribute('x1', p.x + hfPadX);
-                        lineF.setAttribute('y1', fBotY - hfSize - 2);
+                        lineF.setAttribute('y1', fBotY - hfSizeDoc - divBotOffDoc);
                         lineF.setAttribute('x2', p.x + p.width - hfPadX);
-                        lineF.setAttribute('y2', fBotY - hfSize - 2);
+                        lineF.setAttribute('y2', fBotY - hfSizeDoc - divBotOffDoc);
                         lineF.setAttribute('stroke', hfLineClr);
-                        lineF.setAttribute('stroke-width', hfLineThick);
+                        lineF.setAttribute('stroke-width', lineThickDoc);
                         pageG.appendChild(lineF);
                     }
                 }
@@ -1475,7 +1615,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (curPnPos.includes('left')) { tx = p.x + pnOff; anchor = 'start'; }
                 else if (curPnPos.includes('right')) { tx = p.x + p.width - pnOff; anchor = 'end'; }
 
-                if (curPnPos.includes('top')) { ty = p.y + pnOff + (pnSize * 0.4); }
+                const pnSizeDoc = ptToDocUnits(pnSize, docUnit);
+                if (curPnPos.includes('top')) { ty = p.y + pnOff + (pnSizeDoc * 0.4); }
 
                 createSvgText(pageG, pnVal, tx, ty, anchor, pnClr, pnSize, pnFontFam);
             }
@@ -1563,13 +1704,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function createSvgText(parent, text, x, y, anchor, color, size, fontFamily = 'sans-serif') {
+    function createSvgText(parent, text, x, y, anchor, color, sizePt, fontFamily = 'sans-serif') {
+        const sizeDoc = ptToDocUnits(sizePt, docUnit);
         const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         t.setAttribute('x', x);
         t.setAttribute('y', y);
         t.setAttribute('text-anchor', anchor);
         t.setAttribute('fill', color);
-        t.setAttribute('font-size', `${size}px`);
+        t.setAttribute('font-size', sizeDoc);
         t.setAttribute('font-family', fontFamily);
         t.setAttribute('pointer-events', 'none');
 
@@ -1581,7 +1723,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const tsp = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
                 tsp.setAttribute('x', x);
                 if (lIdx > 0) {
-                    tsp.setAttribute('dy', `${size * 1.25}px`);
+                    tsp.setAttribute('dy', sizeDoc * 1.25);
                 }
                 tsp.textContent = line;
                 t.appendChild(tsp);
@@ -1594,8 +1736,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function populateQuickEdit(p) {
         if (!p) return;
         editLabelInput.value = p.label || '';
-        editWInput.value = p.width.toFixed(1);
-        editHInput.value = p.height.toFixed(1);
+        editWInput.value = formatNumber(convertUnit(p.width, docUnit, activeUnit));
+        editHInput.value = formatNumber(convertUnit(p.height, docUnit, activeUnit));
     }
 
     // =========================================================================
@@ -1610,11 +1752,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     editWInput.addEventListener('change', () => {
-        const val = parseFloat(editWInput.value);
-        if (val > 0) {
+        const parsed = parseUnitInput(editWInput.value, activeUnit);
+        if (parsed && parsed > 0) {
+            editWInput.value = formatNumber(parsed);
+            const valDoc = convertUnit(parsed, activeUnit, docUnit);
             pages.forEach(p => {
                 if (selectedPageIds.has(p.id)) {
-                    p.width = val;
+                    p.width = valDoc;
                     p.orientation = p.height >= p.width ? 'portrait' : 'landscape';
                 }
             });
@@ -1623,11 +1767,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     editHInput.addEventListener('change', () => {
-        const val = parseFloat(editHInput.value);
-        if (val > 0) {
+        const parsed = parseUnitInput(editHInput.value, activeUnit);
+        if (parsed && parsed > 0) {
+            editHInput.value = formatNumber(parsed);
+            const valDoc = convertUnit(parsed, activeUnit, docUnit);
             pages.forEach(p => {
                 if (selectedPageIds.has(p.id)) {
-                    p.height = val;
+                    p.height = valDoc;
                     p.orientation = p.height >= p.width ? 'portrait' : 'landscape';
                 }
             });
@@ -1659,14 +1805,17 @@ document.addEventListener('DOMContentLoaded', () => {
         let count = 1;
 
         if (presetKey === 'custom') {
-            w = parseFloat(customWInput.value) || docWidth;
-            h = parseFloat(customHInput.value) || docHeight;
+            const rawW = parseUnitInput(customWInput.value, activeUnit) || docWidth;
+            const rawH = parseUnitInput(customHInput.value, activeUnit) || docHeight;
+            w = convertUnit(rawW, activeUnit, docUnit);
+            h = convertUnit(rawH, activeUnit, docUnit);
             count = parseInt(addCountCustomInput.value) || 1;
         } else if (presetKey.startsWith('user_')) {
             const name = presetKey.replace('user_', '');
             if (userCustomPresets[name]) {
-                w = userCustomPresets[name].w;
-                h = userCustomPresets[name].h;
+                const uUnit = userCustomPresets[name].unit || 'mm';
+                w = convertUnit(userCustomPresets[name].w, uUnit, docUnit);
+                h = convertUnit(userCustomPresets[name].h, uUnit, docUnit);
             }
             const orient = pageOrientationSelect.value;
             if (orient === 'landscape' && h > w) {
@@ -1677,8 +1826,8 @@ document.addEventListener('DOMContentLoaded', () => {
             count = parseInt(addCountInput.value) || 1;
         } else {
             if (PRESETS[presetKey]) {
-                w = PRESETS[presetKey].w;
-                h = PRESETS[presetKey].h;
+                w = convertUnit(PRESETS[presetKey].w, 'mm', docUnit);
+                h = convertUnit(PRESETS[presetKey].h, 'mm', docUnit);
             }
             const orient = pageOrientationSelect.value;
             if (orient === 'landscape' && h > w) {
@@ -1689,7 +1838,7 @@ document.addEventListener('DOMContentLoaded', () => {
             count = parseInt(addCountInput.value) || 1;
         }
 
-        const gap = parseFloat(layoutGapInput.value) || 20;
+        const gap = toDocUnit(layoutGapInput.value) || convertUnit(20, 'mm', docUnit);
         let lastX = 0, lastY = 0, lastW = docWidth;
         if (pages.length > 0) {
             const lp = pages[pages.length - 1];
@@ -1768,7 +1917,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnDuplicate.addEventListener('click', () => {
         if (selectedPageIds.size === 0) return;
         const toDup = pages.filter(p => selectedPageIds.has(p.id));
-        const gap = parseFloat(layoutGapInput.value) || 20;
+        const gap = toDocUnit(layoutGapInput.value) || convertUnit(20, 'mm', docUnit);
 
         selectedPageIds.clear();
         toDup.forEach((p, idx) => {
@@ -1854,7 +2003,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnAutoArrange.addEventListener('click', () => {
         if (pages.length === 0) return;
 
-        const gap = parseFloat(layoutGapInput.value) || 20;
+        const gap = toDocUnit(layoutGapInput.value) || convertUnit(20, 'mm', docUnit);
         const cols = parseInt(layoutColsInput.value) || 3;
 
         if (currentLayoutMode === 'row') {
@@ -1984,9 +2133,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // =========================================================================
-    // MOUSE WHEEL STEPPING FOR NUMBER INPUTS (PRO-DESIGN WORKFLOW)
+    // MOUSE WHEEL STEPPING FOR NUMBER & UNIT INPUTS (PRO-DESIGN WORKFLOW)
     // =========================================================================
-    document.querySelectorAll('input[type="number"]').forEach(input => {
+    document.querySelectorAll('input[type="number"], input.unit-field').forEach(input => {
         input.addEventListener('wheel', (e) => {
             if (input.disabled || input.readOnly) return;
             e.preventDefault();
@@ -2132,11 +2281,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         enabled: (marginEnabled && marginEnabled.checked) && (chkGuidesEnabled && chkGuidesEnabled.checked),
                         apply_margins: marginEnabled ? marginEnabled.checked : false,
                         facing_margins: marginFacing ? marginFacing.checked : false,
-                        top: parseFloat(mTopInput.value) || 10,
-                        right: parseFloat(mRightInput.value) || 10,
-                        bottom: parseFloat(mBottomInput.value) || 10,
-                        left: parseFloat(mLeftInput.value) || 10,
-                        bleed: parseFloat(mBleedInput ? mBleedInput.value : 0) || 0
+                        top: toDocUnit(mTopInput.value),
+                        right: toDocUnit(mRightInput.value),
+                        bottom: toDocUnit(mBottomInput.value),
+                        left: toDocUnit(mLeftInput.value),
+                        bleed: toDocUnit(mBleedInput ? mBleedInput.value : 0)
                     },
                     page_numbers: {
                         enabled: pnEnabled.checked,
@@ -2146,7 +2295,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         position: pnPosition.value,
                         font_size: parseFloat(pnFontSize.value) || 10,
                         color: pnColor.value,
-                        offset: parseFloat(pnOffset.value) || 10,
+                        offset: toDocUnit(pnOffset.value),
                         skip_first: pnSkipFirst.checked,
                         locked: pnLocked ? pnLocked.checked : true,
                         facing_pages: pnFacingPages ? pnFacingPages.checked : false,
@@ -2160,9 +2309,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         footer_left: fLeft.value,
                         footer_center: fCenter.value,
                         footer_right: fRight.value,
-                        offset_top: parseFloat(hfOffsetTop.value) || 12,
-                        offset_bottom: parseFloat(hfOffsetBottom.value) || 12,
-                        margin_x: parseFloat(hfMarginX.value) || 10,
+                        offset_top: toDocUnit(hfOffsetTop.value),
+                        offset_bottom: toDocUnit(hfOffsetBottom.value),
+                        margin_x: toDocUnit(hfMarginX.value),
                         font_family: getHfFontFamily(),
                         font_size: parseFloat(hfFontSize.value) || 9,
                         color: hfColor.value || '#555555',
@@ -2175,8 +2324,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         facing_pages: hfFacingPages ? hfFacingPages.checked : false,
                         image_data: hfImageData || '',
                         image_pos: hfImagePos.value || 'footer-left',
-                        image_width: parseFloat(hfImageW.value) || 25,
-                        image_height: parseFloat(hfImageH.value) || 10
+                        image_width: toDocUnit(hfImageW.value),
+                        image_height: toDocUnit(hfImageH.value)
                     },
                     watermark: {
                         enabled: wmEnabled.checked,
@@ -2190,7 +2339,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         skip_first: wmSkipFirst ? wmSkipFirst.checked : false,
                         locked: wmLocked ? wmLocked.checked : true,
                         image_data: wmImageData || '',
-                        image_width: parseFloat(wmImageWidth ? wmImageWidth.value : 80) || 80
+                        image_width: toDocUnit(wmImageWidth ? wmImageWidth.value : 80)
                     },
                     layout: {
                         move_content: layoutMoveContent ? layoutMoveContent.checked : true
@@ -2255,6 +2404,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Start App
+    setupAllUnitInputs();
     loadDocument();
     loadConfig();
 });

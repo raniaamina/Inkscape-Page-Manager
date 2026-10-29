@@ -325,6 +325,46 @@ body, html {
     white-space: nowrap;
 }
 
+.form-label-w44 {
+    min-width: 44px;
+    text-align: right;
+    color: var(--text-secondary);
+    font-size: 11px;
+    white-space: nowrap;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.form-label-w48 {
+    min-width: 48px;
+    text-align: right;
+    color: var(--text-secondary);
+    font-size: 11px;
+    white-space: nowrap;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.form-label-w56 {
+    min-width: 56px;
+    text-align: right;
+    color: var(--text-secondary);
+    font-size: 11px;
+    white-space: nowrap;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.form-label-w68 {
+    min-width: 68px;
+    text-align: right;
+    color: var(--text-secondary);
+    font-size: 11px;
+    white-space: nowrap;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
 .form-label-grid {
     text-align: right;
     color: var(--text-secondary);

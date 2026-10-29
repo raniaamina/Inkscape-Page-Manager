@@ -767,3 +767,64 @@
 
 
 
+- **2026-10-29 [SINKRONISASI SATUAN FONT WYSIWYG, PREFERENSI UNIT DEFAULT & AUTO-KONVERSI INPUT]**:
+  - **Masalah & Permintaan Pengguna**:
+    1. Ukuran font header/footer/nomor halaman di kanvas preview tampak jauh lebih besar (~2.8x) dibanding tampilan setelah disimpan di Inkscape.
+    2. Menambahkan pengaturan satuan default (`mm`, `cm`, `in`, `px`, `pt`, atau `doc`).
+    3. Input otomatis mengonversi satuan yang diketik pengguna (contoh: `100px` dikonversi ke `26.46 mm`, `1mm` dikonversi ke `0.1 cm`, `2.5cm` dikonversi ke `25 mm`).
+  - **Penyebab Masalah Font**:
+    - Kanvas SVG preview berskala unit dokumen (`docUnit`, e.g. A4 = 210 x 297 mm). Kode sebelumnya menetapkan `font-size: ${size}px` di mana browser menganggap 1px = 1 user unit (10 mm!), sedangkan Inkscape menyimpan `font-size: 10pt` (hanya 3.528 mm).
+  - **Solusi & Implementasi**:
+    - **Sinkronisasi Font Preview**: Mengimplementasikan `ptToDocUnits(sizePt, docUnit)`. Teks di kanvas preview kini dikonversi dari satuan poin (`pt`) ke user unit dokumen, sehingga perbandingan visual ukuran font di preview ekstensi dan di kanvas Inkscape presisi 1:1 identik (WYSIWYG murni).
+    - **Preferensi Unit Default**: Menambahkan dropdown `#pref-unit` di tab Pengaturan & Info (`Ikut Dokumen (Otomatis)`, `mm`, `cm`, `in`, `px`, `pt`). Nilai disimpan di `config.json`.
+    - **Mesin Auto-Konversi**: Fungsi `parseUnitInput(str, targetUnit)` mem-parsing pola angka dan satuan (`mm`, `cm`, `in`, `pt`, `px`), mengonversinya secara otomatis saat `blur` atau Enter, dan memperbarui nilai input.
+    - **Sinkronisasi Backend**: Fungsi `toDocUnit()` memastikan payload yang dikirim ke `ink-pageman.py` selalu dalam satuan dokumen native Inkscape (`svg.unit`).
+  - **Verifikasi**:
+    - Uji headless WebKitGTK offscreen memvalidasi konversi unit dan presisi font 1:1.
+    - Pemaketan `./package.sh` diperbarui dan checksum MD5 valid.
+
+- **2026-10-29 [PERBAIKAN KELAPANGAN TAB PENGATURAN & KESELARASAN HORIZONTAL FORM RIBBON]**:
+  - **Masalah & Permintaan Pengguna**:
+    1. Pengguna melaporkan bahwa grup "Tampilan, Bahasa & Satuan" di tab Pengaturan sangat sesak ("sesek banget itu") karena 3 baris dropdown bertumpuk dalam kontainer setinggi 48px sehingga dropdown satuan menabrak label grup di bawahnya (overlap ~8.8px).
+    2. Dropdown Arah (Orientation) pada grup "Tambah Baru" menjorok ke kiri dan tidak rata secara vertikal dengan dropdown Preset di atasnya.
+    3. Input nama halaman pada blok "Properti Halaman Aktif" menjorok ke kiri dibandingkan input dimensi di bawahnya (terlihat jelas dalam mode bahasa Inggris di mana label `Dimensions:` jauh lebih panjang daripada `Name:`).
+  - **Penyebab**:
+    1. Grup ribbon dirancang standar 2 baris (tinggi `group-body: 48px`). Menumpuk 3 dropdown dalam satu kolom vertikal membutuhkan ruang ~76px, menyebabkan overflow vertikal ke `.group-label`.
+    2. Label `.form-label-compact` tidak memiliki `min-width` tetap; teks "Arah:" (5 karakter) lebih pendek daripada "Preset:" (7 karakter), sehingga elemen `#page-orientation` bergeser ~8.8px lebih ke kiri.
+    3. Pada blok properti halaman aktif, label `Dimensions:` (11 karakter) membutuhkan ~68px sedangkan `Name:` hanya ~35px (min-width default 48px), menyebabkan selisih ~20px yang membuat input nama halaman tidak rata kiri dengan input dimensi.
+  - **Solusi & Implementasi**:
+    1. **Tab Pengaturan 2 Kolom**:
+       - `ui/index.html`: Membagi blok "Tampilan, Bahasa & Satuan" menjadi 2 kolom rapi yang dipisahkan oleh pembatas vertikal `.group-divider-v`.
+       - Kolom 1 (kiri): Dropdown Bahasa & Tema.
+       - Kolom 2 (kanan): Dropdown Satuan & teks panduan `data-i18n="labels.unit_hint"` ("Konversi otomatis saat input").
+       - Tinggi grup kembali standar 48px, memberi jarak lega `26.9px` dari batas bawah kontrol ke label grup (0 overlap).
+    2. **Perataan Vertikal Form Ribbon**:
+       - `ui/style.css`: Menambahkan class utilitas perataan label `.form-label-w44` (min-width 44px), `.form-label-w48` (min-width 48px), `.form-label-w56` (min-width 56px), dan `.form-label-w68` (min-width 68px).
+       - `ui/index.html`: Menerapkan `.form-label-w44` pada label Preset, Arah, Ukuran Kustom, Master, dan Target; serta `.form-label-w68` pada label Nama dan Dimensi.
+       - `ui/en.json`: Menstandarkan `"orientation": "Orient:"` agar memiliki panjang karakter seimbang (7 karakter) yang presisi dengan "Preset:".
+       - `ui/id.json` & `ui/en.json`: Menambahkan terjemahan untuk `"unit_hint"` dan `"backend_hint"`.
+  - **Verifikasi**:
+    - Evaluasi metrik DOM WebKitGTK offscreen memvalidasi:
+      - `preset_diff`: tepat **0.0px** (rata sempurna 100% pada ID dan EN).
+      - `edit_diff`: tepat **0.0px** (rata sempurna 100% pada ID dan EN).
+      - `settings_overlap`: **false** dengan `gap_to_label: 26.9px`.
+    - Uji headless `test_overlap.py` membuktikan **0 isu** (0 benturan horizontal, 0 bleed, 0 benturan vertikal) di seluruh 7 tab pada bahasa Indonesia dan bahasa Inggris.
+    - Tangkapan layar visual `ribbon_pages_aligned.png`, `ribbon_settings_spacious.png`, `ribbon_pages_en.png`, dan `ribbon_settings_en.png` mengonfirmasi tampilan presisi, rapi, dan estetis.
+    - Pemaketan `./package.sh` sukses dan checksum MD5 valid.
+
+- **2026-10-29 [PERATAAN KIRI TEKS INFO BANTUAN DENGAN SELECT PADA TAB PENGATURAN]**:
+  - **Masalah & Permintaan Pengguna**:
+    - Teks info bantuan *"Konversi otomatis saat input"* (`Auto-converts on input`) dan *"Berlaku saat dialog dibuka berikutnya"* (`Applies on next dialog open`) pada tab Pengaturan menjorok ke kiri dan tidak sejajar dengan batas kiri dropdown select di atasnya.
+  - **Penyebab**:
+    - Elemen teks panduan berada di baris kedua tanpa elemen penyeimbang selebar label baris pertama (`.form-label-w44` atau `.form-label-w48`), sehingga teks dimulai dari tepi kiri form row alih-alih sejajar dengan posisi awal select box.
+  - **Perbaikan**:
+    - `ui/index.html`:
+      - Menambahkan elemen spacer `<span class="form-label-w44" aria-hidden="true"></span>` di depan teks info satuan.
+      - Menambahkan elemen spacer `<span class="form-label-w48" aria-hidden="true"></span>` di depan teks info mesin dialog.
+  - **Verifikasi**:
+    - Evaluasi metrik DOM WebKitGTK offscreen memvalidasi:
+      - `diff_unit`: **0.0px** (rata kiri sempurna 1:1 dengan `#pref-unit`).
+      - `diff_backend`: **0.0px** (rata kiri sempurna 1:1 dengan `#pref-backend`).
+    - Uji visual offscreen (`ribbon_hints_aligned.png` & `ribbon_hints_en.png`) mengonfirmasi teks sejajar sempurna dengan batas kiri select.
+    - Uji headless `test_overlap.py` pada seluruh 7 tab dan 2 bahasa membuktikan 0 isu benturan.
+    - Pemaketan `./package.sh` diperbarui dan checksum MD5 valid.
