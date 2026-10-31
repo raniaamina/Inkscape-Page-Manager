@@ -219,6 +219,7 @@ class PageManagerExtension(inkex.EffectExtension):
         pages_list = []
 
         if raw_pages:
+            has_order = any('data-order' in p.attrib for p in raw_pages)
             for idx, p in enumerate(raw_pages):
                 pid = p.get('id') or f"page{idx+1}"
                 label = p.get('inkscape:label') or p.get('label') or f"Page {idx+1}"
@@ -229,6 +230,7 @@ class PageManagerExtension(inkex.EffectExtension):
                 margin = p.get('margin') or '0'
                 bleed = p.get('bleed') or '0'
                 page_size = p.get('page-size') or ''
+                order_val = int(p.get('data-order')) if ('data-order' in p.attrib and p.get('data-order').isdigit()) else (idx + 1)
 
                 pages_list.append({
                     'id': pid,
@@ -240,8 +242,13 @@ class PageManagerExtension(inkex.EffectExtension):
                     'margin': margin,
                     'bleed': bleed,
                     'page_size': page_size,
-                    'orientation': 'portrait' if ph >= pw else 'landscape'
+                    'orientation': 'portrait' if ph >= pw else 'landscape',
+                    '_order': order_val
                 })
+            if has_order:
+                pages_list.sort(key=lambda item: item['_order'])
+            for item in pages_list:
+                item.pop('_order', None)
         else:
             # Single page document without explicit inkscape:page
             pages_list.append({
@@ -350,7 +357,7 @@ class PageManagerExtension(inkex.EffectExtension):
         """Recursively collect graphic elements across root and nested layers."""
         elems = []
         for child in list(node):
-            if child.tag.endswith(('namedview', 'defs', 'metadata')):
+            if not isinstance(child.tag, str) or child.tag.endswith(('namedview', 'defs', 'metadata')):
                 continue
             if isinstance(child, Layer):
                 if child.get('id') in ignored_layer_ids:
@@ -405,6 +412,8 @@ class PageManagerExtension(inkex.EffectExtension):
                 return True
 
             # Legacy element detection inside system layers
+            if not isinstance(elem.tag, str):
+                return False
             tag = elem.tag.split('}')[-1] if '}' in elem.tag else elem.tag
             if layer_id == 'layer_page_numbers':
                 if tag == 'text':
@@ -505,10 +514,11 @@ class PageManagerExtension(inkex.EffectExtension):
 
         # Also purge any loose page elements
         for child in list(namedview):
-            if child.tag.endswith('page'):
+            if isinstance(child.tag, str) and child.tag.endswith('page'):
                 namedview.remove(child)
 
         # Add updated pages in the exact new order
+        page_elements = []
         for idx, pd in enumerate(pages_data):
             pw = float(pd.get('width', 210.0))
             ph = float(pd.get('height', 297.0))
@@ -521,9 +531,10 @@ class PageManagerExtension(inkex.EffectExtension):
             page_size = pd.get('page_size') or ''
 
             # Create new page element directly to avoid duplicate viewbox page insertion
-            new_p = Page(width=str(pw), height=str(ph), x=str(px), y=str(py))
+            new_p = Page(width=f"{pw:g}", height=f"{ph:g}", x=f"{px:g}", y=f"{py:g}")
             new_p.set('id', pid)
             new_p.set('inkscape:label', str(label))
+            new_p.set('data-order', str(idx + 1))
             if apply_margins:
                 m_top = guides_opt.get('top', 10.0)
                 m_right = guides_opt.get('right', 10.0)
@@ -544,21 +555,31 @@ class PageManagerExtension(inkex.EffectExtension):
                     new_p.set('bleed', str(b_val))
             if page_size:
                 new_p.set('page-size', str(page_size))
+            page_elements.append(new_p)
+
+        # Sort pages for namedview so that the page at canvas origin (0, 0)
+        # or top-left (lowest y, then lowest x) is ALWAYS the first child of namedview.
+        # This prevents Inkscape C++ PageManager from snapping non-zero pages to (0, 0)!
+        page_elements.sort(key=lambda p: (round(float(p.get('y', 0.0)), 1), round(float(p.get('x', 0.0)), 1)))
+
+        for new_p in page_elements:
             namedview.append(new_p)
 
-        # Synchronize root SVG viewBox, width, and height with Page 1
-        if pages_data:
-            p1 = pages_data[0]
-            p1_w = float(p1.get('width', 210.0))
-            p1_h = float(p1.get('height', 297.0))
+        # Synchronize root SVG viewBox, width, and height with the first page in namedview (at origin 0, 0)
+        if page_elements:
+            first_p = page_elements[0]
+            first_w = float(first_p.get('width', 210.0))
+            first_h = float(first_p.get('height', 297.0))
+            first_x = float(first_p.get('x', 0.0))
+            first_y = float(first_p.get('y', 0.0))
             doc_unit = svg.unit if hasattr(svg, 'unit') and svg.unit else 'mm'
-            svg.set('viewBox', f"0 0 {p1_w} {p1_h}")
-            svg.set('width', f"{p1_w}{doc_unit}")
-            svg.set('height', f"{p1_h}{doc_unit}")
+            svg.set('viewBox', f"{first_x:g} {first_y:g} {first_w:g} {first_h:g}")
+            svg.set('width', f"{first_w:g}{doc_unit}")
+            svg.set('height', f"{first_h:g}{doc_unit}")
 
         # Clean existing page margin guides
         for child in list(namedview):
-            if child.tag.endswith('guide'):
+            if isinstance(child.tag, str) and child.tag.endswith('guide'):
                 label = child.get('{http://www.inkscape.org/namespaces/inkscape}label') or ''
                 if 'Margin' in label:
                     namedview.remove(child)
@@ -1034,7 +1055,7 @@ class PageManagerExtension(inkex.EffectExtension):
         namedview.set('inkscape:current-layer', active_layer.get('id', 'layer1'))
 
         # Strip sodipodi:insensitive from all layer nodes across the entire document
-        for l in [c for c in svg.iter() if isinstance(c, Layer) or (c.tag.endswith('g') and c.get('inkscape:groupmode') == 'layer')]:
+        for l in [c for c in svg.iter() if isinstance(c, Layer) or (isinstance(c.tag, str) and c.tag.endswith('g') and c.get('inkscape:groupmode') == 'layer')]:
             l.attrib.pop('sodipodi:insensitive', None)
             l.attrib.pop('{http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd}insensitive', None)
 
